@@ -1,13 +1,16 @@
-import { Box, Button, Field, Fieldset, Flex, HStack, Input, Stack, Text } from "@chakra-ui/react"
+import { Box, Button, Field, Fieldset, Flex, HStack, Input, Text } from "@chakra-ui/react"
 import { useState } from "react"
+import { useNavigate } from "react-router";
 
 const Login = () => {
     
     const [user, setUser] = useState<string>();
     const [password, setPassword] = useState<string>();
+    const navigate = useNavigate();
 
     const handleLogin = () => {
         console.log("HL: ", user, " - ", password)
+        navigate("/")
     }
      
     return (
