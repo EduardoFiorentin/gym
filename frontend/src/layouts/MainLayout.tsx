@@ -11,6 +11,7 @@ interface BasicPageProps extends React.PropsWithChildren {
 
 const nome = "  Eduardo Vinicius Perissinotto Fiorentin   "
 
+// TODO Send to utils module
 const getSimpleUserName = (name: string) => {
     let name_list = name.trim().split(" ")
     if (name_list.length === 1) return name_list[0]
@@ -22,7 +23,6 @@ const MainLayout = ({children, title, icon, iconFunc}: BasicPageProps) => {
         <Box 
             w={"100vw"}
             h={"100vh"}
-            bg={"red.100"}
         >
             {/* Barra superior */}
             <Flex
