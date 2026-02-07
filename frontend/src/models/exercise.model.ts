@@ -1,4 +1,4 @@
-class Exercise {
+export class Exercise {
     public id: string = '';
     public name: string = '';
     public date: Date = new Date();

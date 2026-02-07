@@ -22,7 +22,7 @@ const MainLayout = ({children, title, icon, iconFunc}: BasicPageProps) => {
     return (
         <Box 
             w={"100vw"}
-            h={"100vh"}
+            // h={"100vh"}
         >
             {/* Barra superior */}
             <Flex
@@ -51,7 +51,10 @@ const MainLayout = ({children, title, icon, iconFunc}: BasicPageProps) => {
             </Flex>
 
             {/* página */}
-            <Box>
+            <Box
+                w={"100%"}
+                h={"100%"}
+            >
                 {children}
             </Box>
         </Box>

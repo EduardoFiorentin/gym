@@ -32,10 +32,11 @@ const TrainingHistoryItem = ({onClickRedirect, name, date}: ITrainingHistoryItem
             <Text>{formatDateTo_MM_DD_AAAA(date)}</Text>
 
             <Flex
-                border={"2px solid blue"}
+                border={"2px solid lightgray"}
                 borderRadius={"100%"}
+                onClick={() => onClickRedirect()}
             >
-                <GrFormNextLink size={"36px"} color="blue"/>
+                <GrFormNextLink size={"36px"} color="lightgray"/>
             </Flex>
             
         </Flex>

@@ -1,6 +1,6 @@
 import type { ITraining } from "../interfaces/ITraining"
 
-export default class Training implements ITraining{
+export default class TrainingModel implements ITraining{
     private _id: string = ''
     private _name: string = ''
     private _createdAt: Date = new Date()
@@ -13,7 +13,14 @@ export default class Training implements ITraining{
         this._updatedAt = updatedAt
     }
 
-    
+    static fromJSON(data: any): TrainingModel {
+        return new TrainingModel(
+        data._id,
+        data._name,
+        new Date(data._createdAt),
+        new Date(data._updatedAt)
+        )
+    }
 
     /**
      * Getter $id
