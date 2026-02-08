@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class BackendApplication {
 
 	public static void main(String[] args) {
+		System.out.println("Iniciando versão 0.0.1");
 		SpringApplication.run(BackendApplication.class, args);
 	}
 

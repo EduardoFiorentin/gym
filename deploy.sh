@@ -12,8 +12,10 @@ docker image prune -f
 
 # 3. Sobe o ambiente construindo a imagem do Spring novamente
 echo "Building applications..."
-docker-compose up --build -d
+# docker-compose up --build --no-cache -d
+docker-compose build --no-cache
+docker-compose up -d
 
 echo "Build finished!"
 echo "(press Ctrl+C to skip logs, containers keep running):"
-docker-compose logs -f app
+docker-compose logs -f app-backend

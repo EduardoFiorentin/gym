@@ -21,6 +21,8 @@ const TrainingListComponent = () => {
 
     const [training, setTraining] = useLocalStorage('TREINO_EM_ANDAMENTO')
 
+    console.log(training)
+
     const handleRedirect = (training: ITraining) => {
         
         // TODO Colocar treino escolhido no cache 

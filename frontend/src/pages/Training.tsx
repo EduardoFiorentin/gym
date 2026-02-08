@@ -6,39 +6,39 @@ import { Box, Flex, Table, Text } from "@chakra-ui/react";
 import TrainingModel from "../models/training.model";
 import { useEffect, useState } from "react";
 
-const items = [
-  { id: 1, name: "Laptop", category: "Electronics", price: 999.99 },
-  { id: 2, name: "Coffee Maker", category: "Home Appliances", price: 49.99 },
-  { id: 3, name: "Desk Chair", category: "Furniture", price: 150.0 },
-  { id: 4, name: "Smartphone", category: "Electronics", price: 799.99 },
-  { id: 5, name: "Headphones", category: "Accessories", price: 199.99 },
-]
+// const items = [
+//   { id: 1, name: "Laptop", category: "Electronics", price: 999.99 },
+//   { id: 2, name: "Coffee Maker", category: "Home Appliances", price: 49.99 },
+//   { id: 3, name: "Desk Chair", category: "Furniture", price: 150.0 },
+//   { id: 4, name: "Smartphone", category: "Electronics", price: 799.99 },
+//   { id: 5, name: "Headphones", category: "Accessories", price: 199.99 },
+// ]
 
-const exercise = {
-    "_id": "",
-    "_name": "",
-    "_equipment": "",
-    "_un": "",              // unit of measurement of the equipment
-    "_num_executions": "",
-    "_last_resume": "(peso a) ex ex ex (peso b) ex"
-}
+// const exercise = {
+//     "_id": "",
+//     "_name": "",
+//     "_equipment": "",
+//     "_un": "",              // unit of measurement of the equipment
+//     "_num_executions": "",
+//     "_last_resume": "(peso a) ex ex ex (peso b) ex"
+// }
 
-const training = {
-    "_id": "5fac5d69-6240-401c-a1cc-ea7a7e5aa7f1",
-    "_name": "A - Costas e Triceps",
-    "_createdAt": "2026-02-07T00:33:07.513Z",
-    "_updatedAt": "2026-02-07T00:33:07.513Z",
+// const training = {
+//     "_id": "5fac5d69-6240-401c-a1cc-ea7a7e5aa7f1",
+//     "_name": "A - Costas e Triceps",
+//     "_createdAt": "2026-02-07T00:33:07.513Z",
+//     "_updatedAt": "2026-02-07T00:33:07.513Z",
 
-    "_exercises": [
+//     "_exercises": [
 
-    ]
-}
+//     ]
+// }
 
 
 const Training = () => {
 
     const navigate = useNavigate();
-    const [value, setValue] = useLocalStorage('TREINO_EM_ANDAMENTO')
+    const [value] = useLocalStorage('TREINO_EM_ANDAMENTO')
     const [training, setTraining] = useState<TrainingModel|null>(null);
 
     useEffect(() => {

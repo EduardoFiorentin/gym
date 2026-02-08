@@ -1,6 +1,15 @@
 import { Box, Button, Field, Fieldset, Flex, HStack, Input, Text } from "@chakra-ui/react"
 import { useState } from "react"
 import { useNavigate } from "react-router";
+import axios from 'axios';
+
+const BASE_URL = "http://localhost:8080"
+console.log("Rota designada: ", BASE_URL)
+
+
+const api = axios.create({
+  baseURL: BASE_URL // fallback para dev local
+});
 
 const Login = () => {
     
@@ -11,6 +20,17 @@ const Login = () => {
     const handleLogin = () => {
         console.log("HL: ", user, " - ", password)
         navigate("/")
+    }
+
+    const handleTest = () => {
+        api.post("/auth/login", {"login": "eduardo", "password": "123"})
+        .then(data => {
+            console.log("Sucesso: ", data)
+        })
+        .catch(err => {
+            console.log("Erro :", err)
+        })
+
     }
      
     return (
@@ -69,7 +89,7 @@ const Login = () => {
                         Entrar
                     </Button>
 
-                    <Button type="submit" w={"130px"} variant={"outline"} colorPalette={"gray"}>
+                    <Button type="submit" w={"130px"} variant={"outline"} colorPalette={"gray"} onClick={handleTest}>
                         Cadastrar
                     </Button>
                 </HStack>
