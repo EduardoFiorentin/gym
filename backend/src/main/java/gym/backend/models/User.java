@@ -5,18 +5,20 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import gym.backend.enums.UserRole;
-
 import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
+@Entity
 @Table(name = "users")
-@Entity(name = "users")
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
@@ -26,55 +28,41 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
+    @Column(nullable = false, unique = true)
     private String login;
 
+    @Column(nullable = false)
     private String password;
 
-    private UserRole role; // Enum opcional para gerir ADMIN/USER
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "users_roles",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles = new HashSet<>();
 
-    public User(String login, String password, UserRole role){
-        this.login = login;
-        this.password = password;
-        this.role = role;
-    }
-
-    // --- Métodos obrigatórios da interface UserDetails ---
+    // ---------- Spring Security ----------
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Exemplo simples de gestão de perfis
-        // if(this.role == UserRole.ADMIN) return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_USER"));
-        // else return List.of(new SimpleGrantedAuthority("ROLE_USER"));
-        return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        return roles.stream()
+            .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
+            .toList();
     }
 
     @Override
     public String getUsername() {
-        return login; // O "username" do Spring é o nosso campo "login"
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
+        return login;
     }
 
     @Override
     public String toString() {
-        return String.format("User[%s, %s]", this.login, this.role.toString());
+        return "USER [ " + this.getLogin() + ", " + this.getAuthorities().toString() + " ]";
     }
+
+    @Override public boolean isAccountNonExpired() { return true; }
+    @Override public boolean isAccountNonLocked() { return true; }
+    @Override public boolean isCredentialsNonExpired() { return true; }
+    @Override public boolean isEnabled() { return true; }
 }

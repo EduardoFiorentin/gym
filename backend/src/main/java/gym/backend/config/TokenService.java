@@ -5,6 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 
+import gym.backend.models.Role;
 import gym.backend.models.User;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -27,6 +28,11 @@ public class TokenService {
                     .withIssuer("auth-api")
                     .withSubject(user.getLogin())
                     .withExpiresAt(genExpirationDate())
+                    .withClaim("roles",
+                        user.getRoles().stream()
+                            .map(Role::getName)
+                            .toList()
+)
                     .sign(algorithm);
         } catch (JWTCreationException exception) {
             throw new RuntimeException("Erro ao gerar token", exception);
@@ -42,7 +48,7 @@ public class TokenService {
                     .verify(token)
                     .getSubject();
         } catch (JWTVerificationException exception) {
-            return "";
+            return null;
         }
     }
 

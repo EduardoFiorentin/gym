@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -34,10 +35,15 @@ public class SecurityFilter extends OncePerRequestFilter {
             var login = tokenService.validateToken(token);
             UserDetails user = userRepository.findByLogin(login);
 
+            var authorities = user.getAuthorities().stream()
+                .map(r -> new SimpleGrantedAuthority(r.toString()))
+                .toList();
+
             System.out.println("Procurando usuario da autenticação");
             if (user != null) {
                 System.out.println("Usuario da autenticação encontrado: " + user.toString());
-                var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                var authentication = new UsernamePasswordAuthenticationToken(user, null, authorities);
+                System.out.println("Objeto de autenticação: " + authentication.toString());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
@@ -48,7 +54,7 @@ public class SecurityFilter extends OncePerRequestFilter {
 
     private String recoverToken(HttpServletRequest request) {
         var authHeader = request.getHeader("Authorization");
-        if (authHeader == null) return null;
-        return authHeader.replace("Bearer ", "");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) return null;
+        return authHeader.substring(7);
     }
 }

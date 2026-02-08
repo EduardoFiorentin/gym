@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,13 +15,16 @@ import gym.backend.config.TokenService;
 import gym.backend.dto.AuthenticationDTO;
 import gym.backend.dto.LoginResponseDTO;
 import gym.backend.dto.RegisterDTO;
-import gym.backend.enums.UserRole;
+import gym.backend.models.Role;
 import gym.backend.models.User;
+import gym.backend.repository.RoleRepository;
 import gym.backend.repository.UserRepository;
 
 @RestController
 @RequestMapping("auth")
 public class AuthenticationController {
+
+    static final String DEFAULT_USER_ROLE = "USER";
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -33,7 +36,10 @@ public class AuthenticationController {
     private UserRepository userRepository;
 
     @Autowired
-    private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+    private RoleRepository roleRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@RequestBody AuthenticationDTO data){
@@ -51,19 +57,33 @@ public class AuthenticationController {
         
         if(this.userRepository.findByLogin(data.login()) != null) return ResponseEntity.badRequest().build();   
 
-        String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
+        String encryptedPassword = passwordEncoder.encode(data.password());
         
-        User newUser = new User(data.login(), encryptedPassword, UserRole.USER);
+        Role userRole = roleRepository.findByName(DEFAULT_USER_ROLE);
+
+        User newUser = new User();
+        newUser.setLogin(data.login());
+        newUser.setPassword(encryptedPassword);
+        newUser.getRoles().add(userRole);
+
         userRepository.save(newUser);
 
         return ResponseEntity.ok("Usuario criado!");
         // return ResponseEntity.ok("Login foi um sucesso :)");
     }
 
-    @GetMapping("/token/test")
-    public ResponseEntity<String> tokenTest(){
+    @GetMapping("/test/role/admin")
+    public ResponseEntity<String> tokenAdmin(){
         return ResponseEntity.ok("Rota com credencial ADMIN acessada!");
-        // return ResponseEntity.ok("Login foi um sucesso :)");
     }
 
+    @GetMapping("/test/role/manager")
+    public ResponseEntity<String> tokenManager(){
+        return ResponseEntity.ok("Rota com credencial MANAGER acessada!");
+    }
+
+    @GetMapping("/test/role/user")
+    public ResponseEntity<String> tokenUser(){
+        return ResponseEntity.ok("Rota com credencial USER acessada!");
+    }
 }
