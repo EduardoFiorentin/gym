@@ -28,10 +28,16 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, updatable = true)
     private String login;
 
-    @Column(nullable = false)
+    @Column(nullable = true, unique = false, length=255, updatable = true)
+    private String name;
+
+    @Column(nullable = true, unique = true, length = 50, updatable = true)
+    private String email;
+
+    @Column(nullable = false, updatable = true)
     private String password;
 
     @ManyToMany(fetch = FetchType.EAGER)

@@ -62,6 +62,8 @@ public class AuthenticationController {
         Role userRole = roleRepository.findByName(DEFAULT_USER_ROLE);
 
         User newUser = new User();
+        newUser.setName(data.name());
+        newUser.setEmail(data.email());
         newUser.setLogin(data.login());
         newUser.setPassword(encryptedPassword);
         newUser.getRoles().add(userRole);
