@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import gym.backend.repository.UserRepository;
+import gym.backend.services.TokenService;
 
 import java.io.IOException;
 

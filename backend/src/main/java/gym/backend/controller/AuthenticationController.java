@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.password.PasswordEncoder;
+// import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,14 +12,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import gym.backend.config.TokenService;
 import gym.backend.dto.AuthenticationDTO;
 import gym.backend.dto.LoginResponseDTO;
 import gym.backend.dto.RegisterDTO;
-import gym.backend.models.Role;
+// import gym.backend.models.Role;
 import gym.backend.models.User;
-import gym.backend.repository.RoleRepository;
-import gym.backend.repository.UserRepository;
+// import gym.backend.repository.RoleRepository;
+// import gym.backend.repository.UserRepository;
+import gym.backend.services.TokenService;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("auth")
@@ -34,14 +35,14 @@ public class AuthenticationController {
     @Autowired
     private TokenService tokenService;
 
-    @Autowired
-    private UserRepository userRepository;
+    // @Autowired
+    // private UserRepository userRepository;
 
-    @Autowired
-    private RoleRepository roleRepository;
+    // @Autowired
+    // private RoleRepository roleRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    // @Autowired
+    // private PasswordEncoder passwordEncoder;
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@RequestBody AuthenticationDTO data){
@@ -55,25 +56,24 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody RegisterDTO data){
+    public ResponseEntity<String> register(@Valid @RequestBody RegisterDTO data){
         
-        if(this.userRepository.findByLogin(data.login()) != null) return ResponseEntity.badRequest().build();   
+        // if(this.userRepository.findByLogin(data.login()) != null) return ResponseEntity.badRequest().build();   
 
-        String encryptedPassword = passwordEncoder.encode(data.password());
+        // String encryptedPassword = passwordEncoder.encode(data.password());
         
-        Role userRole = roleRepository.findByName(DEFAULT_USER_ROLE);
+        // Role userRole = roleRepository.findByName(DEFAULT_USER_ROLE);
 
-        User newUser = new User();
-        newUser.setName(data.name());
-        newUser.setEmail(data.email());
-        newUser.setLogin(data.login());
-        newUser.setPassword(encryptedPassword);
-        newUser.getRoles().add(userRole);
+        // User newUser = new User();
+        // newUser.setName(data.name());
+        // newUser.setEmail(data.email());
+        // newUser.setLogin(data.login());
+        // newUser.setPassword(encryptedPassword);
+        // newUser.getRoles().add(userRole);
 
-        userRepository.save(newUser);
+        // userRepository.save(newUser);
 
-        return ResponseEntity.ok("Usuario criado!");
-        // return ResponseEntity.ok("Login foi um sucesso :)");
+        return ResponseEntity.ok("Rebuild");
     }
 
     @GetMapping("/test/role/admin")

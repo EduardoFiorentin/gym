@@ -1,4 +1,4 @@
-package gym.backend.config;
+package gym.backend.services;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
