@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import gym.backend.dto.RegisterDTO;
+import gym.backend.controller.dto.RegisterDTO;
 import gym.backend.models.Role;
 import gym.backend.models.User;
 import gym.backend.repository.RoleRepository;
@@ -46,23 +46,4 @@ public class SubscribeService {
         return true;
     }
 
-    // public Boolean isUserDataValidToSubscribe(RegisterDTO data) {
-        
-    //     // All fields defined
-    //     if (isStringNullOrBlank(data.login()))      return false;
-    //     if (isStringNullOrBlank(data.password()))   return false;
-    //     if (isStringNullOrBlank(data.name()))       return false;
-    //     if (isStringNullOrBlank(data.email()))      return false;
-
-    //     // 
-
-    //     if(this.userRepository.findByLogin(data.login()) != null) return false;
-    //     return true;
-    // }
-
-    // public Boolean isStringNullOrBlank(String str) {
-    //     if (str == null)    return true;
-    //     if (str.isBlank())  return true;
-    //     return false;
-    // }
 }

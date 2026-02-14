@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import gym.backend.dto.AuthenticationDTO;
-import gym.backend.dto.LoginResponseDTO;
-import gym.backend.dto.RegisterDTO;
+import gym.backend.controller.dto.AuthenticationDTO;
+import gym.backend.controller.dto.LoginResponseDTO;
+import gym.backend.controller.dto.RegisterDTO;
 // import gym.backend.models.Role;
 import gym.backend.models.User;
 // import gym.backend.repository.RoleRepository;
@@ -56,7 +56,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@Valid @RequestBody RegisterDTO data){
+    public ResponseEntity<String> register(@RequestBody @Valid RegisterDTO data){
         
         // if(this.userRepository.findByLogin(data.login()) != null) return ResponseEntity.badRequest().build();   
 
