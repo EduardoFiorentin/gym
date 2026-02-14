@@ -36,7 +36,7 @@ public class User implements UserDetails {
     @Column(nullable = true, unique = true, length = 50, updatable = true)
     private String email;
 
-    @Column(nullable = false, updatable = true)
+    @Column(nullable = false, updatable = true, length = 255)
     private String password;
 
     @ManyToMany(fetch = FetchType.EAGER)
