@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-// import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,10 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import gym.backend.controller.dto.AuthenticationDTO;
 import gym.backend.controller.dto.LoginResponseDTO;
 import gym.backend.controller.dto.RegisterDTO;
-// import gym.backend.models.Role;
 import gym.backend.models.User;
-// import gym.backend.repository.RoleRepository;
-// import gym.backend.repository.UserRepository;
+import gym.backend.services.SubscribeService;
 import gym.backend.services.TokenService;
 import jakarta.validation.Valid;
 
@@ -35,14 +32,8 @@ public class AuthenticationController {
     @Autowired
     private TokenService tokenService;
 
-    // @Autowired
-    // private UserRepository userRepository;
-
-    // @Autowired
-    // private RoleRepository roleRepository;
-
-    // @Autowired
-    // private PasswordEncoder passwordEncoder;
+    @Autowired
+    private SubscribeService subscribeService;
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@RequestBody AuthenticationDTO data){
@@ -57,23 +48,8 @@ public class AuthenticationController {
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody @Valid RegisterDTO data){
-        
-        // if(this.userRepository.findByLogin(data.login()) != null) return ResponseEntity.badRequest().build();   
-
-        // String encryptedPassword = passwordEncoder.encode(data.password());
-        
-        // Role userRole = roleRepository.findByName(DEFAULT_USER_ROLE);
-
-        // User newUser = new User();
-        // newUser.setName(data.name());
-        // newUser.setEmail(data.email());
-        // newUser.setLogin(data.login());
-        // newUser.setPassword(encryptedPassword);
-        // newUser.getRoles().add(userRole);
-
-        // userRepository.save(newUser);
-
-        return ResponseEntity.ok("Rebuild");
+        subscribeService.handlCommomUserSubscribe(data);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/test/role/admin")

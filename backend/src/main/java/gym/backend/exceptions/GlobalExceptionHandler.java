@@ -6,6 +6,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import jakarta.validation.ValidationException;
+
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -18,6 +21,17 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
 
+    }
+
+    // TODO See what is the correct HTTP code for this response
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ValidationException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+            ex.getMessage(),
+            HttpStatus.BAD_REQUEST.value(),
+            System.currentTimeMillis()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 }
 

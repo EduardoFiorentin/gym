@@ -10,6 +10,7 @@ import gym.backend.models.Role;
 import gym.backend.models.User;
 import gym.backend.repository.RoleRepository;
 import gym.backend.repository.UserRepository;
+import jakarta.validation.ValidationException;
 
 @Service
 public class SubscribeService {
@@ -26,9 +27,10 @@ public class SubscribeService {
     @Autowired
     private PasswordEncoder passwordEncoder;
     
-    public Boolean handlCommomUserSubscribe(RegisterDTO data) {
+    public void handlCommomUserSubscribe(RegisterDTO data) {
         
-        // if(this.userRepository.findByLogin(data.login()) != null) return false;   
+        if(this.userRepository.findByLogin(data.login()) != null)
+            throw new ValidationException("Já existe um usuário com o login especificado!");
 
         String encryptedPassword = passwordEncoder.encode(data.password());
         
@@ -42,8 +44,6 @@ public class SubscribeService {
         newUser.getRoles().add(userRole);
 
         userRepository.save(newUser);
-        
-        return true;
     }
 
 }

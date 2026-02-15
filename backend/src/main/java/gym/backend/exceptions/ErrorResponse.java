@@ -1,6 +1,5 @@
 package gym.backend.exceptions;
 
-
 public class ErrorResponse {
     private String message;
     private int status;
