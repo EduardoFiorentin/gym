@@ -150,36 +150,37 @@ VALUES
 
 -- 5. Lança as Execuções (3 séries com pesos crescentes para cada exercício)
 -- O ID da execução será gerado automaticamente pelo gen_random_uuid()
-INSERT INTO public.serie (treinamento_id, exercicio_id, magnitude, execucoes) 
+INSERT INTO public.serie (treinamento_id, exercicio_id, magnitude, execucoes, created_at) 
 VALUES
-	('11111111-aaaa-aaaa-aaaa-111111111111', 'a0000001-1111-1111-1111-aaaaaaaaaaaa', 20.00, 10), -- Supino Reto: Série 1
-	('11111111-aaaa-aaaa-aaaa-111111111111', 'a0000001-1111-1111-1111-aaaaaaaaaaaa', 25.00, 10), -- Supino Reto: Série 2
-	('11111111-aaaa-aaaa-aaaa-111111111111', 'a0000001-1111-1111-1111-aaaaaaaaaaaa', 30.00, 10), -- Supino Reto: Série 3
-	('11111111-aaaa-aaaa-aaaa-111111111111', 'a0000002-1111-1111-1111-aaaaaaaaaaaa', 12.00, 10), -- Crucifixo Inclinado
-	('11111111-aaaa-aaaa-aaaa-111111111111', 'a0000002-1111-1111-1111-aaaaaaaaaaaa', 14.00, 10), 
-	('11111111-aaaa-aaaa-aaaa-111111111111', 'a0000002-1111-1111-1111-aaaaaaaaaaaa', 16.00, 10), 
-	('11111111-aaaa-aaaa-aaaa-111111111111', 'a0000003-1111-1111-1111-aaaaaaaaaaaa', 15.00, 10), -- Tríceps Pulley
-	('11111111-aaaa-aaaa-aaaa-111111111111', 'a0000003-1111-1111-1111-aaaaaaaaaaaa', 20.00, 10), 
-	('11111111-aaaa-aaaa-aaaa-111111111111', 'a0000003-1111-1111-1111-aaaaaaaaaaaa', 25.00, 10), 
-	('11111111-aaaa-aaaa-aaaa-111111111111', 'a0000004-1111-1111-1111-aaaaaaaaaaaa', 10.00, 10), -- Tríceps Testa
-	('11111111-aaaa-aaaa-aaaa-111111111111', 'a0000004-1111-1111-1111-aaaaaaaaaaaa', 12.00, 10), 
-	('11111111-aaaa-aaaa-aaaa-111111111111', 'a0000004-1111-1111-1111-aaaaaaaaaaaa', 14.00, 10),
-	('22222222-bbbb-bbbb-bbbb-222222222222', 'b0000001-2222-2222-2222-bbbbbbbbbbbb', 40.00, 10), -- Agachamento Livre
-	('22222222-bbbb-bbbb-bbbb-222222222222', 'b0000001-2222-2222-2222-bbbbbbbbbbbb', 50.00, 10), 
-	('22222222-bbbb-bbbb-bbbb-222222222222', 'b0000001-2222-2222-2222-bbbbbbbbbbbb', 60.00, 10), 
-	('22222222-bbbb-bbbb-bbbb-222222222222', 'b0000002-2222-2222-2222-bbbbbbbbbbbb', 120.00, 10), -- Leg Press 45
-	('22222222-bbbb-bbbb-bbbb-222222222222', 'b0000002-2222-2222-2222-bbbbbbbbbbbb', 140.00, 10), 
-	('22222222-bbbb-bbbb-bbbb-222222222222', 'b0000002-2222-2222-2222-bbbbbbbbbbbb', 160.00, 10), 
-	('22222222-bbbb-bbbb-bbbb-222222222222', 'b0000003-2222-2222-2222-bbbbbbbbbbbb', 30.00, 10), -- Cadeira Extensora
-	('22222222-bbbb-bbbb-bbbb-222222222222', 'b0000003-2222-2222-2222-bbbbbbbbbbbb', 35.00, 10), 
-	('22222222-bbbb-bbbb-bbbb-222222222222', 'b0000003-2222-2222-2222-bbbbbbbbbbbb', 40.00, 10), 
-	('22222222-bbbb-bbbb-bbbb-222222222222', 'b0000004-2222-2222-2222-bbbbbbbbbbbb', 30.00, 10), -- Cadeira Flexora
-	('22222222-bbbb-bbbb-bbbb-222222222222', 'b0000004-2222-2222-2222-bbbbbbbbbbbb', 35.00, 10), 
-	('22222222-bbbb-bbbb-bbbb-222222222222', 'b0000004-2222-2222-2222-bbbbbbbbbbbb', 40.00, 10);
+	('11111111-aaaa-aaaa-aaaa-111111111111', 'a0000001-1111-1111-1111-aaaaaaaaaaaa', 20.00, 10, '2025-02-15 22:41:00'), -- Supino Reto: Série 1
+	('11111111-aaaa-aaaa-aaaa-111111111111', 'a0000001-1111-1111-1111-aaaaaaaaaaaa', 20.00, 10, '2025-02-15 22:42:00'), -- Supino Reto: Série 2
+	('11111111-aaaa-aaaa-aaaa-111111111111', 'a0000001-1111-1111-1111-aaaaaaaaaaaa', 25.00, 10, '2025-02-15 22:43:00'), -- Supino Reto: Série 3
+	('11111111-aaaa-aaaa-aaaa-111111111111', 'a0000002-1111-1111-1111-aaaaaaaaaaaa', 12.00, 10, '2025-02-15 22:44:00'), -- Crucifixo Inclinado
+	('11111111-aaaa-aaaa-aaaa-111111111111', 'a0000002-1111-1111-1111-aaaaaaaaaaaa', 12.00, 10, '2025-02-15 22:45:00'), 
+	('11111111-aaaa-aaaa-aaaa-111111111111', 'a0000002-1111-1111-1111-aaaaaaaaaaaa', 12.00, 10, '2025-02-15 22:46:00'), 
+	('11111111-aaaa-aaaa-aaaa-111111111111', 'a0000003-1111-1111-1111-aaaaaaaaaaaa', 15.00, 10, '2025-02-15 22:47:00'), -- Tríceps Pulley
+	('11111111-aaaa-aaaa-aaaa-111111111111', 'a0000003-1111-1111-1111-aaaaaaaaaaaa', 20.00, 10, '2025-02-15 22:48:00'), 
+	('11111111-aaaa-aaaa-aaaa-111111111111', 'a0000003-1111-1111-1111-aaaaaaaaaaaa', 20.00, 10, '2025-02-15 22:49:00'), 
+	('11111111-aaaa-aaaa-aaaa-111111111111', 'a0000004-1111-1111-1111-aaaaaaaaaaaa', 10.00, 10, '2025-02-15 22:51:00'), -- Tríceps Testa
+	('11111111-aaaa-aaaa-aaaa-111111111111', 'a0000004-1111-1111-1111-aaaaaaaaaaaa', 10.00, 10, '2025-02-15 22:52:00'), 
+	('11111111-aaaa-aaaa-aaaa-111111111111', 'a0000004-1111-1111-1111-aaaaaaaaaaaa', 10.00, 10, '2025-02-15 22:53:00'),
+	('22222222-bbbb-bbbb-bbbb-222222222222', 'b0000001-2222-2222-2222-bbbbbbbbbbbb', 40.00, 10, '2025-02-15 22:54:00'), -- Agachamento Livre
+	('22222222-bbbb-bbbb-bbbb-222222222222', 'b0000001-2222-2222-2222-bbbbbbbbbbbb', 50.00, 10, '2025-02-15 22:55:00'), 
+	('22222222-bbbb-bbbb-bbbb-222222222222', 'b0000001-2222-2222-2222-bbbbbbbbbbbb', 60.00, 10, '2025-02-15 22:56:00'), 
+	('22222222-bbbb-bbbb-bbbb-222222222222', 'b0000002-2222-2222-2222-bbbbbbbbbbbb', 120.00, 10, '2025-02-15 22:57:00'), -- Leg Press 45
+	('22222222-bbbb-bbbb-bbbb-222222222222', 'b0000002-2222-2222-2222-bbbbbbbbbbbb', 140.00, 10, '2025-02-15 22:58:00'), 
+	('22222222-bbbb-bbbb-bbbb-222222222222', 'b0000002-2222-2222-2222-bbbbbbbbbbbb', 160.00, 10, '2025-02-15 22:59:00'), 
+	('22222222-bbbb-bbbb-bbbb-222222222222', 'b0000003-2222-2222-2222-bbbbbbbbbbbb', 30.00, 10, '2025-02-15 23:00:00'), -- Cadeira Extensora
+	('22222222-bbbb-bbbb-bbbb-222222222222', 'b0000003-2222-2222-2222-bbbbbbbbbbbb', 35.00, 10, '2025-02-15 23:01:00'), 
+	('22222222-bbbb-bbbb-bbbb-222222222222', 'b0000003-2222-2222-2222-bbbbbbbbbbbb', 40.00, 10, '2025-02-15 23:02:00'), 
+	('22222222-bbbb-bbbb-bbbb-222222222222', 'b0000004-2222-2222-2222-bbbbbbbbbbbb', 30.00, 10, '2025-02-15 23:03:00'), -- Cadeira Flexora
+	('22222222-bbbb-bbbb-bbbb-222222222222', 'b0000004-2222-2222-2222-bbbbbbbbbbbb', 35.00, 10, '2025-02-15 23:04:00'), 
+	('22222222-bbbb-bbbb-bbbb-222222222222', 'b0000004-2222-2222-2222-bbbbbbbbbbbb', 40.00, 10, '2025-02-15 23:05:00');
 
 
 
 -- exemplos de consultas 
+
 
 -- Citar treinamentos de um usuário 
 SELECT 
@@ -188,6 +189,8 @@ SELECT
 FROM public.treino t
 WHERE t.user_id = '6645ac83-adef-4a48-b26d-516a9bc4370b' -- ID do usuário Eduardo
 ORDER BY t.name;
+
+
 
 -- Exercicios pertencentes a um treino
 SELECT 
@@ -199,6 +202,7 @@ JOIN public.un_medida um ON e.un_id = um.id
 WHERE e.treino_id = 'aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa' -- ID do Treino A
   AND e.active = true -- Traz apenas exercícios que não foram inativados
 ORDER BY e.created_at ASC;
+
 
 
 -- listar histórico de treinos
@@ -213,6 +217,8 @@ FROM public.treinamento tr
 JOIN public.treino t ON tr.treino_id = t.id
 WHERE t.user_id = '6645ac83-adef-4a48-b26d-516a9bc4370b'
 ORDER BY tr.started_at DESC;
+
+
 
 
 -- relatório de um treinamento 
@@ -247,4 +253,81 @@ ORDER BY e.created_at, s.created_at;
 --Supino Reto	10	30.00	kg	13:38:24
 -- representado como: 
 -- (25Kg)10 10 (30Kg) 10
+
+
+-- test grouping in application presentation format
+-- problem: exercices order
+with base as (
+SELECT 
+	e.name AS exercicio,
+	'('|| s.magnitude || um.abv || ') ' || STRING_AGG(s.execucoes::text, ' ') as series
+--    s.magnitude AS carga
+FROM public.treinamento tr
+JOIN public.serie s ON s.treinamento_id = tr.id
+JOIN public.exercicio e ON s.exercicio_id = e.id
+JOIN public.un_medida um ON e.un_id = um.id
+WHERE tr.id = '11111111-aaaa-aaaa-aaaa-111111111111' -- ID de uma sessão específica
+group by e.name, s.magnitude, um.abv
+order by e.created_at 
+)
+select 
+	exercicio,
+	STRING_AGG(series, ' ') as series
+from base
+group by exercicio
+;
+
+
+-- solve problem of exercices order
+with ordered_base as (
+	SELECT 
+	e.name AS exercicio,
+	trim_scale(s.magnitude) as carga,
+	um.abv as un,
+	s.execucoes as series,
+	s.created_at
+	FROM public.treinamento tr
+	JOIN public.serie s ON s.treinamento_id = tr.id
+	JOIN public.exercicio e ON s.exercicio_id = e.id
+	JOIN public.un_medida um ON e.un_id = um.id
+	WHERE tr.id = '11111111-aaaa-aaaa-aaaa-111111111111'
+	order by s.created_at 
+),
+union_by_exercicio as (
+	select 
+	exercicio,
+	'('|| carga || un || ') ' || STRING_AGG(series::text, ' ') as series
+	from ordered_base
+	group by exercicio, carga, un
+),
+union_by_exercicio_carga as (
+	select 
+		exercicio,
+		STRING_AGG(series, ' ') as series
+	from union_by_exercicio
+	group by exercicio
+)
+select * from union_by_exercicio_carga;
+
+
+
+delete from public.serie;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
