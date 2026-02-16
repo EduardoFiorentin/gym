@@ -310,7 +310,6 @@ union_by_exercicio_carga as (
 select * from union_by_exercicio_carga;
 
 
-
 delete from public.serie;
 
 
