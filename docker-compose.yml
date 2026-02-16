@@ -17,7 +17,8 @@ services:
     networks:
       - spring-network
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data     # Volume that store data from databases 
+      - ./backend/sql/database:/sql                  # Directory with database structure and mock data    
   app-backend:
     build: ./backend
     container_name: spring-container-gym
