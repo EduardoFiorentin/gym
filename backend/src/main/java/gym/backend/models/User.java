@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -19,6 +20,7 @@ import java.util.Set;
 @Table(name = "users")
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
@@ -39,7 +41,7 @@ public class User implements UserDetails {
     @Column(nullable = false, updatable = true, length = 255)
     private String password;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "users_roles",
         joinColumns = @JoinColumn(name = "user_id"),
@@ -47,8 +49,12 @@ public class User implements UserDetails {
     )
     private Set<Role> roles = new HashSet<>();
 
-    // ---------- Spring Security ----------
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    private Set<Treino> treinos;
+    
 
+
+    // ---------- Spring Security ----------
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream()
@@ -59,11 +65,6 @@ public class User implements UserDetails {
     @Override
     public String getUsername() {
         return login;
-    }
-
-    @Override
-    public String toString() {
-        return "USER [ " + this.getLogin() + ", " + this.getAuthorities().toString() + " ]";
     }
 
     @Override public boolean isAccountNonExpired() { return true; }

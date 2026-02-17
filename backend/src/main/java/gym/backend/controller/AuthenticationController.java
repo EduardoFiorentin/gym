@@ -19,6 +19,7 @@ import gym.backend.services.SubscribeService;
 import gym.backend.services.TokenService;
 import jakarta.validation.Valid;
 
+
 @RestController
 @RequestMapping("auth")
 @CrossOrigin(origins = "http://localhost:5173")
@@ -35,12 +36,11 @@ public class AuthenticationController {
     @Autowired
     private SubscribeService subscribeService;
 
+
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@RequestBody AuthenticationDTO data){
         var usernamePassword = new UsernamePasswordAuthenticationToken(data.login(), data.password());
-        
         var auth = authenticationManager.authenticate(usernamePassword);
-
         var token = tokenService.generateToken((User) auth.getPrincipal());
 
         return ResponseEntity.ok(new LoginResponseDTO(token));
@@ -66,4 +66,5 @@ public class AuthenticationController {
     public ResponseEntity<String> tokenUser(){
         return ResponseEntity.ok("Rota com credencial USER acessada!");
     }
+
 }
