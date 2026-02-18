@@ -4,7 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public record RegisterDTO(
+public record RegisterRequestDTO(
     @Size(max = 255)
     @NotBlank
     String name,

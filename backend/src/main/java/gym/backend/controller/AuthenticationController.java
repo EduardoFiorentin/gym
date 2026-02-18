@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import gym.backend.controller.dto.AuthenticationDTO;
 import gym.backend.controller.dto.LoginResponseDTO;
-import gym.backend.controller.dto.RegisterDTO;
+import gym.backend.controller.dto.RegisterRequestDTO;
 import gym.backend.models.User;
 import gym.backend.services.SubscribeService;
 import gym.backend.services.TokenService;
@@ -47,7 +47,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody @Valid RegisterDTO data){
+    public ResponseEntity<String> register(@RequestBody @Valid RegisterRequestDTO data){
         subscribeService.handlCommomUserSubscribe(data);
         return ResponseEntity.ok().build();
     }

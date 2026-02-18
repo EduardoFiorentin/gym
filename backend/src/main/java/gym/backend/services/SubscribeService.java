@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import gym.backend.controller.dto.RegisterDTO;
+import gym.backend.controller.dto.RegisterRequestDTO;
 import gym.backend.models.Role;
 import gym.backend.models.User;
 import gym.backend.repository.RoleRepository;
@@ -27,7 +27,7 @@ public class SubscribeService {
     @Autowired
     private PasswordEncoder passwordEncoder;
     
-    public void handlCommomUserSubscribe(RegisterDTO data) {
+    public void handlCommomUserSubscribe(RegisterRequestDTO data) {
         
         if(this.userRepository.findByLogin(data.login()) != null)
             throw new ValidationException("Já existe um usuário com o login especificado!");
