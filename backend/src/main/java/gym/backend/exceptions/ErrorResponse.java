@@ -1,17 +1,12 @@
 package gym.backend.exceptions;
 
-public class ErrorResponse {
-    private String message;
-    private int status;
-    private long timestamp;
+import java.time.Instant;
 
-    public ErrorResponse(String message, int status, long timestamp) {
-        this.message = message;
-        this.status = status;
-        this.timestamp = timestamp;
-    }
-
-    public String getMessage() { return message; }
-    public int getStatus() { return status; }
-    public long getTimestamp() { return timestamp; }
+public record ErrorResponse(
+    Instant timestamp,
+    Integer status,
+    String error,
+    String message,
+    String path
+) {
 }
