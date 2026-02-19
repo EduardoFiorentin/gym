@@ -2,6 +2,7 @@ import { Box, Button, Field, Fieldset, Flex, HStack, Input, Text } from "@chakra
 import { useState } from "react"
 import { useNavigate } from "react-router";
 import axios from 'axios';
+import { SerieService } from "../services/serie.service";
 
 const BASE_URL = "http://localhost:8080"
 console.log("Rota designada: ", BASE_URL)
@@ -89,7 +90,7 @@ const Login = () => {
                         Entrar
                     </Button>
 
-                    <Button type="submit" w={"130px"} variant={"outline"} colorPalette={"gray"} onClick={handleTest}>
+                    <Button type="submit" w={"130px"} variant={"outline"} colorPalette={"gray"} onClick={SerieService.buscarSeries}>
                         Cadastrar
                     </Button>
                 </HStack>

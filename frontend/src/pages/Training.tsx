@@ -3,7 +3,7 @@ import MainLayout from "../layouts/MainLayout"
 import { IoMdExit } from "react-icons/io";
 import useLocalStorage from "../hooks/useLocalStorage";
 import { Box, Flex, Table, Text } from "@chakra-ui/react";
-import TrainingModel from "../models/training.model";
+import TrainingModel from "../models_ant/training.model";
 import { useEffect, useState } from "react";
 
 // const items = [

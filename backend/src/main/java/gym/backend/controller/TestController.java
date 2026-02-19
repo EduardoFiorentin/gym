@@ -45,13 +45,13 @@ public class TestController {
     // @Autowired
     // private TreinamentoRepository treinamentoRepository;
 
-    // @Autowired
-    // private SerieRepository serieRepository;
+    @Autowired
+    private SerieRepository serieRepository;
 
     @GetMapping("/tests")
     public ResponseEntity<Object> getMethodName() {
 
-        throw new BusinessRuleException("Teste de violação de regra de negocio!");
+        // throw new BusinessRuleException("Teste de violação de regra de negocio!");
 
 
         // Teste user e treinos 
@@ -79,12 +79,12 @@ public class TestController {
         //     .collect(Collectors.toList());
         
 
-        // List<SerieResponseDTO> seriesDto = serieRepository.findAll()
-        //     .stream()
-        //     .map(SerieResponseDTO::toDTO)
-        //     .collect(Collectors.toList());
+        List<SerieResponseDTO> seriesDto = serieRepository.findAll()
+            .stream()
+            .map(SerieResponseDTO::toDTO)
+            .collect(Collectors.toList());
 
-        // return ResponseEntity.ok(seriesDto);
+        return ResponseEntity.ok(seriesDto);
     }
     
 }

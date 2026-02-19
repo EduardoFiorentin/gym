@@ -2,7 +2,7 @@ import { Box, Text } from "@chakra-ui/react"
 import BaseContainer from "./BaseContainer"
 import TrainingListItem from "./TrainingListItem"
 import type { ITraining } from "../../interfaces/ITraining"
-import TrainingModel from "../../models/training.model"
+import TrainingModel from "../../models_ant/training.model"
 import { useNavigate } from "react-router"
 import useLocalStorage from "../../hooks/useLocalStorage"
 

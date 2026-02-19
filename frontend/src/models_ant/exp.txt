@@ -1,0 +1,89 @@
+DTOs - Objetos que mapeiam a resposta da api - relativos ao contrato definido pela api
+    Services - responsáveis por fazer as requisições, receber as respostas (no formato DTO) 
+    e transformar em models para devolver para a aplicação
+
+Models - Formato vindo do DTO usado pelo resto da aplicação  
+    Fornecido pelo service
+    Já guarda os dados formatados especificamente para o uso da aplicação (datas, etc) 
+
+Talvez seja interessante adicionar mais uma camada para separar a responsabilidade de busca da informação (e receber os DTOs)
+da responsabilidade de converter para o formato de uso da aplicação - talvez criar um modulo converter 
+
+BACKEND             FRONTEND
+[API]   <-------    [SERVICES] <-> [CONVERTERS] <-> aplicação
+        -------->
+
+
+-- Initial version of application database
+CREATE TABLE public.roles (
+	id varchar(255) NOT NULL,
+	"name" varchar(255) NOT NULL,
+	CONSTRAINT roles_pkey PRIMARY KEY (id),
+	CONSTRAINT ukofx66keruapi6vyqpv6f2or37 UNIQUE (name)
+);
+
+CREATE TABLE public.users (
+	id varchar(255) NOT NULL,
+	email varchar(50) NULL,
+	login varchar(255) NOT NULL,
+	"name" varchar(255) NULL,
+	"password" varchar(255) NOT NULL,
+	CONSTRAINT uk6dotkott2kjsp8vw4d0m25fb7 UNIQUE (email),
+	CONSTRAINT ukow0gan20590jrb00upg3va2fn UNIQUE (login),
+	CONSTRAINT users_pkey PRIMARY KEY (id)
+);
+
+CREATE TABLE public.users_roles (
+	user_id varchar(255) NOT NULL,
+	role_id varchar(255) NOT NULL,
+	CONSTRAINT users_roles_pkey PRIMARY KEY (user_id, role_id),
+	CONSTRAINT fk2o0jvgh89lemvvo17cbqvdxaa FOREIGN KEY (user_id) REFERENCES public.users(id),
+	CONSTRAINT fkj6m8fwv7oqv74fcehir1a9ffy FOREIGN KEY (role_id) REFERENCES public.roles(id)
+);
+
+
+create table public.treino (
+	id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+	name varchar(25) not null
+);
+
+alter table public.treino add user_id varchar(255) not null;
+alter table public.treino add constraint fk_users_treino foreign key (user_id) references public.users(id);
+
+
+create table public.un_medida (
+	id 				UUID 			PRIMARY KEY DEFAULT gen_random_uuid(),
+	name 			varchar(30)		not null,
+	abv				varchar(10)		not null
+);
+
+create table public.exercicio (
+	id 				UUID 			PRIMARY KEY DEFAULT gen_random_uuid(),
+	name 			varchar(255) 	not null,
+	active			boolean 		not null default true,
+	treino_id 		UUID 			not null,
+	inativated_at 	timestamp 		null default null,
+	un_id 			UUID 			not null,
+	created_at 		TIMESTAMP 		not null default CURRENT_TIMESTAMP,
+	updated_at 		TIMESTAMP 		null default null,
+	constraint fk_treino_exercicio foreign key (treino_id) references public.treino(id),
+	constraint fk_un_medida_exercicio foreign key (un_id) references public.un_medida(id)
+);
+
+create table public.treinamento (
+	id 				UUID 			PRIMARY KEY DEFAULT gen_random_uuid(),
+	treino_id		UUID 			not null,
+	started_at		TIMESTAMP 		not null default CURRENT_TIMESTAMP,
+	finished_at 	TIMESTAMP 		null default null,
+	constraint fk_treino_treinamento foreign key (treino_id) references public.treino(id)
+);
+
+create table public.serie (
+	id 				UUID 			PRIMARY KEY DEFAULT gen_random_uuid(),
+	treinamento_id	UUID			not null,
+	exercicio_id 	UUID			not null,
+	magnitude		numeric(5, 2)	not null,
+	execucoes		int 			not null,
+	created_at 		TIMESTAMP 		not null default CURRENT_TIMESTAMP,
+	constraint fk_treinamento_serie foreign key (treinamento_id) references public.treinamento(id),
+	constraint fk_exercicio_serie foreign key (exercicio_id) references public.exercicio(id)
