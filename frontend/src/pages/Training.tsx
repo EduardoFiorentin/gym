@@ -3,7 +3,6 @@ import MainLayout from "../layouts/MainLayout"
 import { IoMdExit } from "react-icons/io";
 import useLocalStorage from "../hooks/useLocalStorage";
 import { Box, Flex, Table, Text } from "@chakra-ui/react";
-import TrainingModel from "../models_ant/training.model";
 import { useEffect, useState } from "react";
 
 // const items = [
@@ -39,11 +38,11 @@ const Training = () => {
 
     const navigate = useNavigate();
     const [value] = useLocalStorage('TREINO_EM_ANDAMENTO')
-    const [training, setTraining] = useState<TrainingModel|null>(null);
+    const [training, setTraining] = useState<any|null>(null);
 
     useEffect(() => {
         if (!value) return
-        setTraining(TrainingModel.fromJSON(value))
+        setTraining(value)
     }, [value])
 
     const handleHeaderIconClick = () => {
