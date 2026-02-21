@@ -12,10 +12,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import gym.backend.controller.dto.SerieResponseDTO;
 import gym.backend.controller.dto.TreinamentoResponseDTO;
+import gym.backend.controller.dto.TreinoResponseDTO;
 import gym.backend.exceptions.BusinessRuleException;
 import gym.backend.exceptions.UnauthorizedActionException;
 import gym.backend.models.Exercicio;
 import gym.backend.models.Treinamento;
+import gym.backend.models.Treino;
 import gym.backend.models.UnMedida;
 import gym.backend.models.User;
 import gym.backend.repository.ExercicioRepository;
@@ -30,8 +32,8 @@ import gym.backend.repository.UserRepository;
 @CrossOrigin(origins = "http://localhost:5173")
 public class TestController {
 
-    // @Autowired
-    // private TreinoRepository treinoRepository;
+    @Autowired
+    private TreinoRepository treinoRepository;
 
     // @Autowired
     // private UserRepository userRepository;
@@ -45,8 +47,8 @@ public class TestController {
     // @Autowired
     // private TreinamentoRepository treinamentoRepository;
 
-    @Autowired
-    private SerieRepository serieRepository;
+    // @Autowired
+    // private SerieRepository serieRepository;
 
     @GetMapping("/tests")
     public ResponseEntity<Object> getMethodName() {
@@ -79,12 +81,24 @@ public class TestController {
         //     .collect(Collectors.toList());
         
 
-        List<SerieResponseDTO> seriesDto = serieRepository.findAll()
+        // List<SerieResponseDTO> seriesDto = serieRepository.findAll()
+        //     .stream()
+        //     .map(SerieResponseDTO::toDTO)
+        //     .collect(Collectors.toList());
+
+        List<TreinoResponseDTO> treinos = treinoRepository.findAll()
             .stream()
-            .map(SerieResponseDTO::toDTO)
+            .map(TreinoResponseDTO::toDTO)
             .collect(Collectors.toList());
 
-        return ResponseEntity.ok(seriesDto);
+        try {
+            Thread.sleep(3000);
+        }
+        catch(InterruptedException ex) {
+            System.out.println("Exception desgraçada");
+        }
+
+        return ResponseEntity.ok(treinos);
     }
     
 }
