@@ -1,0 +1,9 @@
+const ONE_MINUTE = 1000 * 60
+const ONE_HOUR = ONE_MINUTE * 60
+const ONE_DAY = ONE_HOUR * 24
+
+export const TIME_CONSTANTS_MILLIS = {
+    ONE_MINUTE,
+    ONE_HOUR,
+    ONE_DAY
+}

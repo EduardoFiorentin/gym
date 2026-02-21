@@ -1,4 +1,4 @@
 export interface UnMedidaModel {
-    name: String,
-    abv: String
+    name: string,
+    abv: string
 }
