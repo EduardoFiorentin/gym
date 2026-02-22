@@ -313,7 +313,9 @@ select * from union_by_exercicio_carga;
 delete from public.serie;
 
 
-
+select *
+from treinos t
+join users u on t.user_id=u.id;
 
 
 
