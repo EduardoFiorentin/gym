@@ -16,6 +16,7 @@ import gym.backend.controller.dto.RegisterRequestDTO;
 import gym.backend.controller.dto.UserResponseDTO;
 import gym.backend.models.User;
 import gym.backend.repository.UserRepository;
+import gym.backend.services.AuthenticationService;
 import gym.backend.services.SubscribeService;
 import gym.backend.services.TokenService;
 import jakarta.validation.Valid;
@@ -26,30 +27,17 @@ import jakarta.validation.Valid;
 public class AuthenticationController {
 
     static final String DEFAULT_USER_ROLE = "USER";
-
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private TokenService tokenService;
-
+    
     @Autowired
     private SubscribeService subscribeService;
 
     @Autowired
-    private UserRepository userRepository;
-
+    private AuthenticationService authenticationService;
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@RequestBody AuthenticationDTO data){
-        var usernamePassword = new UsernamePasswordAuthenticationToken(data.login(), data.password());
-        var auth = authenticationManager.authenticate(usernamePassword);
-        var token = tokenService.generateToken((User) auth.getPrincipal());
-        
-        User user = (User) userRepository.findByLogin(data.login());
-
-        // return ResponseEntity.badRequest().build();
-        return ResponseEntity.ok(new LoginResponseDTO(token, UserResponseDTO.toDTO(user)));
+        LoginResponseDTO loginResponseDTO = authenticationService.login(data);
+        return ResponseEntity.ok(loginResponseDTO);
     }
 
     @PostMapping("/register")

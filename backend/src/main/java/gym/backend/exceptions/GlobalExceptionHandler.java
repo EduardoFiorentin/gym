@@ -2,8 +2,11 @@ package gym.backend.exceptions;
 
 import java.time.Instant;
 
+import javax.naming.AuthenticationException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -58,6 +61,7 @@ public class GlobalExceptionHandler {
     // 4. Tratamento para Ação Não Autorizada (403)
     @ExceptionHandler(UnauthorizedActionException.class)
     public ResponseEntity<ErrorResponse> handleUnauthorizedAction(UnauthorizedActionException ex, HttpServletRequest     request) {
+        System.out.println("Exception handler - Unauthorized");
         ErrorResponse error = new ErrorResponse(
             Instant.now(),
             HttpStatus.FORBIDDEN.value(),
@@ -93,6 +97,18 @@ public class GlobalExceptionHandler {
             request.getRequestURI() // Retorna "/api/treinos/123"
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(BadCredentialsException ex, HttpServletRequest  request) {
+        ErrorResponse errorResponse = new ErrorResponse(
+            Instant.now(),
+            HttpStatus.UNAUTHORIZED.value(),
+            HttpStatus.UNAUTHORIZED.getReasonPhrase(),
+            "Invalid Credentials",
+            request.getRequestURI() 
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 }
 
