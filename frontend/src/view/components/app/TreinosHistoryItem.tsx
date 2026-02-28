@@ -1,5 +1,6 @@
 import { Flex, Text } from "@chakra-ui/react"
 import { GrFormNextLink } from "react-icons/gr"
+import { formatDateTo_MM_DD_AAAA } from "../../../utils/functions/date/formatDateTo_MM_DD_AAAA"
 
 
 interface ITrainingHistoryItem {
@@ -7,13 +8,6 @@ interface ITrainingHistoryItem {
     name: string,
     date: Date
 }
-
-const formatDateTo_MM_DD_AAAA = (date: Date): string => {
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // Mês começa em 0
-  const year = date.getFullYear();
-  return `${day}/${month}/${year}`;
-};
 
 const TreinosHistoryItem = ({onClickRedirect, name, date}: ITrainingHistoryItem) => {
     return (

@@ -9,13 +9,13 @@ const Login = () => {
     const [password, setPassword] = useState<string>("");
     const navigate = useNavigate();
     
-    const { login, userInfo: userModel, isLoggingIn, loginError } = useAuth();
+    const { login, isLoggingIn, loginError } = useAuth();
     
-    useEffect(() => {
-        if (userModel) {
-            navigate("/", { replace: true });
-        }
-    }, [userModel, navigate]);
+    // useEffect(() => {
+    //     if (userModel) {
+    //         navigate("/", { replace: true });
+    //     }
+    // }, [userModel, navigate]);
 
     useEffect(() => {
         console.log("Erro: ", loginError)

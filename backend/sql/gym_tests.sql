@@ -312,11 +312,19 @@ select * from union_by_exercicio_carga;
 
 delete from public.serie;
 
+-- Pegar todos os treinos de um usuário
+select t.*
+from treino t
+join users u on t.user_id=u.id
+where u.login = :username;
 
-select *
-from treinos t
-join users u on t.user_id=u.id;
-
+-- Pegar histórico de treinos de um usuário
+select tr.*
+from treinamento tr
+join treino t on t.id = tr.treino_id
+join users u on u.id = t.user_id 
+where u.login = :userName 
+and tr.started_at > :date;
 
 
 
