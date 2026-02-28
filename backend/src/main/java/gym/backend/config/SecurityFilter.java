@@ -34,19 +34,23 @@ public class SecurityFilter extends OncePerRequestFilter {
         if (token != null) {
             System.out.println("Token recuperado " + token.toString());
             var login = tokenService.validateToken(token);
-            UserDetails user = userRepository.findByLogin(login);
 
-            var authorities = user.getAuthorities().stream()
-                .map(r -> new SimpleGrantedAuthority(r.toString()))
-                .toList();
+            if (login != null) {
+                UserDetails user = userRepository.findByLogin(login);
 
-            System.out.println("Procurando usuario da autenticação");
-            if (user != null) {
-                System.out.println("Usuario da autenticação encontrado: " + user.toString());
-                var authentication = new UsernamePasswordAuthenticationToken(user, null, authorities);
-                System.out.println("Objeto de autenticação: " + authentication.toString());
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                var authorities = user.getAuthorities().stream()
+                    .map(r -> new SimpleGrantedAuthority(r.toString()))
+                    .toList();
+
+                System.out.println("Procurando usuario da autenticação");
+                if (user != null) {
+                    System.out.println("Usuario da autenticação encontrado: " + user.toString());
+                    var authentication = new UsernamePasswordAuthenticationToken(user, null, authorities);
+                    System.out.println("Objeto de autenticação: " + authentication.toString());
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
             }
+            else System.out.println("Exceção onde tentamos login e a aplicação envia token já inválido nos headers");
         }
         else System.out.println("Token não encontrado!");
         
