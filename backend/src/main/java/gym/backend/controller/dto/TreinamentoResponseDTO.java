@@ -7,7 +7,8 @@ import gym.backend.models.Treinamento;
 
 public record TreinamentoResponseDTO(
     UUID id,
-    TreinoResponseDTO treino,
+    UUID treinoId,
+    String treinoName,
     Timestamp startedAt,
     Timestamp finishedAt
 ) {
@@ -15,7 +16,9 @@ public record TreinamentoResponseDTO(
     public static TreinamentoResponseDTO toDto(Treinamento treinamento) {
         return new TreinamentoResponseDTO(
             treinamento.getId(),
-            TreinoResponseDTO.toDTO(treinamento.getTreino()),
+            // TreinoResponseDTO.toDTO(treinamento.getTreino()),
+            treinamento.getTreino().getId(),
+            treinamento.getTreino().getName(),
             treinamento.getStartedAt(),
             treinamento.getFinishedAt()
         );
