@@ -1,17 +1,17 @@
 package gym.backend.controller.dto;
 
 import gym.backend.models.Exercicio;
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.UUID;
 
 public record ExercicioResponseDTO(
     UUID id,
     String name,
     Boolean active,
-    Timestamp inativatedAt,
-    Timestamp createdAt,
-    Timestamp updatedAt,
-    TreinoResponseDTO treino,
+    Instant inativatedAt,
+    Instant createdAt,
+    Instant updatedAt,
+    // TreinoResponseDTO treino,
     UnMedidaResponseDTO unMedida
 ) {
     public static ExercicioResponseDTO toDTO(Exercicio exercicio) {
@@ -24,7 +24,7 @@ public record ExercicioResponseDTO(
             exercicio.getInativatedAt(),
             exercicio.getCreatedAt(),
             exercicio.getUpdatedAt(),
-            TreinoResponseDTO.toDTO(exercicio.getTreino()),
+            // TreinoResponseDTO.toDTO(exercicio.getTreino()),
             UnMedidaResponseDTO.toDTO(exercicio.getUnMedida())
         );
     }

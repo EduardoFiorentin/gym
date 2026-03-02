@@ -1,7 +1,7 @@
 package gym.backend.controller.dto;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public record TreinamentoHistoryResquestDTO (
-    LocalDateTime startFrom
+    Instant startFrom
 ) {}

@@ -1,6 +1,6 @@
 package gym.backend.models;
 
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -42,15 +42,15 @@ public class Exercicio {
     private Boolean active;
 
     @Column(name = "inativated_at", nullable = true)
-    private Timestamp inativatedAt;
+    private Instant inativatedAt;
     
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
-    private Timestamp createdAt;
+    private Instant createdAt;
     
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = true)
-    private Timestamp updatedAt;
+    private Instant updatedAt;
     
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)

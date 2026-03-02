@@ -1,7 +1,6 @@
 package gym.backend.repository;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,7 +24,7 @@ public interface TreinamentoRepository extends JpaRepository<Treinamento, UUID> 
                 , nativeQuery = true)
     List<TreinamentoResponseDTO> getUserTreinamentosStartingFrom(
         @Param("login") String login,
-        @Param("date") LocalDateTime date
+        @Param("date") Instant date
     );
 
 }

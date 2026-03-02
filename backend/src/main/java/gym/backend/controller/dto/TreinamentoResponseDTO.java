@@ -1,6 +1,6 @@
 package gym.backend.controller.dto;
 
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.UUID;
 
 import gym.backend.models.Treinamento;
@@ -9,8 +9,8 @@ public record TreinamentoResponseDTO(
     UUID id,
     UUID treinoId,
     String treinoName,
-    Timestamp startedAt,
-    Timestamp finishedAt
+    Instant startedAt,
+    Instant finishedAt
 ) {
     
     public static TreinamentoResponseDTO toDto(Treinamento treinamento) {

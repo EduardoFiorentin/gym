@@ -10,16 +10,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import gym.backend.controller.dto.TreinoResponseDTO;
-import gym.backend.repository.TreinoRepository;
+import gym.backend.controller.dto.ExercicioResponseDTO;
+import gym.backend.models.Exercicio;
+import gym.backend.repository.ExercicioRepository;
 
 @RestController
 @RequestMapping
 @CrossOrigin(origins = "http://localhost:5173")
 public class TestController {
 
-    @Autowired
-    private TreinoRepository treinoRepository;
+    // @Autowired
+    // private TreinoRepository treinoRepository;
 
     // @Autowired
     // private UserRepository userRepository;
@@ -27,8 +28,8 @@ public class TestController {
     // @Autowired
     // private UnMedidaRepository unMedidaRepository;
 
-    // @Autowired
-    // private ExercicioRepository exercicioRepository;
+    @Autowired
+    private ExercicioRepository exercicioRepository;
 
     // @Autowired
     // private TreinamentoRepository treinamentoRepository;
@@ -37,22 +38,24 @@ public class TestController {
     // private SerieRepository serieRepository;
 
     @GetMapping("/tests")
-    public ResponseEntity<Object> getMethodName() {
+    public ResponseEntity<List<ExercicioResponseDTO>> getMethodName() {
 
 
-        List<TreinoResponseDTO> treinos = treinoRepository.findAll()
-            .stream()
-            .map(TreinoResponseDTO::toDTO)
-            .collect(Collectors.toList());
+        // List<TreinoResponseDTO> treinos = treinoRepository.findAll()
+        //     .stream()
+        //     .map(TreinoResponseDTO::toDTO)
+        //     .collect(Collectors.toList());
 
-        try {
-            Thread.sleep(3000);
-        }
-        catch(InterruptedException ex) {
-            System.out.println("Exception desgraçada");
-        }
+        // try {
+        //     Thread.sleep(3000);
+        // }
+        // catch(InterruptedException ex) {
+        //     System.out.println("Exception desgraçada");
+        // }
 
-        return ResponseEntity.ok(treinos);
+        List<Exercicio> exercicios = exercicioRepository.findAll();
+        List<ExercicioResponseDTO> exDto = exercicios.stream().map(ExercicioResponseDTO::toDTO).collect(Collectors.toList());
+        return ResponseEntity.ok(exDto);
     }
     
 }

@@ -1,7 +1,7 @@
 package gym.backend.services;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,7 @@ public class TreinamentoService {
     @Autowired
     private TreinamentoRepository treinamentoRepository;
 
-    public List<TreinamentoResponseDTO> getTreinamentoHistoryByUsernameStartingFrom(String username, LocalDateTime timestamp) {
+    public List<TreinamentoResponseDTO> getTreinamentoHistoryByUsernameStartingFrom(String username, Instant timestamp) {
         return treinamentoRepository.getUserTreinamentosStartingFrom(username, timestamp);
     }
 
