@@ -23,10 +23,6 @@ INSERT INTO public.users_roles (user_id,role_id) VALUES
 	 ('f627c4b1-b982-4d3d-93af-55191fb6c7b3','3016a13b-a321-4ea8-81f8-cf3dcb234057');
 
 
-INSERT INTO public.un_medida (id, name, abv) 
-VALUES 
-	('c1c1c1c1-1111-1111-1111-c1c1c1c1c1c1', 'Quilogramas', 'kg');
-
 INSERT INTO public.treino (id, name, user_id) 
 VALUES 
 	('aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa', 'A - Peito e Tríceps', '6645ac83-adef-4a48-b26d-516a9bc4370b'),

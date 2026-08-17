@@ -41,8 +41,13 @@ alter table public.treino add constraint fk_users_treino foreign key (user_id) r
 create table public.un_medida (
 	id 				UUID 			PRIMARY KEY DEFAULT gen_random_uuid(),
 	name 			varchar(30)		not null,
-	abv				varchar(10)		not null
+	abv				varchar(10)		not null,
+	constraint uk_un_medida_abv unique (abv)
 );
+
+INSERT INTO public.un_medida (id, name, abv)
+VALUES ('c1c1c1c1-1111-1111-1111-c1c1c1c1c1c1', 'Quilogramas', 'kg')
+ON CONFLICT (id) DO NOTHING;
 
 create table public.exercicio (
 	id 				UUID 			PRIMARY KEY DEFAULT gen_random_uuid(),

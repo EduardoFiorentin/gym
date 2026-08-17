@@ -24,7 +24,9 @@ import gym.backend.repository.UserRepository;
 
 @Service
 public class TreinoService {
-   
+
+    private static final UUID DEFAULT_UN_MEDIDA_ID = UUID.fromString("c1c1c1c1-1111-1111-1111-c1c1c1c1c1c1");
+
     @Autowired
     private TreinoRepository treinoRepository;
 
@@ -95,9 +97,8 @@ public class TreinoService {
     }
 
     private UnMedida getDefaultUnMedida() {
-        return unMedidaRepository.findAll().stream()
-            .findFirst()
-            .orElseThrow(() -> new BusinessRuleException("Cadastre uma unidade de medida antes de criar treinos."));
+        return unMedidaRepository.findById(DEFAULT_UN_MEDIDA_ID)
+            .orElseThrow(() -> new BusinessRuleException("Unidade de medida padrao nao encontrada."));
     }
 
 }
