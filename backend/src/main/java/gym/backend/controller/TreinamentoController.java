@@ -24,7 +24,7 @@ import gym.backend.controller.dto.SerieRequestDTO;
 import gym.backend.controller.dto.SerieResponseDTO;
 import gym.backend.controller.dto.SerieUpdateRequestDTO;
 import gym.backend.controller.dto.TreinamentoDetailsResponseDTO;
-import gym.backend.controller.dto.TreinamentoHistoryResquestDTO;
+import gym.backend.controller.dto.TreinamentoHistoryRequestDTO;
 import gym.backend.controller.dto.TreinamentoResponseDTO;
 import gym.backend.services.TreinamentoService;
 import jakarta.validation.Valid;
@@ -40,7 +40,7 @@ public class TreinamentoController {
     @PostMapping("/treinos/history")
     public ResponseEntity<List<TreinamentoResponseDTO>> getTreinamentosStartFrom(
         @AuthenticationPrincipal UserDetails userDetails,
-        @RequestBody TreinamentoHistoryResquestDTO body
+        @Valid @RequestBody TreinamentoHistoryRequestDTO body
     ) {
         List<TreinamentoResponseDTO> treinamentos = treinamentoService
             .getTreinamentoHistoryByUsernameStartingFrom(userDetails.getUsername(), body.startFrom());

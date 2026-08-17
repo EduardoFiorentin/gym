@@ -1,11 +1,11 @@
 package gym.backend.exceptions;
 
 import java.time.Instant;
-
-import javax.naming.AuthenticationException;
+import java.util.Objects;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -74,16 +74,34 @@ public class GlobalExceptionHandler {
 
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(MethodArgumentNotValidException ex, HttpServletRequest  request) {
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpServletRequest  request) {
+        String message = ex.getBindingResult().getAllErrors().stream()
+            .map(error -> error.getDefaultMessage())
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse("Payload da requisicao invalido.");
+
         ErrorResponse errorResponse = new ErrorResponse(
             Instant.now(),
             HttpStatus.BAD_REQUEST.value(),
             HttpStatus.BAD_REQUEST.getReasonPhrase(),
-            "",
+            message,
             request.getRequestURI() // Retorna "/api/treinos/123"
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
 
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpServletRequest  request) {
+        ErrorResponse errorResponse = new ErrorResponse(
+            Instant.now(),
+            HttpStatus.BAD_REQUEST.value(),
+            HttpStatus.BAD_REQUEST.getReasonPhrase(),
+            "Payload da requisicao invalido ou ausente.",
+            request.getRequestURI()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
     // TODO See what is the correct HTTP code for this response
@@ -111,4 +129,3 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 }
-

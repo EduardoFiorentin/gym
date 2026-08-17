@@ -14,14 +14,14 @@ import type { PreviousExercisePerformanceDTO } from './DTOs/PreviousExercisePerf
 import type { SerieDTO } from './DTOs/Serie.dto';
 import type { TreinamentoDetailsDTO } from './DTOs/TreinamentoDetails.dto';
 import type { TreinamentoDTO } from './DTOs/Treinamento.dto';
-import type { ITreinamentoHistoryResquestDTO } from './DTOs/requests/TreinamentoHistoryResquestDTO';
+import type { ITreinamentoHistoryRequestDTO } from './DTOs/requests/TreinamentoHistoryRequestDTO';
 import type { SerieRequestDTO } from './DTOs/requests/SerieRequestDTO';
 import type { SerieUpdateRequestDTO } from './DTOs/requests/SerieUpdateRequestDTO';
 
 
 export const TreinamentoClient = {
   getTreinamentosHistoryStartingFrom: async (): Promise<ITreinamentoHistoryModel[]> => {
-    const payload = {startFrom: getDateTimeOneMonthAgo()} as ITreinamentoHistoryResquestDTO
+    const payload = {startFrom: getDateTimeOneMonthAgo()} as ITreinamentoHistoryRequestDTO
     const response = await api.post("/treinos/history", payload);
     return response.data.map(TreinamentoHistoryConverter.toModel)
   },
