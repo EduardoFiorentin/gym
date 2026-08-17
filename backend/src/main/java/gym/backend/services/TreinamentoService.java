@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import gym.backend.controller.dto.SerieRequestDTO;
 import gym.backend.controller.dto.SerieResponseDTO;
 import gym.backend.controller.dto.SerieUpdateRequestDTO;
+import gym.backend.controller.dto.TreinamentoDetailsResponseDTO;
 import gym.backend.controller.dto.TreinamentoResponseDTO;
 import gym.backend.exceptions.BusinessRuleException;
 import gym.backend.exceptions.DuplicateResourceException;
@@ -51,6 +52,18 @@ public class TreinamentoService {
     @Transactional(readOnly = true)
     public Optional<TreinamentoResponseDTO> getCurrentTreinamento(String username) {
         return getActiveTreinamento(username).map(TreinamentoResponseDTO::toDto);
+    }
+
+    @Transactional(readOnly = true)
+    public TreinamentoDetailsResponseDTO getTreinamentoDetails(String username, UUID treinamentoId) {
+        Treinamento treinamento = treinamentoRepository.findDetailsByIdAndTreinoUserLogin(treinamentoId, username)
+            .orElseThrow(() -> new ResourceNotFoundException("Treinamento nao encontrado."));
+
+        List<Exercicio> exercicios = exercicioRepository
+            .findByTreinoIdAndTreinoUserLoginOrderByCreatedAtAscIdAsc(treinamento.getTreino().getId(), username);
+        List<Serie> series = serieRepository.findDetailsByTreinamentoIdAndTreinoUserLogin(treinamentoId, username);
+
+        return TreinamentoDetailsResponseDTO.toDTO(treinamento, exercicios, series);
     }
 
     @Transactional

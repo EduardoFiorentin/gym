@@ -18,6 +18,19 @@ public interface TreinamentoRepository extends JpaRepository<Treinamento, UUID> 
     
     Optional<Treinamento> findByIdAndTreinoUserLogin(UUID id, String login);
 
+    @Query("""
+        select tr
+        from Treinamento tr
+        join fetch tr.treino t
+        join fetch t.user u
+        where tr.id = :id
+        and u.login = :login
+        """)
+    Optional<Treinamento> findDetailsByIdAndTreinoUserLogin(
+        @Param("id") UUID id,
+        @Param("login") String login
+    );
+
     List<Treinamento> findByTreinoUserLoginAndFinishedAtIsNull(String login);
 
     @Query("""

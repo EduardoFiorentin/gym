@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import gym.backend.controller.dto.SerieRequestDTO;
 import gym.backend.controller.dto.SerieResponseDTO;
 import gym.backend.controller.dto.SerieUpdateRequestDTO;
+import gym.backend.controller.dto.TreinamentoDetailsResponseDTO;
 import gym.backend.controller.dto.TreinamentoHistoryResquestDTO;
 import gym.backend.controller.dto.TreinamentoResponseDTO;
 import gym.backend.services.TreinamentoService;
@@ -64,6 +65,16 @@ public class TreinamentoController {
         }
 
         return ResponseEntity.ok(treinamento.get());
+    }
+
+    @GetMapping("/treinamentos/{treinamentoId}")
+    public ResponseEntity<TreinamentoDetailsResponseDTO> getTreinamentoDetails(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @PathVariable UUID treinamentoId
+    ) {
+        TreinamentoDetailsResponseDTO treinamento = treinamentoService
+            .getTreinamentoDetails(userDetails.getUsername(), treinamentoId);
+        return ResponseEntity.ok(treinamento);
     }
 
     @PutMapping("/treinamentos/{treinamentoId}/finish")
