@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import gym.backend.controller.dto.SerieRequestDTO;
 import gym.backend.controller.dto.SerieResponseDTO;
+import gym.backend.controller.dto.SerieUpdateRequestDTO;
 import gym.backend.controller.dto.TreinamentoResponseDTO;
 import gym.backend.exceptions.BusinessRuleException;
 import gym.backend.exceptions.DuplicateResourceException;
@@ -83,9 +84,7 @@ public class TreinamentoService {
     @Transactional
     public SerieResponseDTO createSerie(String username, UUID treinamentoId, SerieRequestDTO request) {
         Treinamento treinamento = getTreinamentoEntityByUser(treinamentoId, username);
-        if (treinamento.getFinishedAt() != null) {
-            throw new BusinessRuleException("Nao e possivel registrar series em um treinamento finalizado.");
-        }
+        ensureTreinamentoAcceptsSerieChanges(treinamento, "registrar");
 
         Exercicio exercicio = exercicioRepository
             .findByIdAndTreinoIdAndTreinoUserLoginAndActiveTrue(
@@ -98,6 +97,20 @@ public class TreinamentoService {
         Serie serie = new Serie();
         serie.setTreinamento(treinamento);
         serie.setExercicio(exercicio);
+        serie.setMagnitude(request.magnitude());
+        serie.setExecucoes(request.execucoes());
+
+        return SerieResponseDTO.toDTO(serieRepository.save(serie));
+    }
+
+    @Transactional
+    public SerieResponseDTO updateSerie(String username, UUID treinamentoId, UUID serieId, SerieUpdateRequestDTO request) {
+        Serie serie = serieRepository
+            .findByIdAndTreinamentoIdAndTreinamentoTreinoUserLogin(serieId, treinamentoId, username)
+            .orElseThrow(() -> new ResourceNotFoundException("Serie nao encontrada."));
+
+        ensureTreinamentoAcceptsSerieChanges(serie.getTreinamento(), "alterar");
+
         serie.setMagnitude(request.magnitude());
         serie.setExecucoes(request.execucoes());
 
@@ -117,6 +130,12 @@ public class TreinamentoService {
     private Treinamento getTreinamentoEntityByUser(UUID treinamentoId, String username) {
         return treinamentoRepository.findByIdAndTreinoUserLogin(treinamentoId, username)
             .orElseThrow(() -> new ResourceNotFoundException("Treinamento nao encontrado."));
+    }
+
+    private void ensureTreinamentoAcceptsSerieChanges(Treinamento treinamento, String action) {
+        if (treinamento.getFinishedAt() != null) {
+            throw new BusinessRuleException("Nao e possivel " + action + " series em um treinamento finalizado.");
+        }
     }
 
     private Optional<Treinamento> getActiveTreinamento(String username) {

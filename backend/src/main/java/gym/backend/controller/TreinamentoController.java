@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import gym.backend.controller.dto.SerieRequestDTO;
 import gym.backend.controller.dto.SerieResponseDTO;
+import gym.backend.controller.dto.SerieUpdateRequestDTO;
 import gym.backend.controller.dto.TreinamentoHistoryResquestDTO;
 import gym.backend.controller.dto.TreinamentoResponseDTO;
 import gym.backend.services.TreinamentoService;
@@ -81,6 +82,17 @@ public class TreinamentoController {
     ) {
         SerieResponseDTO serie = treinamentoService.createSerie(userDetails.getUsername(), treinamentoId, body);
         return ResponseEntity.status(HttpStatus.CREATED).body(serie);
+    }
+
+    @PutMapping("/treinamentos/{treinamentoId}/series/{serieId}")
+    public ResponseEntity<SerieResponseDTO> updateSerie(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @PathVariable UUID treinamentoId,
+        @PathVariable UUID serieId,
+        @Valid @RequestBody SerieUpdateRequestDTO body
+    ) {
+        SerieResponseDTO serie = treinamentoService.updateSerie(userDetails.getUsername(), treinamentoId, serieId, body);
+        return ResponseEntity.ok(serie);
     }
 
     @GetMapping("/treinamentos/{treinamentoId}/series")
