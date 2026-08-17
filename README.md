@@ -47,12 +47,23 @@ Este projeto foi construído utilizando as seguintes tecnologias:
 
 ## 🏗️ Estrutura do Projeto
 
-A infraestrutura foi configurada para rodar simultaneamente através do Docker Compose, garantindo a comunicação entre os microsserviços por meio da rede `spring-network`.
+A infraestrutura foi configurada para rodar simultaneamente através do Docker Compose, garantindo a comunicação entre os microsserviços por meio da rede `gym-network`.
 
 O mapeamento de portas padrão, em ambiente de desenvolvimento, é:
 * **Frontend**: `http://localhost:5173`.
 * **Backend (API)**: `http://localhost:8080`.
 * **PostgreSQL**: Porta `5432`.
 
-Todos os serviços tem mapeamento das suas respectivas portas para o host, mitigando a necessidade de build de imagens e containers durante o processo de desenvolvimento. 
+Em desenvolvimento, use:
 
+```bash
+docker compose --env-file .env.dev -f docker-compose.dev.yml up --build --watch
+```
+
+Em produção local, use:
+
+```bash
+docker compose --env-file .env.prod -f docker-compose.prod.yml up --build -d
+```
+
+Os arquivos `.env.dev.example` e `.env.prod.example` servem como base para criar os arquivos locais `.env.dev` e `.env.prod`. Em produção, apenas o frontend/Nginx é publicado no host; banco e backend ficam acessíveis apenas dentro da rede Docker.

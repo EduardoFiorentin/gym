@@ -1,0 +1,92 @@
+name: ${COMPOSE_PROJECT_NAME:-gym-dev}
+
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-gym}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata-dev:/var/lib/postgresql/data
+      - ./backend/sql/database/db_0.0.1.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+      - ./backend/sql/database/mock/db_0.0.1.sql:/docker-entrypoint-initdb.d/02_mock.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-gym}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - gym-network
+
+  app-backend:
+    build:
+      context: ./backend
+      target: dev
+    environment:
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:postgresql://db:5432/gym}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-postgres}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: ${SPRING_JPA_HIBERNATE_DDL_AUTO:-validate}
+      SPRING_JPA_SHOW_SQL: ${SPRING_JPA_SHOW_SQL:-true}
+      API_SECURITY_TOKEN_SECRET: ${API_SECURITY_TOKEN_SECRET:-dev-secret-change-me}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:5173}
+      SPRING_DEVTOOLS_RESTART_ENABLED: "true"
+    command: ["./mvnw", "spring-boot:run", "-Dspring-boot.run.fork=true"]
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    volumes:
+      - ./backend:/app
+      - backend-m2-dev:/root/.m2
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./backend/src
+          target: /app/src
+        - action: rebuild
+          path: ./backend/pom.xml
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - gym-network
+
+  app-frontend:
+    build:
+      context: ./frontend
+      target: dev
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:8080}
+      CHOKIDAR_USEPOLLING: "true"
+      WATCHPACK_POLLING: "true"
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    volumes:
+      - ./frontend:/app
+      - frontend-node-modules-dev:/app/node_modules
+    develop:
+      watch:
+        - action: sync
+          path: ./frontend/src
+          target: /app/src
+        - action: sync
+          path: ./frontend/public
+          target: /app/public
+        - action: rebuild
+          path: ./frontend/package-lock.json
+    depends_on:
+      - app-backend
+    networks:
+      - gym-network
+
+networks:
+  gym-network:
+    driver: bridge
+
+volumes:
+  pgdata-dev:
+  backend-m2-dev:
+  frontend-node-modules-dev:

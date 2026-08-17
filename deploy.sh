@@ -1,18 +1,26 @@
 #!/bin/bash
+set -e
 
-echo "Build process started..."
+ENVIRONMENT="${1:-dev}"
+COMPOSE_FILE="docker-compose.${ENVIRONMENT}.yml"
+ENV_FILE=".env.${ENVIRONMENT}"
 
-echo "Removing old containers and networks..."
-docker compose down --remove-orphans
+if [ ! -f "$COMPOSE_FILE" ]; then
+  echo "Compose file not found: $COMPOSE_FILE"
+  exit 1
+fi
 
-echo "Removing old images..."
-docker image prune -f
+if [ ! -f "$ENV_FILE" ]; then
+  echo "Env file not found: $ENV_FILE"
+  exit 1
+fi
 
-echo "Building applications..."
-# docker-compose up --build --no-cache -d
-docker compose build --no-cache
-docker compose up -d
+echo "Build process started for ${ENVIRONMENT}..."
+
+docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" down --remove-orphans
+docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" build --no-cache
+docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d
 
 echo "Build finished!"
 echo "(press Ctrl+C to skip logs, containers keep running):"
-docker compose logs -f app-backend
+docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" logs -f app-backend
