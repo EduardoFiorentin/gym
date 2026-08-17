@@ -6,9 +6,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import gym.backend.controller.dto.PreviousExercisePerformanceResponseDTO;
 import gym.backend.controller.dto.SerieRequestDTO;
 import gym.backend.controller.dto.SerieResponseDTO;
 import gym.backend.controller.dto.SerieUpdateRequestDTO;
@@ -64,6 +66,31 @@ public class TreinamentoService {
         List<Serie> series = serieRepository.findDetailsByTreinamentoIdAndTreinoUserLogin(treinamentoId, username);
 
         return TreinamentoDetailsResponseDTO.toDTO(treinamento, exercicios, series);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<PreviousExercisePerformanceResponseDTO> getPreviousExercisePerformance(String username, UUID exercicioId) {
+        if (!exercicioRepository.existsByIdAndTreinoUserLogin(exercicioId, username)) {
+            throw new ResourceNotFoundException("Exercicio nao encontrado.");
+        }
+
+        List<UUID> treinamentoIds = serieRepository
+            .findLatestFinishedTreinamentoIdsByExercicioAndUserLogin(exercicioId, username, PageRequest.of(0, 1));
+
+        if (treinamentoIds.isEmpty()) {
+            return Optional.empty();
+        }
+
+        List<Serie> series = serieRepository.findPreviousPerformanceSeries(treinamentoIds.get(0), exercicioId, username);
+        if (series.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return Optional.of(PreviousExercisePerformanceResponseDTO.toDTO(
+            exercicioId,
+            series.get(0).getTreinamento(),
+            series
+        ));
     }
 
     @Transactional

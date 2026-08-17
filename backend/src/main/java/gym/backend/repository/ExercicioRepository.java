@@ -12,6 +12,7 @@ import gym.backend.models.Exercicio;
 public interface ExercicioRepository extends JpaRepository<Exercicio, UUID> {
     List<Exercicio> findByTreinoIdAndTreinoUserLoginAndActiveTrueOrderByCreatedAtAsc(UUID treinoId, String login);
     Optional<Exercicio> findByIdAndTreinoIdAndTreinoUserLoginAndActiveTrue(UUID id, UUID treinoId, String login);
+    boolean existsByIdAndTreinoUserLogin(UUID id, String login);
 
     @EntityGraph(attributePaths = "unMedida")
     List<Exercicio> findByTreinoIdAndTreinoUserLoginOrderByCreatedAtAscIdAsc(UUID treinoId, String login);

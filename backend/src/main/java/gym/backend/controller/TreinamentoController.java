@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 
+import gym.backend.controller.dto.PreviousExercisePerformanceResponseDTO;
 import gym.backend.controller.dto.SerieRequestDTO;
 import gym.backend.controller.dto.SerieResponseDTO;
 import gym.backend.controller.dto.SerieUpdateRequestDTO;
@@ -65,6 +66,20 @@ public class TreinamentoController {
         }
 
         return ResponseEntity.ok(treinamento.get());
+    }
+
+    @GetMapping("/exercicios/{exercicioId}/previous-performance")
+    public ResponseEntity<PreviousExercisePerformanceResponseDTO> getPreviousExercisePerformance(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @PathVariable UUID exercicioId
+    ) {
+        Optional<PreviousExercisePerformanceResponseDTO> performance = treinamentoService
+            .getPreviousExercisePerformance(userDetails.getUsername(), exercicioId);
+        if (performance.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(performance.get());
     }
 
     @GetMapping("/treinamentos/{treinamentoId}")
