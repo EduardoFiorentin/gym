@@ -6,23 +6,32 @@ import TreinosListComponent from "../components/app/TreinosListComponent";
 import TreinoHistoryComponent from "../components/app/TreinosHistoryComponent";
 import { useAuth } from "../../hooks/useAuth";
 import TreinoCreateComponent from "../components/app/TreinoCreateComponent";
-import { useEffect, useState } from "react";
-import { currentTreinamentoRepository } from "../../repositories/currentTreinamentoRepository";
-import type { TreinamentoModel } from "../../models/Treinamento.model";
+import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { STORAGE_KEYS } from "../../utils/constants/storageKeys/storageKeys";
+import { TreinamentoClient } from "../../client/treinamento.client";
 
 const Home = () => {
 
     const navigate = useNavigate();
-    const { logout} = useAuth();
-    const [currentTraining, setCurrentTraining] = useState<TreinamentoModel | null>(null);
+    const { logout, userInfo, isInitializing } = useAuth();
 
     useEffect(() => {
-        setCurrentTraining(currentTreinamentoRepository.get());
-    }, []);
+        if (!isInitializing && userInfo === null) {
+            navigate("/login", { replace: true });
+        }
+    }, [isInitializing, navigate, userInfo]);
 
-    const handleHeaderIconClick = () => {
-        logout()
-        navigate("/login")
+    const { data: currentTraining } = useQuery({
+        queryKey: STORAGE_KEYS.CURRENT_TREINAMENTO_CACHE_KEY,
+        queryFn: TreinamentoClient.getCurrentTreinamento,
+        enabled: !!userInfo,
+        retry: false
+    });
+
+    const handleHeaderIconClick = async () => {
+        await logout()
+        navigate("/login", { replace: true })
     }
 
     return (
@@ -33,7 +42,7 @@ const Home = () => {
         > 
             
             <CurrentTreinoComponent
-                training={currentTraining}
+                training={currentTraining || null}
                 onClickRedirect={() => navigate("/training")}
             />
             <TreinoCreateComponent/>

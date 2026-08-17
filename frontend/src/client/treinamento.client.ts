@@ -24,6 +24,12 @@ export const TreinamentoClient = {
     return TreinamentoConverter.toModel(response.data);
   },
 
+  getCurrentTreinamento: async (): Promise<TreinamentoModel | null> => {
+    const response = await api.get<TreinamentoDTO | null>('/treinamentos/current');
+    if (response.status === 204 || !response.data) return null;
+    return TreinamentoConverter.toModel(response.data);
+  },
+
   finishTreinamento: async (treinamentoId: string): Promise<TreinamentoModel> => {
     const response = await api.put<TreinamentoDTO>(`/treinamentos/${treinamentoId}/finish`);
     return TreinamentoConverter.toModel(response.data);

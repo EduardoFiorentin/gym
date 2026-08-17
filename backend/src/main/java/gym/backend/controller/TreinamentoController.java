@@ -1,6 +1,7 @@
 package gym.backend.controller;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +50,18 @@ public class TreinamentoController {
     ) {
         TreinamentoResponseDTO treinamento = treinamentoService.startTreinamento(userDetails.getUsername(), treinoId);
         return ResponseEntity.status(HttpStatus.CREATED).body(treinamento);
+    }
+
+    @GetMapping("/treinamentos/current")
+    public ResponseEntity<TreinamentoResponseDTO> getCurrentTreinamento(
+        @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        Optional<TreinamentoResponseDTO> treinamento = treinamentoService.getCurrentTreinamento(userDetails.getUsername());
+        if (treinamento.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(treinamento.get());
     }
 
     @PutMapping("/treinamentos/{treinamentoId}/finish")

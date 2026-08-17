@@ -4,19 +4,20 @@ import TreinosListItem from "./TreinosListItem"
 import { useNavigate } from "react-router"
 import type { TreinoModel } from "../../../models/Treino.model"
 import { useTreinos } from "../../../hooks/useTreinos"
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { TreinamentoClient } from "../../../client/treinamento.client"
-import { currentTreinamentoRepository } from "../../../repositories/currentTreinamentoRepository"
+import { STORAGE_KEYS } from "../../../utils/constants/storageKeys/storageKeys"
 
 
 const TreinosListComponent = () => {
     const navigate = useNavigate()
+    const queryClient = useQueryClient()
     const { treinos, isLoading, error } = useTreinos()
 
     const startTreinamentoMutation = useMutation({
         mutationFn: (treinoId: string) => TreinamentoClient.startTreinamento(treinoId),
         onSuccess: (treinamento) => {
-            currentTreinamentoRepository.save(treinamento)
+            queryClient.setQueryData(STORAGE_KEYS.CURRENT_TREINAMENTO_CACHE_KEY, treinamento)
             navigate("/training")
         }
     })

@@ -6,7 +6,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.stereotype.Service;
 
 import gym.backend.controller.dto.AuthenticationDTO;
-import gym.backend.controller.dto.LoginResponseDTO;
 import gym.backend.controller.dto.UserResponseDTO;
 import gym.backend.models.User;
 import gym.backend.repository.UserRepository;
@@ -24,14 +23,19 @@ public class AuthenticationService {
     private UserRepository userRepository;
 
 
-    public LoginResponseDTO login(AuthenticationDTO credentials) {
+    public LoginResult login(AuthenticationDTO credentials) {
         var usernamePassword = new UsernamePasswordAuthenticationToken(credentials.login(), credentials.password());
         var auth = authenticationManager.authenticate(usernamePassword);
         var token = tokenService.generateToken((User) auth.getPrincipal());
         User user = (User) userRepository.findByLogin(credentials.login());
-        return new LoginResponseDTO(
+        return new LoginResult(
             token, 
             UserResponseDTO.toDTO(user)
         );
+    }
+
+    public UserResponseDTO getAuthenticatedUser(String login) {
+        User user = (User) userRepository.findByLogin(login);
+        return UserResponseDTO.toDTO(user);
     }
 }

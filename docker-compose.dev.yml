@@ -33,6 +33,10 @@ services:
       SPRING_JPA_SHOW_SQL: ${SPRING_JPA_SHOW_SQL:-true}
       API_SECURITY_TOKEN_SECRET: ${API_SECURITY_TOKEN_SECRET:-dev-secret-change-me}
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:5173}
+      AUTH_COOKIE_NAME: ${AUTH_COOKIE_NAME:-gym_auth}
+      AUTH_COOKIE_SECURE: ${AUTH_COOKIE_SECURE:-false}
+      AUTH_COOKIE_SAME_SITE: ${AUTH_COOKIE_SAME_SITE:-Lax}
+      AUTH_COOKIE_MAX_AGE_SECONDS: ${AUTH_COOKIE_MAX_AGE_SECONDS:-7200}
       SPRING_DEVTOOLS_RESTART_ENABLED: "true"
     command: ["./mvnw", "spring-boot:run", "-Dspring-boot.run.fork=true"]
     ports:

@@ -2,6 +2,7 @@ package gym.backend.services;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,13 @@ public class TreinamentoService {
     @Transactional(readOnly = true)
     public List<TreinamentoResponseDTO> getTreinamentoHistoryByUsernameStartingFrom(String username, Instant timestamp) {
         return treinamentoRepository.getUserTreinamentosStartingFrom(username, timestamp);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<TreinamentoResponseDTO> getCurrentTreinamento(String username) {
+        return treinamentoRepository
+            .findFirstByTreinoUserLoginAndFinishedAtIsNullOrderByStartedAtDesc(username)
+            .map(TreinamentoResponseDTO::toDto);
     }
 
     @Transactional

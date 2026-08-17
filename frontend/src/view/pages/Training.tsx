@@ -6,24 +6,39 @@ import { useNavigate } from "react-router";
 import { TreinamentoClient } from "../../client/treinamento.client";
 import { TreinoClient } from "../../client/treino.client";
 import type { SerieRequestDTO } from "../../client/DTOs/requests/SerieRequestDTO";
-import { currentTreinamentoRepository } from "../../repositories/currentTreinamentoRepository";
 import { STORAGE_KEYS } from "../../utils/constants/storageKeys/storageKeys";
 import { formatToLocalDate } from "../../utils/functions/date/formatToLocalDate";
 import MainLayout from "../layouts/MainLayout";
+import { useAuth } from "../../hooks/useAuth";
 
 const Training = () => {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
-    const [currentTraining, setCurrentTraining] = useState(currentTreinamentoRepository.get());
+    const { userInfo, isInitializing: isAuthInitializing } = useAuth();
     const [exercicioId, setExercicioId] = useState("");
     const [magnitude, setMagnitude] = useState("");
     const [execucoes, setExecucoes] = useState("");
 
+    const currentTrainingQuery = useQuery({
+        queryKey: STORAGE_KEYS.CURRENT_TREINAMENTO_CACHE_KEY,
+        queryFn: TreinamentoClient.getCurrentTreinamento,
+        enabled: !!userInfo,
+        retry: false
+    });
+
+    const currentTraining = currentTrainingQuery.data;
+
     useEffect(() => {
-        if (!currentTraining) {
-            navigate("/");
+        if (!isAuthInitializing && userInfo === null) {
+            navigate("/login", { replace: true });
         }
-    }, [currentTraining, navigate]);
+    }, [isAuthInitializing, navigate, userInfo]);
+
+    useEffect(() => {
+        if (!isAuthInitializing && userInfo && !currentTrainingQuery.isLoading && !currentTraining) {
+            navigate("/", { replace: true });
+        }
+    }, [currentTraining, currentTrainingQuery.isLoading, isAuthInitializing, navigate, userInfo]);
 
     const treinoQuery = useQuery({
         queryKey: [STORAGE_KEYS.TREINO_DETAILS_CACHE_KEY, currentTraining?.treinoId],
@@ -57,9 +72,8 @@ const Training = () => {
     const finishTreinamentoMutation = useMutation({
         mutationFn: () => TreinamentoClient.finishTreinamento(currentTraining!.id),
         onSuccess: () => {
-            currentTreinamentoRepository.clear();
+            queryClient.setQueryData(STORAGE_KEYS.CURRENT_TREINAMENTO_CACHE_KEY, null);
             queryClient.invalidateQueries({ queryKey: STORAGE_KEYS.HISTORY_TREINAMENTOS_LIST_CACHE_KEY });
-            setCurrentTraining(null);
             navigate("/");
         }
     });

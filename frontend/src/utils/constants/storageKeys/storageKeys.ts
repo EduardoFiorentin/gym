@@ -1,21 +1,15 @@
 const AUTH_CACHE_KEY = ["@Auth:currentUser"];
-const AUTH_CACHE_TOKEN = "@Auth:token"
-const AUTH_CACHE_USER_DATA = "@Auth:userData"
-const HISTORY_TREINAMENTOS_LIST = "@Treinamentos:history"
 const HISTORY_TREINAMENTOS_LIST_CACHE_KEY = ["@Treinamentos:history"]
 const TREINOS_LIST_CACHE_KEY = ["@Treinos:list"]
 const TREINO_DETAILS_CACHE_KEY = "@Treinos:details"
 const TREINAMENTO_SERIES_CACHE_KEY = "@Treinamentos:series"
-const CURRENT_TREINAMENTO = "@Treinamentos:current"
+const CURRENT_TREINAMENTO_CACHE_KEY = ["@Treinamentos:current"]
 
 export const STORAGE_KEYS = {
     AUTH_CACHE_KEY,
-    AUTH_CACHE_TOKEN,
-    AUTH_CACHE_USER_DATA,
-    HISTORY_TREINAMENTOS_LIST,
     HISTORY_TREINAMENTOS_LIST_CACHE_KEY,
     TREINOS_LIST_CACHE_KEY,
     TREINO_DETAILS_CACHE_KEY,
     TREINAMENTO_SERIES_CACHE_KEY,
-    CURRENT_TREINAMENTO
+    CURRENT_TREINAMENTO_CACHE_KEY
 }
