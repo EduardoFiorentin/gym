@@ -13,6 +13,7 @@ import gym.backend.controller.dto.SerieRequestDTO;
 import gym.backend.controller.dto.SerieResponseDTO;
 import gym.backend.controller.dto.TreinamentoResponseDTO;
 import gym.backend.exceptions.BusinessRuleException;
+import gym.backend.exceptions.DuplicateResourceException;
 import gym.backend.exceptions.ResourceNotFoundException;
 import gym.backend.models.Exercicio;
 import gym.backend.models.Serie;
@@ -21,6 +22,7 @@ import gym.backend.models.Treino;
 import gym.backend.repository.ExercicioRepository;
 import gym.backend.repository.SerieRepository;
 import gym.backend.repository.TreinamentoRepository;
+import gym.backend.repository.UserRepository;
 
 @Service
 public class TreinamentoService {
@@ -37,6 +39,9 @@ public class TreinamentoService {
     @Autowired
     private SerieRepository serieRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @Transactional(readOnly = true)
     public List<TreinamentoResponseDTO> getTreinamentoHistoryByUsernameStartingFrom(String username, Instant timestamp) {
         return treinamentoRepository.getUserTreinamentosStartingFrom(username, timestamp);
@@ -44,13 +49,16 @@ public class TreinamentoService {
 
     @Transactional(readOnly = true)
     public Optional<TreinamentoResponseDTO> getCurrentTreinamento(String username) {
-        return treinamentoRepository
-            .findFirstByTreinoUserLoginAndFinishedAtIsNullOrderByStartedAtDesc(username)
-            .map(TreinamentoResponseDTO::toDto);
+        return getActiveTreinamento(username).map(TreinamentoResponseDTO::toDto);
     }
 
     @Transactional
     public TreinamentoResponseDTO startTreinamento(String username, UUID treinoId) {
+        lockUserForActiveTreinamento(username);
+        if (getActiveTreinamento(username).isPresent()) {
+            throw new DuplicateResourceException("Ja existe um treinamento ativo para este usuario.");
+        }
+
         Treino treino = treinoService.getTreinoEntityByUser(treinoId, username);
 
         Treinamento treinamento = new Treinamento();
@@ -109,6 +117,20 @@ public class TreinamentoService {
     private Treinamento getTreinamentoEntityByUser(UUID treinamentoId, String username) {
         return treinamentoRepository.findByIdAndTreinoUserLogin(treinamentoId, username)
             .orElseThrow(() -> new ResourceNotFoundException("Treinamento nao encontrado."));
+    }
+
+    private Optional<Treinamento> getActiveTreinamento(String username) {
+        List<Treinamento> activeTreinamentos = treinamentoRepository.findByTreinoUserLoginAndFinishedAtIsNull(username);
+        if (activeTreinamentos.size() > 1) {
+            throw new BusinessRuleException("Existe mais de um treinamento ativo para este usuario.");
+        }
+
+        return activeTreinamentos.stream().findFirst();
+    }
+
+    private void lockUserForActiveTreinamento(String username) {
+        userRepository.lockByLogin(username)
+            .orElseThrow(() -> new ResourceNotFoundException("Usuario nao encontrado."));
     }
 
 }

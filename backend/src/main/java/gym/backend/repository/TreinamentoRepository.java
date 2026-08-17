@@ -18,7 +18,7 @@ public interface TreinamentoRepository extends JpaRepository<Treinamento, UUID> 
     
     Optional<Treinamento> findByIdAndTreinoUserLogin(UUID id, String login);
 
-    Optional<Treinamento> findFirstByTreinoUserLoginAndFinishedAtIsNullOrderByStartedAtDesc(String login);
+    List<Treinamento> findByTreinoUserLoginAndFinishedAtIsNull(String login);
 
     @Query("""
         select new gym.backend.controller.dto.TreinamentoResponseDTO(

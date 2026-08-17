@@ -4,10 +4,11 @@ import { FiPlay } from "react-icons/fi"
 interface ITrainingListItem {
     onClickRedirect: () => void,
     name: string,
-    disabled?: boolean
+    disabled?: boolean,
+    actionLabel?: string
 }
 
-const TreinosListItem = ({onClickRedirect, name, disabled}: ITrainingListItem) => {
+const TreinosListItem = ({onClickRedirect, name, disabled, actionLabel = "Iniciar"}: ITrainingListItem) => {
     return (
         <Flex
             w="100%"
@@ -31,7 +32,7 @@ const TreinosListItem = ({onClickRedirect, name, disabled}: ITrainingListItem) =
                 cursor={disabled ? "not-allowed" : "pointer"}
                 opacity={disabled ? .5 : 1}
             >
-                <FiPlay /> Iniciar
+                <FiPlay /> {actionLabel}
             </Button>
             
         </Flex>

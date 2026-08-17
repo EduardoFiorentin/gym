@@ -7,22 +7,57 @@ import { useTreinos } from "../../../hooks/useTreinos"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { TreinamentoClient } from "../../../client/treinamento.client"
 import { STORAGE_KEYS } from "../../../utils/constants/storageKeys/storageKeys"
+import type { TreinamentoModel } from "../../../models/Treinamento.model"
+import axios from "axios"
+import { useState } from "react"
 
 
-const TreinosListComponent = () => {
+interface ITreinosListComponentProps {
+    currentTraining?: TreinamentoModel | null
+}
+
+const TreinosListComponent = ({ currentTraining = null }: ITreinosListComponentProps) => {
     const navigate = useNavigate()
     const queryClient = useQueryClient()
     const { treinos, isLoading, error } = useTreinos()
+    const [startError, setStartError] = useState<string | null>(null)
 
     const startTreinamentoMutation = useMutation({
         mutationFn: (treinoId: string) => TreinamentoClient.startTreinamento(treinoId),
+        onMutate: () => {
+            setStartError(null)
+        },
         onSuccess: (treinamento) => {
             queryClient.setQueryData(STORAGE_KEYS.CURRENT_TREINAMENTO_CACHE_KEY, treinamento)
             navigate("/training")
+        },
+        onError: async (mutationError) => {
+            if (axios.isAxiosError(mutationError) && mutationError.response?.status === 409) {
+                try {
+                    const activeTraining = await TreinamentoClient.getCurrentTreinamento()
+                    if (activeTraining) {
+                        queryClient.setQueryData(STORAGE_KEYS.CURRENT_TREINAMENTO_CACHE_KEY, activeTraining)
+                        navigate("/training")
+                        return
+                    }
+                } catch {
+                    setStartError("Nao foi possivel recuperar o treinamento em andamento.")
+                    return
+                }
+            }
+
+            setStartError("Nao foi possivel iniciar o treinamento.")
         }
     })
 
     const handleRedirect = (treino: TreinoModel) => {
+        setStartError(null)
+        if (currentTraining) {
+            queryClient.setQueryData(STORAGE_KEYS.CURRENT_TREINAMENTO_CACHE_KEY, currentTraining)
+            navigate("/training")
+            return
+        }
+
         startTreinamentoMutation.mutate(treino.id)
     }
     
@@ -42,7 +77,8 @@ const TreinosListComponent = () => {
                 display={"flex"}
                 flexDirection={"column"}
                 gap={"10px"}
-            >                
+            >
+                {startError && <Text color={"#b42318"} fontWeight={"600"}>{startError}</Text>}
                 {isLoading ? (
                     <Text color={"#627d98"}>Carregando treinos...</Text>
                 ) : error ? (
@@ -55,6 +91,7 @@ const TreinosListComponent = () => {
                             key={tr.id}
                             name={tr.name}
                             disabled={startTreinamentoMutation.isPending}
+                            actionLabel={currentTraining ? "Continuar" : "Iniciar"}
                             onClickRedirect={() => handleRedirect(tr)}
                         />
                     ))

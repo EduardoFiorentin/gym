@@ -47,7 +47,7 @@ const Home = () => {
                     onClickRedirect={() => navigate("/training")}
                 />
                 <TreinoCreateComponent/>
-                <TreinosListComponent/>
+                <TreinosListComponent currentTraining={currentTraining || null}/>
                 <TreinoHistoryComponent/>
             </Flex>
 
