@@ -1,16 +1,50 @@
 import { Box, Button, Flex, Input, NativeSelect, SimpleGrid, Table, Text } from "@chakra-ui/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 import { useEffect, useMemo, useState } from "react";
 import { IoMdExit } from "react-icons/io";
 import { useNavigate } from "react-router";
 import { TreinamentoClient } from "../../client/treinamento.client";
 import { TreinoClient } from "../../client/treino.client";
 import type { SerieRequestDTO } from "../../client/DTOs/requests/SerieRequestDTO";
+import type { SerieUpdateRequestDTO } from "../../client/DTOs/requests/SerieUpdateRequestDTO";
+import type { SerieModel } from "../../models/Serie.model";
 import { STORAGE_KEYS } from "../../utils/constants/storageKeys/storageKeys";
 import { formatToLocalDate } from "../../utils/functions/date/formatToLocalDate";
 import MainLayout from "../layouts/MainLayout";
 import { useAuth } from "../../hooks/useAuth";
-import { FiCheckCircle, FiPlus } from "react-icons/fi";
+import { FiCheckCircle, FiEdit2, FiPlus, FiSave, FiTrash2, FiX } from "react-icons/fi";
+
+interface ApiErrorResponse {
+    message?: string
+}
+
+interface UpdateSerieVariables {
+    serieId: string,
+    payload: SerieUpdateRequestDTO
+}
+
+const parseSerieValues = (magnitudeValue: string, execucoesValue: string): SerieUpdateRequestDTO | null => {
+    const parsedMagnitude = Number(magnitudeValue);
+    const parsedExecucoes = Number(execucoesValue);
+
+    if (Number.isNaN(parsedMagnitude) || Number.isNaN(parsedExecucoes)) return null;
+    if (parsedMagnitude < 0 || parsedExecucoes <= 0 || !Number.isInteger(parsedExecucoes)) return null;
+
+    return {
+        magnitude: parsedMagnitude,
+        execucoes: parsedExecucoes
+    };
+}
+
+const getMutationErrorMessage = (error: unknown, fallback: string): string => {
+    if (axios.isAxiosError<ApiErrorResponse>(error)) {
+        const responseMessage = error.response?.data?.message?.trim();
+        if (responseMessage) return responseMessage;
+    }
+
+    return fallback;
+}
 
 const Training = () => {
     const navigate = useNavigate();
@@ -19,6 +53,11 @@ const Training = () => {
     const [exercicioId, setExercicioId] = useState("");
     const [magnitude, setMagnitude] = useState("");
     const [execucoes, setExecucoes] = useState("");
+    const [editingSerieId, setEditingSerieId] = useState<string | null>(null);
+    const [editMagnitude, setEditMagnitude] = useState("");
+    const [editExecucoes, setEditExecucoes] = useState("");
+    const [createSerieError, setCreateSerieError] = useState<string | null>(null);
+    const [serieActionError, setSerieActionError] = useState<string | null>(null);
 
     const currentTrainingQuery = useQuery({
         queryKey: STORAGE_KEYS.CURRENT_TREINAMENTO_CACHE_KEY,
@@ -28,6 +67,11 @@ const Training = () => {
     });
 
     const currentTraining = currentTrainingQuery.data;
+    const canChangeSeries = Boolean(currentTraining && !currentTraining.finishedAt);
+    const seriesQueryKey = useMemo(() => [
+        STORAGE_KEYS.TREINAMENTO_SERIES_CACHE_KEY,
+        currentTraining?.id
+    ], [currentTraining?.id]);
 
     useEffect(() => {
         if (!isAuthInitializing && userInfo === null) {
@@ -48,7 +92,7 @@ const Training = () => {
     });
 
     const seriesQuery = useQuery({
-        queryKey: [STORAGE_KEYS.TREINAMENTO_SERIES_CACHE_KEY, currentTraining?.id],
+        queryKey: seriesQueryKey,
         queryFn: () => TreinamentoClient.getSeries(currentTraining!.id),
         enabled: !!currentTraining
     });
@@ -63,10 +107,59 @@ const Training = () => {
 
     const createSerieMutation = useMutation({
         mutationFn: (payload: SerieRequestDTO) => TreinamentoClient.createSerie(currentTraining!.id, payload),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: [STORAGE_KEYS.TREINAMENTO_SERIES_CACHE_KEY, currentTraining?.id] });
+        onMutate: () => {
+            setCreateSerieError(null);
+        },
+        onSuccess: (createdSerie) => {
+            queryClient.setQueryData<SerieModel[]>(seriesQueryKey, (currentSeries) => {
+                return currentSeries ? [...currentSeries, createdSerie] : [createdSerie];
+            });
+            queryClient.invalidateQueries({ queryKey: seriesQueryKey });
             setMagnitude("");
             setExecucoes("");
+        },
+        onError: (error) => {
+            setCreateSerieError(getMutationErrorMessage(error, "Nao foi possivel salvar a serie."));
+        }
+    });
+
+    const updateSerieMutation = useMutation({
+        mutationFn: ({ serieId, payload }: UpdateSerieVariables) => TreinamentoClient.updateSerie(currentTraining!.id, serieId, payload),
+        onMutate: () => {
+            setSerieActionError(null);
+        },
+        onSuccess: (updatedSerie) => {
+            queryClient.setQueryData<SerieModel[]>(seriesQueryKey, (currentSeries) => {
+                return currentSeries?.map((serie) => serie.id === updatedSerie.id ? updatedSerie : serie);
+            });
+            queryClient.invalidateQueries({ queryKey: seriesQueryKey });
+            setEditingSerieId(null);
+            setEditMagnitude("");
+            setEditExecucoes("");
+        },
+        onError: (error) => {
+            setSerieActionError(getMutationErrorMessage(error, "Nao foi possivel editar a serie."));
+        }
+    });
+
+    const deleteSerieMutation = useMutation({
+        mutationFn: (serieId: string) => TreinamentoClient.deleteSerie(currentTraining!.id, serieId),
+        onMutate: () => {
+            setSerieActionError(null);
+        },
+        onSuccess: (_data, serieId) => {
+            queryClient.setQueryData<SerieModel[]>(seriesQueryKey, (currentSeries) => {
+                return currentSeries?.filter((serie) => serie.id !== serieId);
+            });
+            queryClient.invalidateQueries({ queryKey: seriesQueryKey });
+            if (editingSerieId === serieId) {
+                setEditingSerieId(null);
+                setEditMagnitude("");
+                setEditExecucoes("");
+            }
+        },
+        onError: (error) => {
+            setSerieActionError(getMutationErrorMessage(error, "Nao foi possivel remover a serie."));
         }
     });
 
@@ -83,19 +176,55 @@ const Training = () => {
         navigate("/");
     }
 
-    const handleCreateSerie = async () => {
-        const parsedMagnitude = Number(magnitude);
-        const parsedExecucoes = Number(execucoes);
+    const handleCreateSerie = () => {
+        const parsedSerieValues = parseSerieValues(magnitude, execucoes);
 
-        if (!exercicioId || Number.isNaN(parsedMagnitude) || Number.isNaN(parsedExecucoes)) return;
-        if (parsedMagnitude < 0 || parsedExecucoes <= 0) return;
+        if (!exercicioId || !parsedSerieValues) {
+            setCreateSerieError("Informe exercicio, carga valida e execucoes inteiras maiores que zero.");
+            return;
+        }
 
-        await createSerieMutation.mutateAsync({
+        createSerieMutation.mutate({
             exercicioId,
-            magnitude: parsedMagnitude,
-            execucoes: parsedExecucoes
+            magnitude: parsedSerieValues.magnitude,
+            execucoes: parsedSerieValues.execucoes
         });
     }
+
+    const handleStartEditSerie = (serie: SerieModel) => {
+        setSerieActionError(null);
+        setEditingSerieId(serie.id);
+        setEditMagnitude(String(serie.magnitude));
+        setEditExecucoes(String(serie.execucoes));
+    }
+
+    const handleCancelEditSerie = () => {
+        setEditingSerieId(null);
+        setEditMagnitude("");
+        setEditExecucoes("");
+        setSerieActionError(null);
+    }
+
+    const handleUpdateSerie = (serieId: string) => {
+        const parsedSerieValues = parseSerieValues(editMagnitude, editExecucoes);
+
+        if (!parsedSerieValues) {
+            setSerieActionError("Informe carga valida e execucoes inteiras maiores que zero.");
+            return;
+        }
+
+        updateSerieMutation.mutate({
+            serieId,
+            payload: parsedSerieValues
+        });
+    }
+
+    const handleDeleteSerie = (serieId: string) => {
+        if (!canChangeSeries || deleteSerieMutation.isPending) return;
+        deleteSerieMutation.mutate(serieId);
+    }
+
+    const isSerieMutationPending = updateSerieMutation.isPending || deleteSerieMutation.isPending;
 
     return (
         <MainLayout
@@ -155,7 +284,7 @@ const Training = () => {
                         <Flex gap={"12px"} mt={"16px"} wrap={"wrap"} align={"end"}>
                         <Box flex={"1 1 220px"}>
                             <Text fontSize={"sm"} mb={"6px"} color={"#334e68"} fontWeight={"700"}>Exercicio</Text>
-                            <NativeSelect.Root disabled={treinoQuery.isLoading || exercicios.length === 0}>
+                            <NativeSelect.Root disabled={!canChangeSeries || treinoQuery.isLoading || exercicios.length === 0 || createSerieMutation.isPending}>
                                 <NativeSelect.Field
                                     value={exercicioId}
                                     onChange={(event) => setExercicioId(event.target.value)}
@@ -179,6 +308,7 @@ const Training = () => {
                                 value={magnitude}
                                 borderColor={"#bcccdc"}
                                 _focus={{ borderColor: "#1f7a5b", boxShadow: "0 0 0 1px #1f7a5b" }}
+                                disabled={!canChangeSeries || createSerieMutation.isPending}
                                 onChange={(event) => setMagnitude(event.target.value)}
                             />
                         </Box>
@@ -192,6 +322,7 @@ const Training = () => {
                                 value={execucoes}
                                 borderColor={"#bcccdc"}
                                 _focus={{ borderColor: "#1f7a5b", boxShadow: "0 0 0 1px #1f7a5b" }}
+                                disabled={!canChangeSeries || createSerieMutation.isPending}
                                 onChange={(event) => setExecucoes(event.target.value)}
                             />
                         </Box>
@@ -201,13 +332,13 @@ const Training = () => {
                             color={"white"}
                             _hover={{ bg: "#176448" }}
                             onClick={handleCreateSerie}
-                            disabled={createSerieMutation.isPending || !exercicioId || !magnitude || !execucoes}
+                            disabled={!canChangeSeries || createSerieMutation.isPending || !exercicioId || !magnitude || !execucoes}
                         >
                             <FiPlus /> {createSerieMutation.isPending ? "Salvando..." : "Salvar serie"}
                         </Button>
                     </Flex>
-                    {createSerieMutation.error && (
-                        <Text mt={"10px"} color={"#b42318"} fontWeight={"600"}>Nao foi possivel salvar a serie.</Text>
+                    {createSerieError && (
+                        <Text mt={"10px"} color={"#b42318"} fontWeight={"600"}>{createSerieError}</Text>
                     )}
                     </Box>
 
@@ -253,29 +384,149 @@ const Training = () => {
                 >
                     <Text fontSize={"lg"} fontWeight={"900"} color={"#102a43"}>Series registradas</Text>
                     <Text color={"#627d98"} fontSize={"sm"} mt={"2px"}>Acompanhe o volume feito nesta execução.</Text>
-                    <Box maxHeight={"300px"} overflow={"auto"} mt={"16px"} border={"1px solid"} borderColor={"#e6edf5"} borderRadius={"8px"}>
-                        <Table.Root>
-                            <Table.Header>
-                                <Table.Row bg={"#f8fafc"}>
-                                    <Table.ColumnHeader>Exercicio</Table.ColumnHeader>
-                                    <Table.ColumnHeader>Carga</Table.ColumnHeader>
-                                    <Table.ColumnHeader>Execucoes</Table.ColumnHeader>
-                                    <Table.ColumnHeader>Hora</Table.ColumnHeader>
-                                </Table.Row>
-                            </Table.Header>
-                            <Table.Body>
-                                {seriesQuery.data?.map((serie) => (
-                                    <Table.Row key={serie.id}>
-                                        <Table.Cell fontWeight={"700"} color={"#243b53"}>{serie.exercicio.name}</Table.Cell>
-                                        <Table.Cell>{serie.magnitude} {serie.exercicio.unMedida.abv}</Table.Cell>
-                                        <Table.Cell>{serie.execucoes}</Table.Cell>
-                                        <Table.Cell>{serie.createdAt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</Table.Cell>
-                                    </Table.Row>
-                                ))}
-                            </Table.Body>
-                        </Table.Root>
-                        {!seriesQuery.isLoading && seriesQuery.data?.length === 0 && (
-                            <Text p={"14px"} color={"#627d98"}>Nenhuma serie registrada.</Text>
+                    {serieActionError && (
+                        <Text mt={"10px"} color={"#b42318"} fontWeight={"600"}>{serieActionError}</Text>
+                    )}
+                    <Box
+                        maxHeight={"340px"}
+                        overflowY={"auto"}
+                        mt={"16px"}
+                        border={"1px solid"}
+                        borderColor={"#e6edf5"}
+                        borderRadius={"8px"}
+                        p={"10px"}
+                    >
+                        {seriesQuery.isLoading ? (
+                            <Text color={"#627d98"}>Carregando series...</Text>
+                        ) : seriesQuery.error ? (
+                            <Text color={"#b42318"} fontWeight={"600"}>Nao foi possivel carregar as series.</Text>
+                        ) : seriesQuery.data?.length === 0 ? (
+                            <Text color={"#627d98"}>Nenhuma serie registrada.</Text>
+                        ) : (
+                            <Flex direction={"column"} gap={"10px"}>
+                                {seriesQuery.data?.map((serie) => {
+                                    const isEditing = editingSerieId === serie.id;
+                                    const showEditForm = isEditing && canChangeSeries;
+
+                                    return (
+                                        <Box
+                                            key={serie.id}
+                                            border={"1px solid"}
+                                            borderColor={showEditForm ? "#9ae6b4" : "#e6edf5"}
+                                            borderRadius={"8px"}
+                                            p={{ base: "12px", md: "14px" }}
+                                            bg={showEditForm ? "#f0fff4" : "#ffffff"}
+                                        >
+                                            <Flex justify={"space-between"} gap={"12px"} align={"flex-start"} wrap={"wrap"}>
+                                                <Box flex={"1 1 180px"}>
+                                                    <Text fontWeight={"800"} color={"#243b53"}>{serie.exercicio.name}</Text>
+                                                    <Text fontSize={"sm"} color={"#627d98"}>
+                                                        {serie.createdAt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                                                    </Text>
+                                                </Box>
+
+                                                {!showEditForm && (
+                                                    <Flex gap={"8px"} align={"center"} wrap={"wrap"} justify={{ base: "flex-start", sm: "flex-end" }}>
+                                                        <Text fontWeight={"800"} color={"#102a43"}>
+                                                            {serie.magnitude} {serie.exercicio.unMedida.abv}
+                                                        </Text>
+                                                        <Text color={"#627d98"}>{serie.execucoes} execucoes</Text>
+                                                        {canChangeSeries && (
+                                                            <>
+                                                                <Button
+                                                                    size={"sm"}
+                                                                    variant={"outline"}
+                                                                    borderColor={"#bcccdc"}
+                                                                    color={"#334e68"}
+                                                                    disabled={isSerieMutationPending}
+                                                                    onClick={() => handleStartEditSerie(serie)}
+                                                                >
+                                                                    <FiEdit2 />
+                                                                    <Text display={{ base: "none", sm: "inline" }}>Editar</Text>
+                                                                </Button>
+                                                                <Button
+                                                                    size={"sm"}
+                                                                    variant={"outline"}
+                                                                    color={"#b42318"}
+                                                                    borderColor={"#f2b8b5"}
+                                                                    disabled={isSerieMutationPending}
+                                                                    onClick={() => handleDeleteSerie(serie.id)}
+                                                                >
+                                                                    <FiTrash2 />
+                                                                    <Text display={{ base: "none", sm: "inline" }}>
+                                                                        {deleteSerieMutation.isPending ? "Removendo..." : "Remover"}
+                                                                    </Text>
+                                                                </Button>
+                                                            </>
+                                                        )}
+                                                    </Flex>
+                                                )}
+                                            </Flex>
+
+                                            {showEditForm && (
+                                                <Flex gap={"10px"} mt={"12px"} align={"end"} wrap={"wrap"}>
+                                                    <Box flex={"1 1 120px"}>
+                                                        <Text fontSize={"sm"} mb={"6px"} color={"#334e68"} fontWeight={"700"}>Carga</Text>
+                                                        <Input
+                                                            type="number"
+                                                            min={0}
+                                                            step="0.01"
+                                                            value={editMagnitude}
+                                                            borderColor={"#9ae6b4"}
+                                                            bg={"white"}
+                                                            _focus={{ borderColor: "#1f7a5b", boxShadow: "0 0 0 1px #1f7a5b" }}
+                                                            disabled={updateSerieMutation.isPending}
+                                                            onChange={(event) => setEditMagnitude(event.target.value)}
+                                                        />
+                                                    </Box>
+
+                                                    <Box flex={"1 1 120px"}>
+                                                        <Text fontSize={"sm"} mb={"6px"} color={"#334e68"} fontWeight={"700"}>Execucoes</Text>
+                                                        <Input
+                                                            type="number"
+                                                            min={1}
+                                                            step={1}
+                                                            value={editExecucoes}
+                                                            borderColor={"#9ae6b4"}
+                                                            bg={"white"}
+                                                            _focus={{ borderColor: "#1f7a5b", boxShadow: "0 0 0 1px #1f7a5b" }}
+                                                            disabled={updateSerieMutation.isPending}
+                                                            onChange={(event) => setEditExecucoes(event.target.value)}
+                                                        />
+                                                    </Box>
+
+                                                    <Text color={"#627d98"} fontWeight={"700"} pb={{ base: "0", sm: "9px" }}>
+                                                        {serie.exercicio.unMedida.abv}
+                                                    </Text>
+
+                                                    <Flex gap={"8px"} wrap={"wrap"}>
+                                                        <Button
+                                                            size={"sm"}
+                                                            bg={"#1f7a5b"}
+                                                            color={"white"}
+                                                            _hover={{ bg: "#176448" }}
+                                                            disabled={updateSerieMutation.isPending || deleteSerieMutation.isPending || !editMagnitude || !editExecucoes}
+                                                            onClick={() => handleUpdateSerie(serie.id)}
+                                                        >
+                                                            <FiSave /> {updateSerieMutation.isPending ? "Salvando..." : "Salvar"}
+                                                        </Button>
+                                                        <Button
+                                                            size={"sm"}
+                                                            variant={"outline"}
+                                                            borderColor={"#bcccdc"}
+                                                            color={"#334e68"}
+                                                            disabled={updateSerieMutation.isPending}
+                                                            onClick={handleCancelEditSerie}
+                                                        >
+                                                            <FiX /> Cancelar
+                                                        </Button>
+                                                    </Flex>
+                                                </Flex>
+                                            )}
+                                        </Box>
+                                    );
+                                })}
+                            </Flex>
                         )}
                     </Box>
                 </Box>

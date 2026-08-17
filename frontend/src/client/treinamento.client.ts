@@ -10,6 +10,7 @@ import type { SerieDTO } from './DTOs/Serie.dto';
 import type { TreinamentoDTO } from './DTOs/Treinamento.dto';
 import type { ITreinamentoHistoryResquestDTO } from './DTOs/requests/TreinamentoHistoryResquestDTO';
 import type { SerieRequestDTO } from './DTOs/requests/SerieRequestDTO';
+import type { SerieUpdateRequestDTO } from './DTOs/requests/SerieUpdateRequestDTO';
 
 
 export const TreinamentoClient = {
@@ -43,5 +44,14 @@ export const TreinamentoClient = {
   createSerie: async (treinamentoId: string, payload: SerieRequestDTO): Promise<SerieModel> => {
     const response = await api.post<SerieDTO>(`/treinamentos/${treinamentoId}/series`, payload);
     return SerieConverter.toModel(response.data);
+  },
+
+  updateSerie: async (treinamentoId: string, serieId: string, payload: SerieUpdateRequestDTO): Promise<SerieModel> => {
+    const response = await api.put<SerieDTO>(`/treinamentos/${treinamentoId}/series/${serieId}`, payload);
+    return SerieConverter.toModel(response.data);
+  },
+
+  deleteSerie: async (treinamentoId: string, serieId: string): Promise<void> => {
+    await api.delete<void>(`/treinamentos/${treinamentoId}/series/${serieId}`);
   }
 };
