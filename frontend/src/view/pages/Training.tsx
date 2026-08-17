@@ -13,6 +13,7 @@ import { STORAGE_KEYS } from "../../utils/constants/storageKeys/storageKeys";
 import { formatToLocalDate } from "../../utils/functions/date/formatToLocalDate";
 import MainLayout from "../layouts/MainLayout";
 import { useAuth } from "../../hooks/useAuth";
+import { usePreviousExercisePerformance } from "../../hooks/usePreviousExercisePerformance";
 import { FiCheckCircle, FiEdit2, FiPlus, FiSave, FiTrash2, FiX } from "react-icons/fi";
 
 interface ApiErrorResponse {
@@ -98,6 +99,15 @@ const Training = () => {
     });
 
     const exercicios = useMemo(() => treinoQuery.data?.exercicios || [], [treinoQuery.data]);
+    const selectedExercicio = useMemo(() => {
+        return exercicios.find((exercicio) => exercicio.id === exercicioId);
+    }, [exercicioId, exercicios]);
+
+    const previousPerformanceQuery = usePreviousExercisePerformance(
+        exercicioId,
+        currentTraining?.id,
+        Boolean(canChangeSeries && selectedExercicio)
+    );
 
     useEffect(() => {
         if (!exercicioId && exercicios.length > 0) {
@@ -225,6 +235,7 @@ const Training = () => {
     }
 
     const isSerieMutationPending = updateSerieMutation.isPending || deleteSerieMutation.isPending;
+    const selectedUnidadeAbv = selectedExercicio?.unMedida.abv || "";
 
     return (
         <MainLayout
@@ -337,6 +348,72 @@ const Training = () => {
                             <FiPlus /> {createSerieMutation.isPending ? "Salvando..." : "Salvar serie"}
                         </Button>
                     </Flex>
+
+                    {selectedExercicio && (
+                        <Box
+                            mt={"14px"}
+                            border={"1px solid"}
+                            borderColor={"#e6edf5"}
+                            borderRadius={"8px"}
+                            bg={"#f8fafc"}
+                            p={"12px"}
+                        >
+                            <Flex justify={"space-between"} align={"flex-start"} gap={"10px"} wrap={"wrap"}>
+                                <Box>
+                                    <Text color={"#334e68"} fontSize={"sm"} fontWeight={"900"}>Ultimo desempenho</Text>
+                                    <Text color={"#627d98"} fontSize={"xs"} mt={"1px"}>{selectedExercicio.name}</Text>
+                                </Box>
+                                {previousPerformanceQuery.previousPerformance && (
+                                    <Text color={"#627d98"} fontSize={"xs"} fontWeight={"700"}>
+                                        {formatToLocalDate(previousPerformanceQuery.previousPerformance.finishedAt)}
+                                    </Text>
+                                )}
+                            </Flex>
+
+                            {previousPerformanceQuery.isLoading ? (
+                                <Text mt={"10px"} color={"#627d98"} fontSize={"sm"}>Buscando referencia anterior...</Text>
+                            ) : previousPerformanceQuery.error ? (
+                                <Text mt={"10px"} color={"#b42318"} fontSize={"sm"} fontWeight={"600"}>
+                                    Nao foi possivel carregar a referencia. Voce ainda pode registrar a serie atual.
+                                </Text>
+                            ) : previousPerformanceQuery.isFetched && !previousPerformanceQuery.previousPerformance ? (
+                                <Text mt={"10px"} color={"#627d98"} fontSize={"sm"}>
+                                    Nenhum desempenho anterior para este exercicio.
+                                </Text>
+                            ) : previousPerformanceQuery.previousPerformance ? (
+                                <Flex mt={"10px"} direction={"column"} gap={"8px"}>
+                                    {previousPerformanceQuery.previousPerformance.series.map((serie, index) => (
+                                        <Flex
+                                            key={serie.id}
+                                            justify={"space-between"}
+                                            align={"center"}
+                                            gap={"10px"}
+                                            wrap={"wrap"}
+                                            border={"1px solid"}
+                                            borderColor={"#edf2f7"}
+                                            borderRadius={"8px"}
+                                            bg={"white"}
+                                            px={"10px"}
+                                            py={"8px"}
+                                        >
+                                            <Text color={"#627d98"} fontSize={"sm"} fontWeight={"800"}>
+                                                Serie {index + 1}
+                                            </Text>
+                                            <Flex gap={"10px"} wrap={"wrap"} justify={{ base: "flex-start", sm: "flex-end" }}>
+                                                <Text color={"#102a43"} fontSize={"sm"} fontWeight={"900"}>
+                                                    {serie.magnitude} {selectedUnidadeAbv}
+                                                </Text>
+                                                <Text color={"#334e68"} fontSize={"sm"} fontWeight={"700"}>
+                                                    {serie.execucoes} execucoes
+                                                </Text>
+                                            </Flex>
+                                        </Flex>
+                                    ))}
+                                </Flex>
+                            ) : null}
+                        </Box>
+                    )}
+
                     {createSerieError && (
                         <Text mt={"10px"} color={"#b42318"} fontWeight={"600"}>{createSerieError}</Text>
                     )}

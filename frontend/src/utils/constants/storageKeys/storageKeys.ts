@@ -4,6 +4,7 @@ const TREINOS_LIST_CACHE_KEY = ["@Treinos:list"]
 const TREINO_DETAILS_CACHE_KEY = "@Treinos:details"
 const TREINAMENTO_SERIES_CACHE_KEY = "@Treinamentos:series"
 const TREINAMENTO_DETAILS_CACHE_KEY = "@Treinamentos:details"
+const PREVIOUS_EXERCISE_PERFORMANCE_CACHE_KEY = "@Exercicios:previousPerformance"
 const CURRENT_TREINAMENTO_CACHE_KEY = ["@Treinamentos:current"]
 
 export const STORAGE_KEYS = {
@@ -13,5 +14,6 @@ export const STORAGE_KEYS = {
     TREINO_DETAILS_CACHE_KEY,
     TREINAMENTO_SERIES_CACHE_KEY,
     TREINAMENTO_DETAILS_CACHE_KEY,
+    PREVIOUS_EXERCISE_PERFORMANCE_CACHE_KEY,
     CURRENT_TREINAMENTO_CACHE_KEY
 }

@@ -1,13 +1,16 @@
 import { TreinamentoHistoryConverter } from '../converters/treinamentoHistory.converter';
 import { SerieConverter } from '../converters/serie.converter';
+import { PreviousExercisePerformanceConverter } from '../converters/previousExercisePerformance.converter';
 import { TreinamentoDetailsConverter } from '../converters/treinamentoDetails.converter';
 import { TreinamentoConverter } from '../converters/treinamento.converter';
+import type { PreviousExercisePerformanceModel } from '../models/PreviousExercisePerformance.model';
 import type { SerieModel } from '../models/Serie.model';
 import type { TreinamentoDetailsModel } from '../models/TreinamentoDetails.model';
 import type { TreinamentoModel } from '../models/Treinamento.model';
 import type { ITreinamentoHistoryModel } from '../models/TreinamentoHistory.model';
 import { getDateTimeOneMonthAgo } from '../utils/functions/date/getTimeAgo';
 import { api } from './api.client';
+import type { PreviousExercisePerformanceDTO } from './DTOs/PreviousExercisePerformance.dto';
 import type { SerieDTO } from './DTOs/Serie.dto';
 import type { TreinamentoDetailsDTO } from './DTOs/TreinamentoDetails.dto';
 import type { TreinamentoDTO } from './DTOs/Treinamento.dto';
@@ -37,6 +40,12 @@ export const TreinamentoClient = {
   getTreinamentoDetails: async (treinamentoId: string): Promise<TreinamentoDetailsModel> => {
     const response = await api.get<TreinamentoDetailsDTO>(`/treinamentos/${treinamentoId}`);
     return TreinamentoDetailsConverter.toModel(response.data);
+  },
+
+  getPreviousExercisePerformance: async (exercicioId: string): Promise<PreviousExercisePerformanceModel | null> => {
+    const response = await api.get<PreviousExercisePerformanceDTO | null>(`/exercicios/${exercicioId}/previous-performance`);
+    if (response.status === 204 || !response.data) return null;
+    return PreviousExercisePerformanceConverter.toModel(response.data);
   },
 
   finishTreinamento: async (treinamentoId: string): Promise<TreinamentoModel> => {
