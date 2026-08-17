@@ -4,6 +4,7 @@ import { RouterProvider } from "react-router/dom";
 import Login from "./view/pages/Login";
 import Home from "./view/pages/Home";
 import Training from "./view/pages/Training";
+import TrainingHistoryDetails from "./view/pages/TrainingHistoryDetails";
 import { Provider } from "./view/components/ui/provider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TIME_CONSTANTS_MILLIS } from "./utils/constants/time/constants";
@@ -17,11 +18,14 @@ const router = createBrowserRouter([
     path: "/login",
     element: <Login/>,
   },
-    {
+  {
     path: "/training",
     element: <Training/>,
+  },
+  {
+    path: "/history/:treinamentoId",
+    element: <TrainingHistoryDetails/>,
   }
-
 ]);
 
 const root = document.getElementById("root")!;

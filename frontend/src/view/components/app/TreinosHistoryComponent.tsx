@@ -3,10 +3,12 @@ import BaseContainer from "./BaseContainer"
 import TreinosHistoryItem from "./TreinosHistoryItem"
 import { useTreinamentoHistory } from "../../../hooks/useTreinamentoHistory"
 import { FiRefreshCw } from "react-icons/fi"
+import { useNavigate } from "react-router"
 
 const TreinoHistoryComponent = () => {
     
     const { treinamentoHistory, error, updateStartingFrom, isLoading, isInitializing } = useTreinamentoHistory();
+    const navigate = useNavigate();
 
     return (
         <BaseContainer 
@@ -49,6 +51,7 @@ const TreinoHistoryComponent = () => {
                             key={th.id} 
                             name={th.treinoName} 
                             date={th.startedAt}
+                            onClick={() => navigate(`/history/${th.id}`)}
                         />        
                     ))
                 )}
