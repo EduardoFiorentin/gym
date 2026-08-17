@@ -2,6 +2,7 @@ package gym.backend.repository;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,13 +16,23 @@ import gym.backend.models.Treinamento;
 @Repository
 public interface TreinamentoRepository extends JpaRepository<Treinamento, UUID> {
     
-    @Query(value = "select tr.id, t.id, t.name, tr.started_at, tr.finished_at\n" + //
-                "from treinamento tr\n" + //
-                "join treino t on t.id = tr.treino_id\n" + //
-                "join users u on u.id = t.user_id \n" + //
-                "where u.login = :login \n" + //
-                "and tr.started_at > :date;"
-                , nativeQuery = true)
+    Optional<Treinamento> findByIdAndTreinoUserLogin(UUID id, String login);
+
+    @Query("""
+        select new gym.backend.controller.dto.TreinamentoResponseDTO(
+            tr.id,
+            t.id,
+            t.name,
+            tr.startedAt,
+            tr.finishedAt
+        )
+        from Treinamento tr
+        join tr.treino t
+        join t.user u
+        where u.login = :login
+        and tr.startedAt > :date
+        order by tr.startedAt desc
+        """)
     List<TreinamentoResponseDTO> getUserTreinamentosStartingFrom(
         @Param("login") String login,
         @Param("date") Instant date

@@ -1,5 +1,6 @@
 package gym.backend.repository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,6 +19,7 @@ public interface TreinoRepository extends JpaRepository<Treino, UUID> {
     // Método usado pelo SecurityFilter e pelo Service de Autenticação
     Treino findByName(String name);
     List<Treino> findByUser(User user);
+    Optional<Treino> findByIdAndUserLogin(UUID id, String login);
 
     @Query(value = "select t.*\n" + //
                 "from treino t\n" + //
