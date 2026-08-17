@@ -2,6 +2,7 @@ import { Box, Button, Flex, Input, Text } from "@chakra-ui/react";
 import { useState } from "react";
 import { useTreinos } from "../../../hooks/useTreinos";
 import BaseContainer from "./BaseContainer";
+import { FiPlus, FiSave, FiTrash2 } from "react-icons/fi";
 
 const emptyExercises = [""] as string[];
 
@@ -51,55 +52,66 @@ const TreinoCreateComponent = () => {
             verticalAlign="flex-start"
             justifyContent="flex-start"
         >
-            <Box
-                borderBottom={"1px solid black"}
-                width={"100%"}
-                pb={"5px"}
-            >
-                <Text fontWeight={"bolder"}>Cadastrar ficha</Text>
+            <Box width={"100%"}>
+                <Text fontWeight={"900"} color={"#102a43"} fontSize={"lg"}>Cadastrar ficha</Text>
+                <Text color={"#627d98"} fontSize={"sm"} mt={"2px"}>Monte uma rotina simples para iniciar execuções rapidamente.</Text>
             </Box>
 
-            <Flex direction={"column"} gap={"10px"} w={"100%"} mt={"12px"}>
+            <Flex direction={"column"} gap={"12px"} w={"100%"}>
                 <Input
                     placeholder="Nome do treino"
                     value={name}
                     maxLength={25}
+                    borderColor={"#bcccdc"}
+                    _focus={{ borderColor: "#1f7a5b", boxShadow: "0 0 0 1px #1f7a5b" }}
                     onChange={(event) => setName(event.target.value)}
                 />
 
                 {exercicios.map((exercicio, index) => (
-                    <Flex key={index} gap={"8px"} w={"100%"}>
+                    <Flex key={index} gap={"8px"} w={"100%"} align={"center"}>
                         <Input
                             placeholder={`Exercicio ${index + 1}`}
                             value={exercicio}
+                            borderColor={"#bcccdc"}
+                            _focus={{ borderColor: "#1f7a5b", boxShadow: "0 0 0 1px #1f7a5b" }}
                             onChange={(event) => handleExercicioChange(index, event.target.value)}
                         />
                         <Button
                             variant={"outline"}
+                            size={"sm"}
+                            color={"#b42318"}
+                            borderColor={"#f2b8b5"}
+                            minW={"40px"}
+                            px={{ base: "10px", sm: "12px" }}
                             onClick={() => removeExercicio(index)}
                             disabled={exercicios.length === 1 || isCreating}
                         >
-                            Remover
+                            <FiTrash2 />
+                            <Text display={{ base: "none", sm: "inline" }}>Remover</Text>
                         </Button>
                     </Flex>
                 ))}
 
-                {createError && <Text color={"red.600"}>Nao foi possivel cadastrar a ficha.</Text>}
+                {createError && <Text color={"#b42318"} fontSize={"sm"} fontWeight={"600"}>Nao foi possivel cadastrar a ficha.</Text>}
 
                 <Flex justify={"space-between"} gap={"10px"} wrap={"wrap"}>
                     <Button
                         variant={"outline"}
+                        borderColor={"#bcccdc"}
+                        color={"#334e68"}
                         onClick={addExercicio}
                         disabled={isCreating}
                     >
-                        Adicionar exercicio
+                        <FiPlus /> Adicionar exercicio
                     </Button>
                     <Button
-                        colorPalette={"blue"}
+                        bg={"#1f7a5b"}
+                        color={"white"}
+                        _hover={{ bg: "#176448" }}
                         onClick={handleSubmit}
                         disabled={isCreating || !name.trim() || exercicios.every((exercicio) => !exercicio.trim())}
                     >
-                        {isCreating ? "Salvando..." : "Salvar ficha"}
+                        <FiSave /> {isCreating ? "Salvando..." : "Salvar ficha"}
                     </Button>
                 </Flex>
             </Flex>

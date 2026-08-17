@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Input, NativeSelect, Table, Text } from "@chakra-ui/react";
+import { Box, Button, Flex, Input, NativeSelect, SimpleGrid, Table, Text } from "@chakra-ui/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { IoMdExit } from "react-icons/io";
@@ -10,6 +10,7 @@ import { STORAGE_KEYS } from "../../utils/constants/storageKeys/storageKeys";
 import { formatToLocalDate } from "../../utils/functions/date/formatToLocalDate";
 import MainLayout from "../layouts/MainLayout";
 import { useAuth } from "../../hooks/useAuth";
+import { FiCheckCircle, FiPlus } from "react-icons/fi";
 
 const Training = () => {
     const navigate = useNavigate();
@@ -99,40 +100,66 @@ const Training = () => {
     return (
         <MainLayout
             title="Treinamento"
-            icon={<IoMdExit size={"36px"}/>}
+            icon={<IoMdExit size={"28px"}/>}
             iconFunc={handleHeaderIconClick}
         >
-            <Flex flexDir={"column"} pb={"20px"}>
-                <Flex mx={"20px"} my={"10px"} justify={"space-between"} align={"center"} gap={"10px"} wrap={"wrap"}>
+            <Flex flexDir={"column"} gap={"16px"} pb={"20px"}>
+                <Flex
+                    bg={"white"}
+                    border={"1px solid"}
+                    borderColor={"#dde6f0"}
+                    borderRadius={"8px"}
+                    boxShadow={"0 12px 30px rgba(15, 23, 42, 0.06)"}
+                    p={{ base: "16px", md: "20px" }}
+                    justify={"space-between"}
+                    align={"center"}
+                    gap={"14px"}
+                    wrap={"wrap"}
+                >
                     <Box>
-                        <Text as={"h1"} fontWeight={"bold"} fontSize={"1.5rem"}>
+                        <Text color={"#1f7a5b"} fontSize={"xs"} fontWeight={"800"} textTransform={"uppercase"}>
+                            Execucao ativa
+                        </Text>
+                        <Text as={"h1"} fontWeight={"900"} fontSize={{ base: "2xl", md: "3xl" }} color={"#102a43"}>
                             {currentTraining?.treinoName || "Treinamento"}
                         </Text>
                         {currentTraining && (
-                            <Text fontSize={"smaller"}>
+                            <Text fontSize={"sm"} color={"#627d98"} mt={"4px"}>
                                 Inicio: {formatToLocalDate(currentTraining.startedAt)}
                             </Text>
                         )}
                     </Box>
 
                     <Button
-                        colorPalette={"blue"}
+                        bg={"#1f7a5b"}
+                        color={"white"}
+                        _hover={{ bg: "#176448" }}
                         onClick={() => finishTreinamentoMutation.mutate()}
                         disabled={!currentTraining || finishTreinamentoMutation.isPending}
                     >
-                        {finishTreinamentoMutation.isPending ? "Finalizando..." : "Finalizar"}
+                        <FiCheckCircle /> {finishTreinamentoMutation.isPending ? "Finalizando..." : "Finalizar"}
                     </Button>
                 </Flex>
 
-                <Box mx={"20px"} my={"10px"}>
-                    <Text fontSize={"1.3rem"}>Registrar serie</Text>
-                    <Flex gap={"10px"} mt={"10px"} wrap={"wrap"} align={"end"}>
+                <SimpleGrid columns={{ base: 1, lg: 2 }} gap={"16px"}>
+                    <Box
+                        bg={"white"}
+                        border={"1px solid"}
+                        borderColor={"#dde6f0"}
+                        borderRadius={"8px"}
+                        boxShadow={"0 12px 30px rgba(15, 23, 42, 0.06)"}
+                        p={{ base: "16px", md: "20px" }}
+                    >
+                        <Text fontSize={"lg"} fontWeight={"900"} color={"#102a43"}>Registrar serie</Text>
+                        <Text color={"#627d98"} fontSize={"sm"} mt={"2px"}>Informe exercício, carga e repetições.</Text>
+                        <Flex gap={"12px"} mt={"16px"} wrap={"wrap"} align={"end"}>
                         <Box flex={"1 1 220px"}>
-                            <Text fontSize={"smaller"} mb={"4px"}>Exercicio</Text>
+                            <Text fontSize={"sm"} mb={"6px"} color={"#334e68"} fontWeight={"700"}>Exercicio</Text>
                             <NativeSelect.Root disabled={treinoQuery.isLoading || exercicios.length === 0}>
                                 <NativeSelect.Field
                                     value={exercicioId}
                                     onChange={(event) => setExercicioId(event.target.value)}
+                                    borderColor={"#bcccdc"}
                                 >
                                     {exercicios.map((exercicio) => (
                                         <option key={exercicio.id} value={exercicio.id}>
@@ -144,75 +171,60 @@ const Training = () => {
                         </Box>
 
                         <Box flex={"1 1 120px"}>
-                            <Text fontSize={"smaller"} mb={"4px"}>Carga</Text>
+                            <Text fontSize={"sm"} mb={"6px"} color={"#334e68"} fontWeight={"700"}>Carga</Text>
                             <Input
                                 type="number"
                                 min={0}
                                 step="0.01"
                                 value={magnitude}
+                                borderColor={"#bcccdc"}
+                                _focus={{ borderColor: "#1f7a5b", boxShadow: "0 0 0 1px #1f7a5b" }}
                                 onChange={(event) => setMagnitude(event.target.value)}
                             />
                         </Box>
 
                         <Box flex={"1 1 120px"}>
-                            <Text fontSize={"smaller"} mb={"4px"}>Execucoes</Text>
+                            <Text fontSize={"sm"} mb={"6px"} color={"#334e68"} fontWeight={"700"}>Execucoes</Text>
                             <Input
                                 type="number"
                                 min={1}
                                 step={1}
                                 value={execucoes}
+                                borderColor={"#bcccdc"}
+                                _focus={{ borderColor: "#1f7a5b", boxShadow: "0 0 0 1px #1f7a5b" }}
                                 onChange={(event) => setExecucoes(event.target.value)}
                             />
                         </Box>
 
                         <Button
-                            colorPalette={"blue"}
+                            bg={"#1f7a5b"}
+                            color={"white"}
+                            _hover={{ bg: "#176448" }}
                             onClick={handleCreateSerie}
                             disabled={createSerieMutation.isPending || !exercicioId || !magnitude || !execucoes}
                         >
-                            {createSerieMutation.isPending ? "Salvando..." : "Salvar serie"}
+                            <FiPlus /> {createSerieMutation.isPending ? "Salvando..." : "Salvar serie"}
                         </Button>
                     </Flex>
                     {createSerieMutation.error && (
-                        <Text mt={"8px"} color={"red.600"}>Nao foi possivel salvar a serie.</Text>
+                        <Text mt={"10px"} color={"#b42318"} fontWeight={"600"}>Nao foi possivel salvar a serie.</Text>
                     )}
-                </Box>
-
-                <Box mx={"20px"} my={"10px"}>
-                    <Text fontSize={"1.3rem"}>Series registradas</Text>
-                    <Box maxHeight={"240px"} overflow={"auto"} mt={"10px"}>
-                        <Table.Root>
-                            <Table.Header>
-                                <Table.Row>
-                                    <Table.ColumnHeader>Exercicio</Table.ColumnHeader>
-                                    <Table.ColumnHeader>Carga</Table.ColumnHeader>
-                                    <Table.ColumnHeader>Execucoes</Table.ColumnHeader>
-                                    <Table.ColumnHeader>Hora</Table.ColumnHeader>
-                                </Table.Row>
-                            </Table.Header>
-                            <Table.Body>
-                                {seriesQuery.data?.map((serie) => (
-                                    <Table.Row key={serie.id}>
-                                        <Table.Cell>{serie.exercicio.name}</Table.Cell>
-                                        <Table.Cell>{serie.magnitude} {serie.exercicio.unMedida.abv}</Table.Cell>
-                                        <Table.Cell>{serie.execucoes}</Table.Cell>
-                                        <Table.Cell>{serie.createdAt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</Table.Cell>
-                                    </Table.Row>
-                                ))}
-                            </Table.Body>
-                        </Table.Root>
-                        {!seriesQuery.isLoading && seriesQuery.data?.length === 0 && (
-                            <Text mt={"10px"}>Nenhuma serie registrada.</Text>
-                        )}
                     </Box>
-                </Box>
 
-                <Box mx={"20px"} my={"10px"}>
-                    <Text fontSize={"1.3rem"}>Exercicios da ficha</Text>
-                    <Box maxHeight={"200px"} overflow={"auto"} mt={"10px"}>
+                    <Box
+                        bg={"white"}
+                        border={"1px solid"}
+                        borderColor={"#dde6f0"}
+                        borderRadius={"8px"}
+                        boxShadow={"0 12px 30px rgba(15, 23, 42, 0.06)"}
+                        p={{ base: "16px", md: "20px" }}
+                    >
+                        <Text fontSize={"lg"} fontWeight={"900"} color={"#102a43"}>Exercicios da ficha</Text>
+                        <Text color={"#627d98"} fontSize={"sm"} mt={"2px"}>Movimentos disponiveis para registrar series.</Text>
+                        <Box maxHeight={"260px"} overflow={"auto"} mt={"16px"} border={"1px solid"} borderColor={"#e6edf5"} borderRadius={"8px"}>
                         <Table.Root>
                             <Table.Header>
-                                <Table.Row>
+                                <Table.Row bg={"#f8fafc"}>
                                     <Table.ColumnHeader>Nome</Table.ColumnHeader>
                                     <Table.ColumnHeader>Unidade</Table.ColumnHeader>
                                 </Table.Row>
@@ -226,8 +238,46 @@ const Training = () => {
                                 ))}
                             </Table.Body>
                         </Table.Root>
+                        </Box>
+                        {treinoQuery.error && <Text mt={"10px"} color={"#b42318"} fontWeight={"600"}>Nao foi possivel carregar a ficha.</Text>}
                     </Box>
-                    {treinoQuery.error && <Text mt={"10px"} color={"red.600"}>Nao foi possivel carregar a ficha.</Text>}
+                </SimpleGrid>
+
+                <Box
+                    bg={"white"}
+                    border={"1px solid"}
+                    borderColor={"#dde6f0"}
+                    borderRadius={"8px"}
+                    boxShadow={"0 12px 30px rgba(15, 23, 42, 0.06)"}
+                    p={{ base: "16px", md: "20px" }}
+                >
+                    <Text fontSize={"lg"} fontWeight={"900"} color={"#102a43"}>Series registradas</Text>
+                    <Text color={"#627d98"} fontSize={"sm"} mt={"2px"}>Acompanhe o volume feito nesta execução.</Text>
+                    <Box maxHeight={"300px"} overflow={"auto"} mt={"16px"} border={"1px solid"} borderColor={"#e6edf5"} borderRadius={"8px"}>
+                        <Table.Root>
+                            <Table.Header>
+                                <Table.Row bg={"#f8fafc"}>
+                                    <Table.ColumnHeader>Exercicio</Table.ColumnHeader>
+                                    <Table.ColumnHeader>Carga</Table.ColumnHeader>
+                                    <Table.ColumnHeader>Execucoes</Table.ColumnHeader>
+                                    <Table.ColumnHeader>Hora</Table.ColumnHeader>
+                                </Table.Row>
+                            </Table.Header>
+                            <Table.Body>
+                                {seriesQuery.data?.map((serie) => (
+                                    <Table.Row key={serie.id}>
+                                        <Table.Cell fontWeight={"700"} color={"#243b53"}>{serie.exercicio.name}</Table.Cell>
+                                        <Table.Cell>{serie.magnitude} {serie.exercicio.unMedida.abv}</Table.Cell>
+                                        <Table.Cell>{serie.execucoes}</Table.Cell>
+                                        <Table.Cell>{serie.createdAt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</Table.Cell>
+                                    </Table.Row>
+                                ))}
+                            </Table.Body>
+                        </Table.Root>
+                        {!seriesQuery.isLoading && seriesQuery.data?.length === 0 && (
+                            <Text p={"14px"} color={"#627d98"}>Nenhuma serie registrada.</Text>
+                        )}
+                    </Box>
                 </Box>
             </Flex>
         </MainLayout>

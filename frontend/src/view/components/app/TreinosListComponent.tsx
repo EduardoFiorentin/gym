@@ -33,21 +33,22 @@ const TreinosListComponent = () => {
             verticalAlign="flex-start"
             justifyContent="flex-start"
         >
-            <Box
-                borderBottom={"1px solid black"}
-                width={"100%"}
-            >
-                <Text fontWeight={"bolder"}>Treinos</Text>
+            <Box width={"100%"}>
+                <Text fontWeight={"900"} color={"#102a43"} fontSize={"lg"}>Treinos</Text>
+                <Text color={"#627d98"} fontSize={"sm"} mt={"2px"}>Escolha uma ficha para começar uma nova execução.</Text>
             </Box>
             <Box
                 w={"100%"}
+                display={"flex"}
+                flexDirection={"column"}
+                gap={"10px"}
             >                
                 {isLoading ? (
-                    <Text mt={"10px"}>Carregando treinos...</Text>
+                    <Text color={"#627d98"}>Carregando treinos...</Text>
                 ) : error ? (
-                    <Text mt={"10px"}>Nao foi possivel carregar os treinos.</Text>
+                    <Text color={"#b42318"} fontWeight={"600"}>Nao foi possivel carregar os treinos.</Text>
                 ) : treinos.length === 0 ? (
-                    <Text mt={"10px"}>Nenhum treino cadastrado.</Text>
+                    <Text color={"#627d98"}>Nenhum treino cadastrado.</Text>
                 ) : (
                     treinos.map((tr: TreinoModel) => (
                         <TreinosListItem

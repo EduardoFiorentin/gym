@@ -1,11 +1,10 @@
 import { Avatar } from "@chakra-ui/react"
 
-const AvatarComponent = () => {
+const AvatarComponent = ({ name = "Atleta" }: { name?: string }) => {
     return (
-    <Avatar.Root>
-        <Avatar.Fallback name="Eduardo Fiorentin" />
-        <Avatar.Image src="https://bit.ly/sage-adebayo" />
-    </Avatar.Root>
+        <Avatar.Root size={"sm"} bg={"#102a43"} color={"white"}>
+            <Avatar.Fallback name={name} />
+        </Avatar.Root>
     )
 }
 

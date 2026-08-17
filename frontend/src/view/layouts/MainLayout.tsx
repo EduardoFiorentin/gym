@@ -1,7 +1,7 @@
-import { Box, Flex, Text } from "@chakra-ui/react";
+import { Box, Button, Flex, Text } from "@chakra-ui/react";
 import type { ReactNode } from "react";
 import AvatarComponent from "../components/app/AvatarComponent";
-// import { Icon } from "@chakra-ui/react";
+import { useAuth } from "../../hooks/useAuth";
 
 interface BasicPageProps extends React.PropsWithChildren {
     title: string;
@@ -9,51 +9,78 @@ interface BasicPageProps extends React.PropsWithChildren {
     iconFunc: () => void;
 }
 
-const nome = "  Eduardo Vinicius Perissinotto Fiorentin   "
-
-// TODO Send to utils module
-const getSimpleUserName = (name: string) => {
-    let name_list = name.trim().split(" ")
-    if (name_list.length === 1) return name_list[0]
-    else return name_list[0] + " " + name_list[name_list.length - 1]
+const getSimpleUserName = (name?: string) => {
+    if (!name) return "Atleta"
+    const nameList = name.trim().split(" ").filter(Boolean)
+    if (nameList.length === 0) return "Atleta"
+    if (nameList.length === 1) return nameList[0]
+    return `${nameList[0]} ${nameList[nameList.length - 1]}`
 }
 
 const MainLayout = ({children, title, icon, iconFunc}: BasicPageProps) => {
+    const { userInfo } = useAuth();
+    const userName = getSimpleUserName(userInfo?.user.name);
+
     return (
         <Box 
-            w={"100vw"}
-            // h={"100vh"}
+            minH={"100vh"}
+            w={"100%"}
+            bg={"#f4f7fb"}
+            color={"#102a43"}
         >
-            {/* Barra superior */}
             <Flex
-                bg={"blue.200"}
-                h={"50px"}
+                as={"header"}
+                bg={"rgba(255, 255, 255, 0.94)"}
+                borderBottom={"1px solid"}
+                borderColor={"#d9e2ec"}
+                h={"64px"}
                 w={"100%"}
                 align={"center"}
+                px={{ base: "16px", md: "28px" }}
+                position={"sticky"}
+                top={0}
+                zIndex={10}
+                boxShadow={"0 8px 24px rgba(15, 23, 42, 0.05)"}
             >
-                <Box
-                    ml={"10px"}
+                <Button
+                    aria-label={title}
+                    variant={"ghost"}
+                    size={"sm"}
+                    minW={"42px"}
+                    h={"42px"}
+                    px={0}
+                    color={"#1f4b99"}
                     onClick={() => iconFunc()}
-                >{icon}</Box>
+                >
+                    {icon}
+                </Button>
                 <Text
-                    ml={"10px"}
-                >{title.toLocaleUpperCase()}</Text>
+                    ml={"12px"}
+                    fontWeight={"800"}
+                    fontSize={{ base: "md", md: "lg" }}
+                    letterSpacing={0}
+                >
+                    {title}
+                </Text>
 
-                {/* Informações do perfil */}
                 <Flex
                     ml={"auto"}
-                    mr={"10px"}
                     align={"center"}
+                    gap={"10px"}
                 >
-                    <Text mr={"10px"} fontSize={".9rem"}>{getSimpleUserName(nome)}</Text>
-                    <AvatarComponent/>
+                    <Text display={{ base: "none", sm: "block" }} fontSize={"sm"} color={"#52616f"} fontWeight={"600"}>
+                        {userName}
+                    </Text>
+                    <AvatarComponent name={userName}/>
                 </Flex>
             </Flex>
 
-            {/* página */}
             <Box
                 w={"100%"}
-                h={"100%"}
+                maxW={"1040px"}
+                mx={"auto"}
+                px={{ base: "14px", md: "24px" }}
+                py={{ base: "18px", md: "28px" }}
             >
                 {children}
             </Box>

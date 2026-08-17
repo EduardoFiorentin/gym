@@ -10,6 +10,7 @@ import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { STORAGE_KEYS } from "../../utils/constants/storageKeys/storageKeys";
 import { TreinamentoClient } from "../../client/treinamento.client";
+import { Flex } from "@chakra-ui/react";
 
 const Home = () => {
 
@@ -36,18 +37,19 @@ const Home = () => {
 
     return (
         <MainLayout 
-            title="Inicio" 
-            icon={<IoMdExit size={"36px"}/>}
+            title="Inicio"
+            icon={<IoMdExit size={"28px"}/>}
             iconFunc={handleHeaderIconClick}
         > 
-            
-            <CurrentTreinoComponent
-                training={currentTraining || null}
-                onClickRedirect={() => navigate("/training")}
-            />
-            <TreinoCreateComponent/>
-            <TreinosListComponent/>
-            <TreinoHistoryComponent/>
+            <Flex direction={"column"} gap={"16px"}>
+                <CurrentTreinoComponent
+                    training={currentTraining || null}
+                    onClickRedirect={() => navigate("/training")}
+                />
+                <TreinoCreateComponent/>
+                <TreinosListComponent/>
+                <TreinoHistoryComponent/>
+            </Flex>
 
         </MainLayout>
     )

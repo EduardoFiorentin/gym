@@ -1,37 +1,29 @@
 import { Flex, Text } from "@chakra-ui/react"
-import { GrFormNextLink } from "react-icons/gr"
 import { formatDateTo_MM_DD_AAAA } from "../../../utils/functions/date/formatDateTo_MM_DD_AAAA"
 
 
 interface ITrainingHistoryItem {
-    onClickRedirect: () => void,
     name: string,
     date: Date
 }
 
-const TreinosHistoryItem = ({onClickRedirect, name, date}: ITrainingHistoryItem) => {
+const TreinosHistoryItem = ({name, date}: ITrainingHistoryItem) => {
     return (
         <Flex
             w="100%"
-            mt={"10px"}
-            px="10px"
-            borderRadius={"10px"}
-            h={"50px"}
-            border={"1px solid black"}
+            px={"14px"}
+            py={"12px"}
+            borderRadius={"8px"}
+            border={"1px solid"}
+            borderColor={"#e6edf5"}
+            bg={"#fbfdff"}
             justifyContent={"space-between"}
             align={"center"}
+            gap={"12px"}
         >
-            <Text>{name}</Text>
+            <Text fontWeight={"800"} color={"#243b53"} lineClamp={1}>{name}</Text>
             
-            <Text>{formatDateTo_MM_DD_AAAA(date)}</Text>
-
-            <Flex
-                border={"2px solid lightgray"}
-                borderRadius={"100%"}
-                onClick={() => onClickRedirect()}
-            >
-                <GrFormNextLink size={"36px"} color="lightgray"/>
-            </Flex>
+            <Text color={"#627d98"} fontSize={"sm"} whiteSpace={"nowrap"}>{formatDateTo_MM_DD_AAAA(date)}</Text>
             
         </Flex>
     )
