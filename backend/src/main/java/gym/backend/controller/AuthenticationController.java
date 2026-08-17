@@ -29,8 +29,6 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("auth")
 public class AuthenticationController {
-
-    static final String DEFAULT_USER_ROLE = "USER";
     
     @Autowired
     private SubscribeService subscribeService;
@@ -82,22 +80,6 @@ public class AuthenticationController {
     public ResponseEntity<String> register(@RequestBody @Valid RegisterRequestDTO data){
         subscribeService.handlCommomUserSubscribe(data);
         return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/test/role/admin")
-    public ResponseEntity<String> tokenAdmin(){
-        return ResponseEntity.ok("Rota com credencial ADMIN acessada!");
-    }
-
-    @GetMapping("/test/role/manager")
-    public ResponseEntity<String> tokenManager(){
-        System.out.println("Retornando graciosamente...");
-        return ResponseEntity.ok("Rota com credencial MANAGER acessada!");
-    }
-
-    @GetMapping("/test/role/user")
-    public ResponseEntity<String> tokenUser(){
-        return ResponseEntity.ok("Rota com credencial USER acessada!");
     }
 
     private ResponseCookie buildAuthCookie(String token, long maxAgeSeconds) {
