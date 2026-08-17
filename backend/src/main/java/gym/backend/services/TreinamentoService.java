@@ -117,6 +117,17 @@ public class TreinamentoService {
         return SerieResponseDTO.toDTO(serieRepository.save(serie));
     }
 
+    @Transactional
+    public void deleteSerie(String username, UUID treinamentoId, UUID serieId) {
+        Serie serie = serieRepository
+            .findByIdAndTreinamentoIdAndTreinamentoTreinoUserLogin(serieId, treinamentoId, username)
+            .orElseThrow(() -> new ResourceNotFoundException("Serie nao encontrada."));
+
+        ensureTreinamentoAcceptsSerieChanges(serie.getTreinamento(), "remover");
+
+        serieRepository.delete(serie);
+    }
+
     @Transactional(readOnly = true)
     public List<SerieResponseDTO> getSeriesByTreinamento(String username, UUID treinamentoId) {
         getTreinamentoEntityByUser(treinamentoId, username);

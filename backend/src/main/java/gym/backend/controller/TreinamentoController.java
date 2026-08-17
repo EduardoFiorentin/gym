@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -93,6 +94,16 @@ public class TreinamentoController {
     ) {
         SerieResponseDTO serie = treinamentoService.updateSerie(userDetails.getUsername(), treinamentoId, serieId, body);
         return ResponseEntity.ok(serie);
+    }
+
+    @DeleteMapping("/treinamentos/{treinamentoId}/series/{serieId}")
+    public ResponseEntity<Void> deleteSerie(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @PathVariable UUID treinamentoId,
+        @PathVariable UUID serieId
+    ) {
+        treinamentoService.deleteSerie(userDetails.getUsername(), treinamentoId, serieId);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/treinamentos/{treinamentoId}/series")
