@@ -3,10 +3,11 @@ import { GrFormNextLink } from "react-icons/gr"
 
 interface ITrainingListItem {
     onClickRedirect: () => void,
-    name: string
+    name: string,
+    disabled?: boolean
 }
 
-const TreinosListItem = ({onClickRedirect, name}: ITrainingListItem) => {
+const TreinosListItem = ({onClickRedirect, name, disabled}: ITrainingListItem) => {
     return (
         <Flex
             w="100%"
@@ -22,7 +23,9 @@ const TreinosListItem = ({onClickRedirect, name}: ITrainingListItem) => {
             <Flex
                 border={"2px solid blue"}
                 borderRadius={"100%"}
-                onClick={onClickRedirect}
+                onClick={() => !disabled && onClickRedirect()}
+                cursor={disabled ? "not-allowed" : "pointer"}
+                opacity={disabled ? .5 : 1}
             >
                 <GrFormNextLink size={"36px"} color="blue"/>
             </Flex>

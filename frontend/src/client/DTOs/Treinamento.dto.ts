@@ -3,6 +3,6 @@ export interface TreinamentoDTO {
     id: string,
     treinoId: string,
     treinoName: string,
-    startedAt: Date,
-    finishedAt: Date | null
+    startedAt: string,
+    finishedAt: string | null
 }

@@ -5,22 +5,24 @@ import CurrentTreinoComponent from "../components/app/CurrentTreinoComponent";
 import TreinosListComponent from "../components/app/TreinosListComponent";
 import TreinoHistoryComponent from "../components/app/TreinosHistoryComponent";
 import { useAuth } from "../../hooks/useAuth";
-
-const currentTrainingExistsMock = {
-    id: "e0dcdf43-1fa5-4d72-9bb3-cf1ce8db8af9",
-    name: "Treino A"
-}
+import TreinoCreateComponent from "../components/app/TreinoCreateComponent";
+import { useEffect, useState } from "react";
+import { currentTreinamentoRepository } from "../../repositories/currentTreinamentoRepository";
+import type { TreinamentoModel } from "../../models/Treinamento.model";
 
 const Home = () => {
 
     const navigate = useNavigate();
     const { logout} = useAuth();
+    const [currentTraining, setCurrentTraining] = useState<TreinamentoModel | null>(null);
+
+    useEffect(() => {
+        setCurrentTraining(currentTreinamentoRepository.get());
+    }, []);
 
     const handleHeaderIconClick = () => {
-        // TODO Remove login info from cache
         logout()
         navigate("/login")
-        // TreinamentoClient.getTreinamentosHistoryStartingFrom(new Date("2026-01-24T15:53:16"))
     }
 
     return (
@@ -30,7 +32,11 @@ const Home = () => {
             iconFunc={handleHeaderIconClick}
         > 
             
-            <CurrentTreinoComponent training={currentTrainingExistsMock}/>
+            <CurrentTreinoComponent
+                training={currentTraining}
+                onClickRedirect={() => navigate("/training")}
+            />
+            <TreinoCreateComponent/>
             <TreinosListComponent/>
             <TreinoHistoryComponent/>
 

@@ -3,5 +3,5 @@ export interface ITreinamentoHistoryModel {
     treinoId: string,
     treinoName: string,
     startedAt: Date,
-    finishedAt: Date
+    finishedAt: Date | null
 }

@@ -1,15 +1,15 @@
-import type { ITreinamentoHistoryDTO } from "../client/DTOs/TreinamentoHistory.dto";
+import type { TreinamentoHistoryDTO } from "../client/DTOs/TreinamentoHistory.dto";
 import type { ITreinamentoHistoryModel } from "../models/TreinamentoHistory.model";
 
 export const TreinamentoHistoryConverter = {
-    toModel: (treinamentoDto: ITreinamentoHistoryDTO) => {
+    toModel: (treinamentoDto: TreinamentoHistoryDTO) => {
         const model: ITreinamentoHistoryModel = {
             id: treinamentoDto.id,
             treinoName: treinamentoDto.treinoName,
-            finishedAt: new Date(treinamentoDto.finishedAt),
+            finishedAt: treinamentoDto.finishedAt ? new Date(treinamentoDto.finishedAt) : null,
             startedAt: new Date(treinamentoDto.startedAt),
-            treinoId: treinamentoDto.treinoId 
+            treinoId: treinamentoDto.treinoId
         }
         return model
     }
-}   
+}

@@ -2,16 +2,10 @@ import { Box, Button, Flex, Text } from "@chakra-ui/react"
 import BaseContainer from "./BaseContainer"
 import TreinosHistoryItem from "./TreinosHistoryItem"
 import { useTreinamentoHistory } from "../../../hooks/useTreinamentoHistory"
-import { useEffect } from "react"
 
 const TreinoHistoryComponent = () => {
     
     const { treinamentoHistory, error, updateStartingFrom, isLoading, isInitializing } = useTreinamentoHistory();
-    
-    useEffect(() => {
-        console.log("erro: ", error);
-        console.log("data: ", treinamentoHistory);
-    }, [error, treinamentoHistory]);
 
     return (
         <BaseContainer 

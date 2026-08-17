@@ -1,7 +1,7 @@
-import type { TreinoModel } from "./Treino.model";
-
 export interface TreinamentoModel {
-    treino: TreinoModel,
+    id: string,
+    treinoId: string,
+    treinoName: string,
     startedAt: Date,
     finishedAt: Date | null
 }

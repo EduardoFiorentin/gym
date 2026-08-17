@@ -3,26 +3,27 @@ import BaseContainer from "./BaseContainer"
 import TreinosListItem from "./TreinosListItem"
 import { useNavigate } from "react-router"
 import type { TreinoModel } from "../../../models/Treino.model"
+import { useTreinos } from "../../../hooks/useTreinos"
+import { useMutation } from "@tanstack/react-query"
+import { TreinamentoClient } from "../../../client/treinamento.client"
+import { currentTreinamentoRepository } from "../../../repositories/currentTreinamentoRepository"
 
-
-const treinos: TreinoModel[] = [{id: "1", name: "mock"}]
 
 const TreinosListComponent = () => {
     const navigate = useNavigate()
+    const { treinos, isLoading, error } = useTreinos()
 
+    const startTreinamentoMutation = useMutation({
+        mutationFn: (treinoId: string) => TreinamentoClient.startTreinamento(treinoId),
+        onSuccess: (treinamento) => {
+            currentTreinamentoRepository.save(treinamento)
+            navigate("/training")
+        }
+    })
 
     const handleRedirect = (treino: TreinoModel) => {
-        console.log("Treino escolhido: ", treino)
-        navigate("/training")
+        startTreinamentoMutation.mutate(treino.id)
     }
-
-    // if (isLoading) return (
-    //     <Text>Carregando treinos...</Text>
-    // )
-
-    // if (!isLoading && error) {
-    //     <Text>{error}</Text>
-    // }
     
     return (
         <BaseContainer 
@@ -40,9 +41,22 @@ const TreinosListComponent = () => {
             <Box
                 w={"100%"}
             >                
-                {treinos.map( (tr: TreinoModel) => (
-                    <TreinosListItem key={tr.id.toString()} name={tr.name.toString()} onClickRedirect={() => handleRedirect(tr)} />
-                ))}
+                {isLoading ? (
+                    <Text mt={"10px"}>Carregando treinos...</Text>
+                ) : error ? (
+                    <Text mt={"10px"}>Nao foi possivel carregar os treinos.</Text>
+                ) : treinos.length === 0 ? (
+                    <Text mt={"10px"}>Nenhum treino cadastrado.</Text>
+                ) : (
+                    treinos.map((tr: TreinoModel) => (
+                        <TreinosListItem
+                            key={tr.id}
+                            name={tr.name}
+                            disabled={startTreinamentoMutation.isPending}
+                            onClickRedirect={() => handleRedirect(tr)}
+                        />
+                    ))
+                )}
 
             </Box>
         </BaseContainer>

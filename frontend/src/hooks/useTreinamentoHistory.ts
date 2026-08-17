@@ -4,12 +4,9 @@ import { STORAGE_KEYS } from "../utils/constants/storageKeys/storageKeys"
 import { TIME_CONSTANTS_MILLIS } from "../utils/constants/time/constants"
 import { TreinamentoClient } from "../client/treinamento.client"
 
-STORAGE_KEYS.HISTORY_TREINAMENTOS_LIST
-
 const getCachedTreinamentoHistory = () => {
     const cachedTreinamentos = localStorage.getItem(STORAGE_KEYS.HISTORY_TREINAMENTOS_LIST)
     if (!cachedTreinamentos) {
-        console.log("Historico de treinamentos local não encontrado.")
         return []
     }
 
@@ -18,16 +15,14 @@ const getCachedTreinamentoHistory = () => {
         
         // when parsing, internal Date objects keep in his string annotation
         // To use them as a Date object, is necessary to convert them 
-        parsed.map(th => {
+        parsed.forEach(th => {
             th.startedAt = new Date(th.startedAt)
-            th.finishedAt = new Date(th.finishedAt)
+            th.finishedAt = th.finishedAt ? new Date(th.finishedAt) : null
         })
 
-        console.log("Historico de treinamentos local encontrado.", parsed)
         return parsed || []
     }
     catch {
-        console.log("Um erro ocorreu no parsing do histórico de treinamentos.")
         localStorage.removeItem(STORAGE_KEYS.HISTORY_TREINAMENTOS_LIST);
         return [];
     }

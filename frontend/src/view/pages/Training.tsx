@@ -1,151 +1,221 @@
-import { useNavigate } from "react-router";
-import MainLayout from "../layouts/MainLayout"
+import { Box, Button, Flex, Input, NativeSelect, Table, Text } from "@chakra-ui/react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
 import { IoMdExit } from "react-icons/io";
-import useLocalStorage from "../../repositories/useLocalStorage";
-import { Box, Flex, Table, Text } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
-
-// const items = [
-//   { id: 1, name: "Laptop", category: "Electronics", price: 999.99 },
-//   { id: 2, name: "Coffee Maker", category: "Home Appliances", price: 49.99 },
-//   { id: 3, name: "Desk Chair", category: "Furniture", price: 150.0 },
-//   { id: 4, name: "Smartphone", category: "Electronics", price: 799.99 },
-//   { id: 5, name: "Headphones", category: "Accessories", price: 199.99 },
-// ]
-
-// const exercise = {
-//     "_id": "",
-//     "_name": "",
-//     "_equipment": "",
-//     "_un": "",              // unit of measurement of the equipment
-//     "_num_executions": "",
-//     "_last_resume": "(peso a) ex ex ex (peso b) ex"
-// }
-
-// const training = {
-//     "_id": "5fac5d69-6240-401c-a1cc-ea7a7e5aa7f1",
-//     "_name": "A - Costas e Triceps",
-//     "_createdAt": "2026-02-07T00:33:07.513Z",
-//     "_updatedAt": "2026-02-07T00:33:07.513Z",
-
-//     "_exercises": [
-
-//     ]
-// }
-
+import { useNavigate } from "react-router";
+import { TreinamentoClient } from "../../client/treinamento.client";
+import { TreinoClient } from "../../client/treino.client";
+import type { SerieRequestDTO } from "../../client/DTOs/requests/SerieRequestDTO";
+import { currentTreinamentoRepository } from "../../repositories/currentTreinamentoRepository";
+import { STORAGE_KEYS } from "../../utils/constants/storageKeys/storageKeys";
+import { formatToLocalDate } from "../../utils/functions/date/formatToLocalDate";
+import MainLayout from "../layouts/MainLayout";
 
 const Training = () => {
-
     const navigate = useNavigate();
-    const [value] = useLocalStorage('TREINO_EM_ANDAMENTO')
-    const [training, setTraining] = useState<any|null>(null);
+    const queryClient = useQueryClient();
+    const [currentTraining, setCurrentTraining] = useState(currentTreinamentoRepository.get());
+    const [exercicioId, setExercicioId] = useState("");
+    const [magnitude, setMagnitude] = useState("");
+    const [execucoes, setExecucoes] = useState("");
 
     useEffect(() => {
-        if (!value) return
-        setTraining(value)
-    }, [value])
+        if (!currentTraining) {
+            navigate("/");
+        }
+    }, [currentTraining, navigate]);
+
+    const treinoQuery = useQuery({
+        queryKey: [STORAGE_KEYS.TREINO_DETAILS_CACHE_KEY, currentTraining?.treinoId],
+        queryFn: () => TreinoClient.getTreino(currentTraining!.treinoId),
+        enabled: !!currentTraining
+    });
+
+    const seriesQuery = useQuery({
+        queryKey: [STORAGE_KEYS.TREINAMENTO_SERIES_CACHE_KEY, currentTraining?.id],
+        queryFn: () => TreinamentoClient.getSeries(currentTraining!.id),
+        enabled: !!currentTraining
+    });
+
+    const exercicios = useMemo(() => treinoQuery.data?.exercicios || [], [treinoQuery.data]);
+
+    useEffect(() => {
+        if (!exercicioId && exercicios.length > 0) {
+            setExercicioId(exercicios[0].id);
+        }
+    }, [exercicioId, exercicios]);
+
+    const createSerieMutation = useMutation({
+        mutationFn: (payload: SerieRequestDTO) => TreinamentoClient.createSerie(currentTraining!.id, payload),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: [STORAGE_KEYS.TREINAMENTO_SERIES_CACHE_KEY, currentTraining?.id] });
+            setMagnitude("");
+            setExecucoes("");
+        }
+    });
+
+    const finishTreinamentoMutation = useMutation({
+        mutationFn: () => TreinamentoClient.finishTreinamento(currentTraining!.id),
+        onSuccess: () => {
+            currentTreinamentoRepository.clear();
+            queryClient.invalidateQueries({ queryKey: STORAGE_KEYS.HISTORY_TREINAMENTOS_LIST_CACHE_KEY });
+            setCurrentTraining(null);
+            navigate("/");
+        }
+    });
 
     const handleHeaderIconClick = () => {
-        // TODO Remove login info from cache
-        navigate("/")
+        navigate("/");
+    }
+
+    const handleCreateSerie = async () => {
+        const parsedMagnitude = Number(magnitude);
+        const parsedExecucoes = Number(execucoes);
+
+        if (!exercicioId || Number.isNaN(parsedMagnitude) || Number.isNaN(parsedExecucoes)) return;
+        if (parsedMagnitude < 0 || parsedExecucoes <= 0) return;
+
+        await createSerieMutation.mutateAsync({
+            exercicioId,
+            magnitude: parsedMagnitude,
+            execucoes: parsedExecucoes
+        });
     }
 
     return (
-        <MainLayout 
-            title="Treinamento" 
+        <MainLayout
+            title="Treinamento"
             icon={<IoMdExit size={"36px"}/>}
             iconFunc={handleHeaderIconClick}
-        > 
-            
-            <Flex
-                flexDir={"column"}
-            >
-                <Text 
-                    as={"h1"}
-                    fontWeight={"bold"}
-                    ml={"20px"}
-                    my={"10px"}
-                    fontSize={"1.5rem"}
+        >
+            <Flex flexDir={"column"} pb={"20px"}>
+                <Flex mx={"20px"} my={"10px"} justify={"space-between"} align={"center"} gap={"10px"} wrap={"wrap"}>
+                    <Box>
+                        <Text as={"h1"} fontWeight={"bold"} fontSize={"1.5rem"}>
+                            {currentTraining?.treinoName || "Treinamento"}
+                        </Text>
+                        {currentTraining && (
+                            <Text fontSize={"smaller"}>
+                                Inicio: {formatToLocalDate(currentTraining.startedAt)}
+                            </Text>
+                        )}
+                    </Box>
+
+                    <Button
+                        colorPalette={"blue"}
+                        onClick={() => finishTreinamentoMutation.mutate()}
+                        disabled={!currentTraining || finishTreinamentoMutation.isPending}
                     >
-                        {training?.name}
-                </Text>
+                        {finishTreinamentoMutation.isPending ? "Finalizando..." : "Finalizar"}
+                    </Button>
+                </Flex>
 
-                {/* Lista de séries */}
-                <Box
-                    mx={"20px"}
-                    my={"10px"}
-                >
+                <Box mx={"20px"} my={"10px"}>
+                    <Text fontSize={"1.3rem"}>Registrar serie</Text>
+                    <Flex gap={"10px"} mt={"10px"} wrap={"wrap"} align={"end"}>
+                        <Box flex={"1 1 220px"}>
+                            <Text fontSize={"smaller"} mb={"4px"}>Exercicio</Text>
+                            <NativeSelect.Root disabled={treinoQuery.isLoading || exercicios.length === 0}>
+                                <NativeSelect.Field
+                                    value={exercicioId}
+                                    onChange={(event) => setExercicioId(event.target.value)}
+                                >
+                                    {exercicios.map((exercicio) => (
+                                        <option key={exercicio.id} value={exercicio.id}>
+                                            {exercicio.name}
+                                        </option>
+                                    ))}
+                                </NativeSelect.Field>
+                            </NativeSelect.Root>
+                        </Box>
 
-                    <Text
-                        fontSize={"1.3rem"}
-                    >Séries</Text>
-                    <Box 
-                        maxHeight={"200px"}
-                        overflow={"auto"}
+                        <Box flex={"1 1 120px"}>
+                            <Text fontSize={"smaller"} mb={"4px"}>Carga</Text>
+                            <Input
+                                type="number"
+                                min={0}
+                                step="0.01"
+                                value={magnitude}
+                                onChange={(event) => setMagnitude(event.target.value)}
+                            />
+                        </Box>
+
+                        <Box flex={"1 1 120px"}>
+                            <Text fontSize={"smaller"} mb={"4px"}>Execucoes</Text>
+                            <Input
+                                type="number"
+                                min={1}
+                                step={1}
+                                value={execucoes}
+                                onChange={(event) => setExecucoes(event.target.value)}
+                            />
+                        </Box>
+
+                        <Button
+                            colorPalette={"blue"}
+                            onClick={handleCreateSerie}
+                            disabled={createSerieMutation.isPending || !exercicioId || !magnitude || !execucoes}
                         >
-                            
-                            
-                            <Table.Root>
+                            {createSerieMutation.isPending ? "Salvando..." : "Salvar serie"}
+                        </Button>
+                    </Flex>
+                    {createSerieMutation.error && (
+                        <Text mt={"8px"} color={"red.600"}>Nao foi possivel salvar a serie.</Text>
+                    )}
+                </Box>
+
+                <Box mx={"20px"} my={"10px"}>
+                    <Text fontSize={"1.3rem"}>Series registradas</Text>
+                    <Box maxHeight={"240px"} overflow={"auto"} mt={"10px"}>
+                        <Table.Root>
                             <Table.Header>
                                 <Table.Row>
-                                <Table.ColumnHeader>Product</Table.ColumnHeader>
-                                <Table.ColumnHeader>Category</Table.ColumnHeader>
-                                <Table.ColumnHeader textAlign="end">Price</Table.ColumnHeader>
+                                    <Table.ColumnHeader>Exercicio</Table.ColumnHeader>
+                                    <Table.ColumnHeader>Carga</Table.ColumnHeader>
+                                    <Table.ColumnHeader>Execucoes</Table.ColumnHeader>
+                                    <Table.ColumnHeader>Hora</Table.ColumnHeader>
                                 </Table.Row>
                             </Table.Header>
                             <Table.Body>
-                                {/* {items.map((item) => (
-                                <Table.Row key={item.id}>
-                                    <Table.Cell>{item.name}</Table.Cell>
-                                    <Table.Cell>{item.category}</Table.Cell>
-                                    <Table.Cell textAlign="end">{item.price}</Table.Cell>
-                                </Table.Row>
-                                ))} */}
+                                {seriesQuery.data?.map((serie) => (
+                                    <Table.Row key={serie.id}>
+                                        <Table.Cell>{serie.exercicio.name}</Table.Cell>
+                                        <Table.Cell>{serie.magnitude} {serie.exercicio.unMedida.abv}</Table.Cell>
+                                        <Table.Cell>{serie.execucoes}</Table.Cell>
+                                        <Table.Cell>{serie.createdAt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</Table.Cell>
+                                    </Table.Row>
+                                ))}
                             </Table.Body>
-                            </Table.Root>
+                        </Table.Root>
+                        {!seriesQuery.isLoading && seriesQuery.data?.length === 0 && (
+                            <Text mt={"10px"}>Nenhuma serie registrada.</Text>
+                        )}
                     </Box>
                 </Box>
 
-
-                {/* Lista de exercicios */}
-                 <Box
-                    mx={"20px"}
-                    my={"10px"}
-                >
-
-                    <Text
-                        fontSize={"1.3rem"}
-                    >Exercicios</Text>
-                    <Box 
-                        maxHeight={"200px"}
-                        overflow={"auto"}
-                        >
-                            
-                            
-                            <Table.Root>
+                <Box mx={"20px"} my={"10px"}>
+                    <Text fontSize={"1.3rem"}>Exercicios da ficha</Text>
+                    <Box maxHeight={"200px"} overflow={"auto"} mt={"10px"}>
+                        <Table.Root>
                             <Table.Header>
                                 <Table.Row>
-                                <Table.ColumnHeader>Product</Table.ColumnHeader>
-                                <Table.ColumnHeader>Category</Table.ColumnHeader>
-                                <Table.ColumnHeader textAlign="end">Price</Table.ColumnHeader>
+                                    <Table.ColumnHeader>Nome</Table.ColumnHeader>
+                                    <Table.ColumnHeader>Unidade</Table.ColumnHeader>
                                 </Table.Row>
                             </Table.Header>
                             <Table.Body>
-                                {/* {items.map((item) => (
-                                <Table.Row key={item.id}>
-                                    <Table.Cell>{item.name}</Table.Cell>
-                                    <Table.Cell>{item.category}</Table.Cell>
-                                    <Table.Cell textAlign="end">{item.price}</Table.Cell>
-                                </Table.Row>
-                                ))} */}
+                                {exercicios.map((exercicio) => (
+                                    <Table.Row key={exercicio.id}>
+                                        <Table.Cell>{exercicio.name}</Table.Cell>
+                                        <Table.Cell>{exercicio.unMedida.abv}</Table.Cell>
+                                    </Table.Row>
+                                ))}
                             </Table.Body>
-                            </Table.Root>
+                        </Table.Root>
                     </Box>
+                    {treinoQuery.error && <Text mt={"10px"} color={"red.600"}>Nao foi possivel carregar a ficha.</Text>}
                 </Box>
-
-
             </Flex>
-
         </MainLayout>
     )
 }
