@@ -25,11 +25,21 @@ interface UpdateSerieVariables {
     payload: SerieUpdateRequestDTO
 }
 
-const parseSerieValues = (magnitudeValue: string, execucoesValue: string): SerieUpdateRequestDTO | null => {
-    const parsedMagnitude = Number(magnitudeValue);
-    const parsedExecucoes = Number(execucoesValue);
+const parseRequiredNumber = (value: string): number | null => {
+    const normalizedValue = value.trim();
+    if (!normalizedValue) return null;
 
-    if (Number.isNaN(parsedMagnitude) || Number.isNaN(parsedExecucoes)) return null;
+    const parsedValue = Number(normalizedValue);
+    return Number.isFinite(parsedValue) ? parsedValue : null;
+}
+
+const hasRequiredValue = (value: string): boolean => value.trim().length > 0;
+
+const parseSerieValues = (magnitudeValue: string, execucoesValue: string): SerieUpdateRequestDTO | null => {
+    const parsedMagnitude = parseRequiredNumber(magnitudeValue);
+    const parsedExecucoes = parseRequiredNumber(execucoesValue);
+
+    if (parsedMagnitude === null || parsedExecucoes === null) return null;
     if (parsedMagnitude < 0 || parsedExecucoes <= 0 || !Number.isInteger(parsedExecucoes)) return null;
 
     return {
@@ -359,7 +369,7 @@ const Training = () => {
                             color={"white"}
                             _hover={{ bg: "#176448" }}
                             onClick={handleCreateSerie}
-                            disabled={!canChangeSeries || createSerieMutation.isPending || !exercicioId || !magnitude || !execucoes}
+                            disabled={!canChangeSeries || createSerieMutation.isPending || !exercicioId || !hasRequiredValue(magnitude) || !hasRequiredValue(execucoes)}
                         >
                             <FiPlus /> {createSerieMutation.isPending ? "Salvando..." : "Salvar serie"}
                         </Button>
@@ -598,7 +608,7 @@ const Training = () => {
                                                             bg={"#1f7a5b"}
                                                             color={"white"}
                                                             _hover={{ bg: "#176448" }}
-                                                            disabled={updateSerieMutation.isPending || deleteSerieMutation.isPending || !editMagnitude || !editExecucoes}
+                                                            disabled={updateSerieMutation.isPending || deleteSerieMutation.isPending || !hasRequiredValue(editMagnitude) || !hasRequiredValue(editExecucoes)}
                                                             onClick={() => handleUpdateSerie(serie.id)}
                                                         >
                                                             <FiSave /> {updateSerieMutation.isPending ? "Salvando..." : "Salvar"}

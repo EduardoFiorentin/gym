@@ -77,6 +77,20 @@ class TreinamentoControllerSerieUpdateTest {
 
     @Test
     @WithMockUser(username = AUTHENTICATED_LOGIN)
+    void editaSerieComMagnitudeZero() throws Exception {
+        Fixture fixture = createFixture(AUTHENTICATED_LOGIN, false);
+
+        mockMvc.perform(put("/treinamentos/{treinamentoId}/series/{serieId}", fixture.treinamento().getId(), fixture.serie().getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"magnitude\":0,\"execucoes\":12}"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(fixture.serie().getId().toString()))
+            .andExpect(jsonPath("$.magnitude").value(0))
+            .andExpect(jsonPath("$.execucoes").value(12));
+    }
+
+    @Test
+    @WithMockUser(username = AUTHENTICATED_LOGIN)
     void retornaNotFoundParaSerieInexistente() throws Exception {
         Fixture fixture = createFixture(AUTHENTICATED_LOGIN, false);
 
@@ -116,6 +130,29 @@ class TreinamentoControllerSerieUpdateTest {
         mockMvc.perform(put("/treinamentos/{treinamentoId}/series/{serieId}", fixture.treinamento().getId(), fixture.serie().getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"magnitude\":-1.00,\"execucoes\":10}"))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.message").value("A magnitude nao pode ser negativa"));
+    }
+
+    @Test
+    @WithMockUser(username = AUTHENTICATED_LOGIN)
+    void rejeitaMagnitudeVazia() throws Exception {
+        Fixture fixture = createFixture(AUTHENTICATED_LOGIN, false);
+
+        mockMvc.perform(put("/treinamentos/{treinamentoId}/series/{serieId}", fixture.treinamento().getId(), fixture.serie().getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"magnitude\":\"\",\"execucoes\":10}"))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(username = AUTHENTICATED_LOGIN)
+    void rejeitaMagnitudeNaN() throws Exception {
+        Fixture fixture = createFixture(AUTHENTICATED_LOGIN, false);
+
+        mockMvc.perform(put("/treinamentos/{treinamentoId}/series/{serieId}", fixture.treinamento().getId(), fixture.serie().getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"magnitude\":NaN,\"execucoes\":10}"))
             .andExpect(status().isBadRequest());
     }
 

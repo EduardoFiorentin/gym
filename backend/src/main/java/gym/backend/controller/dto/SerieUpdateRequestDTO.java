@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 
 public record SerieUpdateRequestDTO(
     @NotNull(message = "A magnitude e obrigatoria")
-    @DecimalMin(value = "0.00", message = "A magnitude nao pode ser negativa")
+    @DecimalMin(value = "0.00", inclusive = true, message = "A magnitude nao pode ser negativa")
     BigDecimal magnitude,
 
     @NotNull(message = "A quantidade de execucoes e obrigatoria")
