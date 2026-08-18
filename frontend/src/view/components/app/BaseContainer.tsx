@@ -15,6 +15,7 @@ const BaseContainer = ({ children, height, direction, verticalAlign, justifyCont
             h={height || "auto"}
             maxHeight={maxHeight}
             w={"100%"}
+            minW={0}
             borderRadius={"8px"}
             border={"1px solid"}
             borderColor={"#dde6f0"}
@@ -25,6 +26,7 @@ const BaseContainer = ({ children, height, direction, verticalAlign, justifyCont
             align={verticalAlign}
             justifyContent={justifyContent || "space-between"}
             gap={"14px"}
+            wrap={"wrap"}
         >
             {children}
         </Flex>

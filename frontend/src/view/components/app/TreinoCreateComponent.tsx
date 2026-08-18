@@ -62,6 +62,7 @@ const TreinoCreateComponent = () => {
                     placeholder="Nome do treino"
                     value={name}
                     maxLength={25}
+                    h={"44px"}
                     borderColor={"#bcccdc"}
                     _focus={{ borderColor: "#1f7a5b", boxShadow: "0 0 0 1px #1f7a5b" }}
                     onChange={(event) => setName(event.target.value)}
@@ -72,6 +73,8 @@ const TreinoCreateComponent = () => {
                         <Input
                             placeholder={`Exercicio ${index + 1}`}
                             value={exercicio}
+                            h={"44px"}
+                            minW={0}
                             borderColor={"#bcccdc"}
                             _focus={{ borderColor: "#1f7a5b", boxShadow: "0 0 0 1px #1f7a5b" }}
                             onChange={(event) => handleExercicioChange(index, event.target.value)}
@@ -81,7 +84,8 @@ const TreinoCreateComponent = () => {
                             size={"sm"}
                             color={"#b42318"}
                             borderColor={"#f2b8b5"}
-                            minW={"40px"}
+                            minW={"44px"}
+                            minH={"44px"}
                             px={{ base: "10px", sm: "12px" }}
                             onClick={() => removeExercicio(index)}
                             disabled={exercicios.length === 1 || isCreating}
@@ -97,6 +101,8 @@ const TreinoCreateComponent = () => {
                 <Flex justify={"space-between"} gap={"10px"} wrap={"wrap"}>
                     <Button
                         variant={"outline"}
+                        w={{ base: "100%", sm: "auto" }}
+                        minH={"44px"}
                         borderColor={"#bcccdc"}
                         color={"#334e68"}
                         onClick={addExercicio}
@@ -106,6 +112,8 @@ const TreinoCreateComponent = () => {
                     </Button>
                     <Button
                         bg={"#1f7a5b"}
+                        w={{ base: "100%", sm: "auto" }}
+                        minH={"44px"}
                         color={"white"}
                         _hover={{ bg: "#176448" }}
                         onClick={handleSubmit}

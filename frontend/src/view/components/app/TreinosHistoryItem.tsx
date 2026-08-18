@@ -14,6 +14,8 @@ const TreinosHistoryItem = ({name, date, onClick}: ITrainingHistoryItem) => {
         <Button
             type="button"
             w="100%"
+            minW={0}
+            minH={"56px"}
             h={"auto"}
             px={"14px"}
             py={"12px"}
@@ -24,11 +26,12 @@ const TreinosHistoryItem = ({name, date, onClick}: ITrainingHistoryItem) => {
             justifyContent={"space-between"}
             gap={"12px"}
             variant={"outline"}
+            whiteSpace={"normal"}
             onClick={onClick}
             _hover={{ bg: "#f2f7fd", borderColor: "#bcccdc" }}
             _active={{ bg: "#e6edf5" }}
         >
-            <Flex minW={0} direction={"column"} align={"flex-start"} gap={"2px"}>
+            <Flex minW={0} flex={"1 1 auto"} direction={"column"} align={"flex-start"} gap={"2px"}>
                 <Text fontWeight={"800"} color={"#243b53"} lineClamp={1}>{name}</Text>
                 <Text color={"#627d98"} fontSize={"sm"} whiteSpace={"nowrap"}>{formatDateTo_MM_DD_AAAA(date)}</Text>
             </Flex>

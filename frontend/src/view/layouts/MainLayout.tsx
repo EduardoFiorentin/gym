@@ -46,8 +46,8 @@ const MainLayout = ({children, title, icon, iconFunc}: BasicPageProps) => {
                     aria-label={title}
                     variant={"ghost"}
                     size={"sm"}
-                    minW={"42px"}
-                    h={"42px"}
+                    minW={"44px"}
+                    h={"44px"}
                     px={0}
                     color={"#1f4b99"}
                     onClick={() => iconFunc()}
@@ -59,6 +59,8 @@ const MainLayout = ({children, title, icon, iconFunc}: BasicPageProps) => {
                     fontWeight={"800"}
                     fontSize={{ base: "md", md: "lg" }}
                     letterSpacing={0}
+                    lineClamp={1}
+                    minW={0}
                 >
                     {title}
                 </Text>
@@ -81,6 +83,7 @@ const MainLayout = ({children, title, icon, iconFunc}: BasicPageProps) => {
                 mx={"auto"}
                 px={{ base: "14px", md: "24px" }}
                 py={{ base: "18px", md: "28px" }}
+                minW={0}
             >
                 {children}
             </Box>

@@ -21,10 +21,13 @@ const TreinosListItem = ({onClickRedirect, name, disabled, actionLabel = "Inicia
             justifyContent={"space-between"}
             align={"center"}
             gap={"12px"}
+            wrap={"wrap"}
         >
-            <Text fontWeight={"800"} color={"#243b53"} lineClamp={1}>{name}</Text>
+            <Text flex={"1 1 160px"} minW={0} fontWeight={"800"} color={"#243b53"} lineClamp={1}>{name}</Text>
             <Button
                 size={"sm"}
+                minH={"44px"}
+                w={{ base: "100%", sm: "auto" }}
                 variant={"outline"}
                 borderColor={"#b7d8cc"}
                 color={"#1f7a5b"}

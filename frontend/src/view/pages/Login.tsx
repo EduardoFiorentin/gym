@@ -97,6 +97,7 @@ const Login = () => {
                                 name="user" 
                                 value={user}
                                 autoComplete="username"
+                                h={"44px"}
                                 borderColor={"#bcccdc"}
                                 _focus={{ borderColor: "#1f7a5b", boxShadow: "0 0 0 1px #1f7a5b" }}
                                 onChange={event => setUser(event.target.value)}
@@ -110,6 +111,7 @@ const Login = () => {
                                 type="password"
                                 value={password}
                                 autoComplete="current-password"
+                                h={"44px"}
                                 borderColor={"#bcccdc"}
                                 _focus={{ borderColor: "#1f7a5b", boxShadow: "0 0 0 1px #1f7a5b" }}
                                 onChange={event => setPassword(event.target.value)}

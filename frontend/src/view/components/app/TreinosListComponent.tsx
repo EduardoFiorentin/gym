@@ -105,6 +105,8 @@ const TreinosListComponent = ({ currentTraining = null }: ITreinosListComponentP
                             <Button
                                 mt={"10px"}
                                 size={"sm"}
+                                minH={"44px"}
+                                w={{ base: "100%", sm: "auto" }}
                                 variant={"outline"}
                                 borderColor={"#bcccdc"}
                                 color={"#334e68"}

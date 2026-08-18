@@ -15,7 +15,7 @@ const CurrentTreinoComponent = ({training, onClickRedirect}: {training: ICurrent
             direction="row"
             verticalAlign="center"
         >
-            <Flex align={"center"} gap={"14px"} minW={0}>
+            <Flex align={"center"} gap={"14px"} minW={0} flex={"1 1 auto"}>
                 <Flex
                     w={"42px"}
                     h={"42px"}
@@ -40,6 +40,9 @@ const CurrentTreinoComponent = ({training, onClickRedirect}: {training: ICurrent
             {training && (
                 <Button
                     size={"sm"}
+                    minH={"44px"}
+                    w={{ base: "100%", sm: "auto" }}
+                    flexShrink={0}
                     bg={"#1f7a5b"}
                     color={"white"}
                     _hover={{ bg: "#176448" }}

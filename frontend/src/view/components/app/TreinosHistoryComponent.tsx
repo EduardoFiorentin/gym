@@ -22,8 +22,9 @@ const TreinoHistoryComponent = () => {
                 justifyContent={"space-between"}
                 alignItems={"center"}
                 gap={"10px"}
+                wrap={"wrap"}
             >
-                <Box>
+                <Box minW={0} flex={"1 1 180px"}>
                     <Text fontWeight={"900"} color={"#102a43"} fontSize={"lg"}>Meu historico</Text>
                     <Text color={"#627d98"} fontSize={"sm"} mt={"2px"}>Ultimas execuções registradas.</Text>
                 </Box>
@@ -31,6 +32,8 @@ const TreinoHistoryComponent = () => {
                     onClick={() => updateStartingFrom()}
                     variant={"outline"}
                     size={"sm"}
+                    w={{ base: "100%", sm: "auto" }}
+                    minH={"44px"}
                     borderColor={"#bcccdc"}
                     color={"#334e68"}
                     disabled={isLoading || isInitializing} 

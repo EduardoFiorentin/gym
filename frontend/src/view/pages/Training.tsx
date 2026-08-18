@@ -274,7 +274,7 @@ const Training = () => {
                 >
                     <Flex align={"center"} gap={"12px"}>
                         <Spinner color={"#1f7a5b"} />
-                        <Box>
+                        <Box minW={0} flex={"1 1 240px"}>
                             <Text fontWeight={"900"} color={"#102a43"}>Carregando treino em andamento</Text>
                             <Text color={"#627d98"} fontSize={"sm"} mt={"2px"}>
                                 Estamos recuperando sua execucao antes de mostrar os dados.
@@ -302,6 +302,8 @@ const Training = () => {
                     <Flex mt={"14px"} gap={"10px"} wrap={"wrap"}>
                         <Button
                             bg={"#1f7a5b"}
+                            minH={"44px"}
+                            w={{ base: "100%", sm: "auto" }}
                             color={"white"}
                             _hover={{ bg: "#176448" }}
                             loading={currentTrainingQuery.isFetching}
@@ -309,7 +311,7 @@ const Training = () => {
                         >
                             <FiRefreshCw /> Tentar novamente
                         </Button>
-                        <Button variant={"outline"} borderColor={"#bcccdc"} color={"#334e68"} onClick={() => navigate("/")}>
+                        <Button minH={"44px"} w={{ base: "100%", sm: "auto" }} variant={"outline"} borderColor={"#bcccdc"} color={"#334e68"} onClick={() => navigate("/")}>
                             Voltar ao inicio
                         </Button>
                     </Flex>
@@ -378,11 +380,11 @@ const Training = () => {
                     gap={"14px"}
                     wrap={"wrap"}
                 >
-                    <Box>
+                    <Box minW={0} flex={"1 1 240px"}>
                         <Text color={"#1f7a5b"} fontSize={"xs"} fontWeight={"800"} textTransform={"uppercase"}>
                             Execucao ativa
                         </Text>
-                        <Text as={"h1"} fontWeight={"900"} fontSize={{ base: "2xl", md: "3xl" }} color={"#102a43"}>
+                        <Text as={"h1"} fontWeight={"900"} fontSize={{ base: "2xl", md: "3xl" }} color={"#102a43"} wordBreak={"break-word"}>
                             {currentTraining?.treinoName}
                         </Text>
                         {currentTraining && (
@@ -392,9 +394,11 @@ const Training = () => {
                         )}
                     </Box>
 
-                    <Box>
+                    <Box w={{ base: "100%", sm: "auto" }}>
                         <Button
                             bg={"#1f7a5b"}
+                            w={{ base: "100%", sm: "auto" }}
+                            minH={"44px"}
                             color={"white"}
                             _hover={{ bg: "#176448" }}
                             loading={finishTreinamentoMutation.isPending}
@@ -404,7 +408,7 @@ const Training = () => {
                             <FiCheckCircle /> {finishTreinamentoMutation.isPending ? "Finalizando..." : "Finalizar"}
                         </Button>
                         {finishTreinamentoError && (
-                            <Text mt={"8px"} color={"#b42318"} fontSize={"sm"} fontWeight={"600"} maxW={"280px"}>
+                            <Text mt={"8px"} color={"#b42318"} fontSize={"sm"} fontWeight={"600"} maxW={{ base: "100%", sm: "280px" }}>
                                 {finishTreinamentoError}
                             </Text>
                         )}
@@ -423,12 +427,13 @@ const Training = () => {
                         <Text fontSize={"lg"} fontWeight={"900"} color={"#102a43"}>Registrar serie</Text>
                         <Text color={"#627d98"} fontSize={"sm"} mt={"2px"}>Informe exercício, carga e repetições.</Text>
                         <Flex gap={"12px"} mt={"16px"} wrap={"wrap"} align={"end"}>
-                        <Box flex={"1 1 220px"}>
+                        <Box flex={"1 1 220px"} minW={0}>
                             <Text fontSize={"sm"} mb={"6px"} color={"#334e68"} fontWeight={"700"}>Exercicio</Text>
                             <NativeSelect.Root disabled={!canChangeSeries || treinoQuery.isLoading || exercicios.length === 0 || createSerieMutation.isPending}>
                                 <NativeSelect.Field
                                     value={exercicioId}
                                     onChange={(event) => setExercicioId(event.target.value)}
+                                    h={"44px"}
                                     borderColor={"#bcccdc"}
                                 >
                                     {exercicios.map((exercicio) => (
@@ -440,13 +445,15 @@ const Training = () => {
                             </NativeSelect.Root>
                         </Box>
 
-                        <Box flex={"1 1 120px"}>
+                        <Box flex={"1 1 120px"} minW={0}>
                             <Text fontSize={"sm"} mb={"6px"} color={"#334e68"} fontWeight={"700"}>Carga</Text>
                             <Input
                                 type="number"
+                                inputMode="decimal"
                                 min={0}
                                 step="0.01"
                                 value={magnitude}
+                                h={"44px"}
                                 borderColor={"#bcccdc"}
                                 _focus={{ borderColor: "#1f7a5b", boxShadow: "0 0 0 1px #1f7a5b" }}
                                 disabled={!canChangeSeries || createSerieMutation.isPending}
@@ -454,13 +461,15 @@ const Training = () => {
                             />
                         </Box>
 
-                        <Box flex={"1 1 120px"}>
+                        <Box flex={"1 1 120px"} minW={0}>
                             <Text fontSize={"sm"} mb={"6px"} color={"#334e68"} fontWeight={"700"}>Execucoes</Text>
                             <Input
                                 type="number"
+                                inputMode="numeric"
                                 min={1}
                                 step={1}
                                 value={execucoes}
+                                h={"44px"}
                                 borderColor={"#bcccdc"}
                                 _focus={{ borderColor: "#1f7a5b", boxShadow: "0 0 0 1px #1f7a5b" }}
                                 disabled={!canChangeSeries || createSerieMutation.isPending}
@@ -470,6 +479,8 @@ const Training = () => {
 
                         <Button
                             bg={"#1f7a5b"}
+                            w={{ base: "100%", sm: "auto" }}
+                            minH={"44px"}
                             color={"white"}
                             _hover={{ bg: "#176448" }}
                             onClick={handleCreateSerie}
@@ -489,9 +500,9 @@ const Training = () => {
                             p={"12px"}
                         >
                             <Flex justify={"space-between"} align={"flex-start"} gap={"10px"} wrap={"wrap"}>
-                                <Box>
+                                <Box minW={0} flex={"1 1 160px"}>
                                     <Text color={"#334e68"} fontSize={"sm"} fontWeight={"900"}>Ultimo desempenho</Text>
-                                    <Text color={"#627d98"} fontSize={"xs"} mt={"1px"}>{selectedExercicio.name}</Text>
+                                    <Text color={"#627d98"} fontSize={"xs"} mt={"1px"} lineClamp={2}>{selectedExercicio.name}</Text>
                                 </Box>
                                 {previousPerformanceQuery.previousPerformance && (
                                     <Text color={"#627d98"} fontSize={"xs"} fontWeight={"700"}>
@@ -526,10 +537,10 @@ const Training = () => {
                                             px={"10px"}
                                             py={"8px"}
                                         >
-                                            <Text color={"#627d98"} fontSize={"sm"} fontWeight={"800"}>
+                                            <Text color={"#627d98"} fontSize={"sm"} fontWeight={"800"} flexShrink={0}>
                                                 Serie {index + 1}
                                             </Text>
-                                            <Flex gap={"10px"} wrap={"wrap"} justify={{ base: "flex-start", sm: "flex-end" }}>
+                                            <Flex gap={"10px"} wrap={"wrap"} justify={{ base: "space-between", sm: "flex-end" }} flex={"1 1 160px"}>
                                                 <Text color={"#102a43"} fontSize={"sm"} fontWeight={"900"}>
                                                     {serie.magnitude} {selectedUnidadeAbv}
                                                 </Text>
@@ -567,6 +578,8 @@ const Training = () => {
                                 <Button
                                     mt={"10px"}
                                     size={"sm"}
+                                    minH={"44px"}
+                                    w={{ base: "100%", sm: "auto" }}
                                     variant={"outline"}
                                     borderColor={"#bcccdc"}
                                     color={"#334e68"}
@@ -579,8 +592,8 @@ const Training = () => {
                         ) : exercicios.length === 0 ? (
                             <Text mt={"16px"} color={"#627d98"}>Nenhum exercicio disponivel nesta ficha.</Text>
                         ) : (
-                            <Box maxHeight={"260px"} overflow={"auto"} mt={"16px"} border={"1px solid"} borderColor={"#e6edf5"} borderRadius={"8px"}>
-                                <Table.Root>
+                            <Box maxHeight={"260px"} overflowY={"auto"} overflowX={"auto"} mt={"16px"} border={"1px solid"} borderColor={"#e6edf5"} borderRadius={"8px"}>
+                                <Table.Root size={{ base: "sm", md: "md" }}>
                                     <Table.Header>
                                         <Table.Row bg={"#f8fafc"}>
                                             <Table.ColumnHeader>Nome</Table.ColumnHeader>
@@ -631,6 +644,8 @@ const Training = () => {
                                 <Button
                                     mt={"10px"}
                                     size={"sm"}
+                                    minH={"44px"}
+                                    w={{ base: "100%", sm: "auto" }}
                                     variant={"outline"}
                                     borderColor={"#bcccdc"}
                                     color={"#334e68"}
@@ -658,15 +673,15 @@ const Training = () => {
                                             bg={showEditForm ? "#f0fff4" : "#ffffff"}
                                         >
                                             <Flex justify={"space-between"} gap={"12px"} align={"flex-start"} wrap={"wrap"}>
-                                                <Box flex={"1 1 180px"}>
-                                                    <Text fontWeight={"800"} color={"#243b53"}>{serie.exercicio.name}</Text>
+                                                <Box flex={"1 1 180px"} minW={0}>
+                                                    <Text fontWeight={"800"} color={"#243b53"} lineClamp={2} wordBreak={"break-word"}>{serie.exercicio.name}</Text>
                                                     <Text fontSize={"sm"} color={"#627d98"}>
                                                         {serie.createdAt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
                                                     </Text>
                                                 </Box>
 
                                                 {!showEditForm && (
-                                                    <Flex gap={"8px"} align={"center"} wrap={"wrap"} justify={{ base: "flex-start", sm: "flex-end" }}>
+                                                    <Flex gap={"8px"} align={"center"} wrap={"wrap"} justify={{ base: "space-between", sm: "flex-end" }} w={{ base: "100%", sm: "auto" }}>
                                                         <Text fontWeight={"800"} color={"#102a43"}>
                                                             {serie.magnitude} {serie.exercicio.unMedida.abv}
                                                         </Text>
@@ -675,6 +690,8 @@ const Training = () => {
                                                             <>
                                                                 <Button
                                                                     size={"sm"}
+                                                                    minH={"44px"}
+                                                                    minW={"44px"}
                                                                     variant={"outline"}
                                                                     borderColor={"#bcccdc"}
                                                                     color={"#334e68"}
@@ -686,6 +703,8 @@ const Training = () => {
                                                                 </Button>
                                                                 <Button
                                                                     size={"sm"}
+                                                                    minH={"44px"}
+                                                                    minW={"44px"}
                                                                     variant={"outline"}
                                                                     color={"#b42318"}
                                                                     borderColor={"#f2b8b5"}
@@ -705,13 +724,15 @@ const Training = () => {
 
                                             {showEditForm && (
                                                 <Flex gap={"10px"} mt={"12px"} align={"end"} wrap={"wrap"}>
-                                                    <Box flex={"1 1 120px"}>
+                                                    <Box flex={"1 1 120px"} minW={0}>
                                                         <Text fontSize={"sm"} mb={"6px"} color={"#334e68"} fontWeight={"700"}>Carga</Text>
                                                         <Input
                                                             type="number"
+                                                            inputMode="decimal"
                                                             min={0}
                                                             step="0.01"
                                                             value={editMagnitude}
+                                                            h={"44px"}
                                                             borderColor={"#9ae6b4"}
                                                             bg={"white"}
                                                             _focus={{ borderColor: "#1f7a5b", boxShadow: "0 0 0 1px #1f7a5b" }}
@@ -720,13 +741,15 @@ const Training = () => {
                                                         />
                                                     </Box>
 
-                                                    <Box flex={"1 1 120px"}>
+                                                    <Box flex={"1 1 120px"} minW={0}>
                                                         <Text fontSize={"sm"} mb={"6px"} color={"#334e68"} fontWeight={"700"}>Execucoes</Text>
                                                         <Input
                                                             type="number"
+                                                            inputMode="numeric"
                                                             min={1}
                                                             step={1}
                                                             value={editExecucoes}
+                                                            h={"44px"}
                                                             borderColor={"#9ae6b4"}
                                                             bg={"white"}
                                                             _focus={{ borderColor: "#1f7a5b", boxShadow: "0 0 0 1px #1f7a5b" }}
@@ -739,9 +762,11 @@ const Training = () => {
                                                         {serie.exercicio.unMedida.abv}
                                                     </Text>
 
-                                                    <Flex gap={"8px"} wrap={"wrap"}>
+                                                    <Flex gap={"8px"} wrap={"wrap"} w={{ base: "100%", sm: "auto" }}>
                                                         <Button
                                                             size={"sm"}
+                                                            minH={"44px"}
+                                                            flex={{ base: "1 1 120px", sm: "0 0 auto" }}
                                                             bg={"#1f7a5b"}
                                                             color={"white"}
                                                             _hover={{ bg: "#176448" }}
@@ -752,6 +777,8 @@ const Training = () => {
                                                         </Button>
                                                         <Button
                                                             size={"sm"}
+                                                            minH={"44px"}
+                                                            flex={{ base: "1 1 120px", sm: "0 0 auto" }}
                                                             variant={"outline"}
                                                             borderColor={"#bcccdc"}
                                                             color={"#334e68"}

@@ -55,7 +55,7 @@ const TrainingHistoryDetails = () => {
                 <Box bg={"white"} border={"1px solid"} borderColor={"#dde6f0"} borderRadius={"8px"} p={{ base: "16px", md: "20px" }}>
                     <Text fontWeight={"900"} color={"#102a43"} fontSize={"lg"}>Treinamento nao encontrado</Text>
                     <Text color={"#627d98"} mt={"4px"}>Nao foi possivel encontrar esse registro no seu historico.</Text>
-                    <Button mt={"14px"} variant={"outline"} borderColor={"#bcccdc"} color={"#334e68"} onClick={handleBackToHistory}>
+                    <Button mt={"14px"} minH={"44px"} w={{ base: "100%", sm: "auto" }} variant={"outline"} borderColor={"#bcccdc"} color={"#334e68"} onClick={handleBackToHistory}>
                         <FiArrowLeft /> Voltar ao historico
                     </Button>
                 </Box>
@@ -68,10 +68,10 @@ const TrainingHistoryDetails = () => {
                     <Text fontWeight={"900"} color={"#102a43"} fontSize={"lg"}>Nao foi possivel carregar</Text>
                     <Text color={"#b42318"} mt={"4px"} fontWeight={"600"}>Tente atualizar o detalhe do treinamento.</Text>
                     <Flex mt={"14px"} gap={"10px"} wrap={"wrap"}>
-                        <Button variant={"outline"} borderColor={"#bcccdc"} color={"#334e68"} onClick={handleBackToHistory}>
+                        <Button minH={"44px"} w={{ base: "100%", sm: "auto" }} variant={"outline"} borderColor={"#bcccdc"} color={"#334e68"} onClick={handleBackToHistory}>
                             <FiArrowLeft /> Voltar
                         </Button>
-                        <Button bg={"#1f7a5b"} color={"white"} _hover={{ bg: "#176448" }} onClick={() => detailsQuery.refetch()}>
+                        <Button minH={"44px"} w={{ base: "100%", sm: "auto" }} bg={"#1f7a5b"} color={"white"} _hover={{ bg: "#176448" }} onClick={() => detailsQuery.refetch()}>
                             <FiRefreshCw /> Tentar novamente
                         </Button>
                     </Flex>
@@ -98,11 +98,11 @@ const TrainingHistoryDetails = () => {
                     p={{ base: "16px", md: "20px" }}
                 >
                     <Flex justify={"space-between"} gap={"14px"} align={"flex-start"} wrap={"wrap"}>
-                        <Box>
+                        <Box minW={0} flex={"1 1 240px"}>
                             <Text color={"#1f7a5b"} fontSize={"xs"} fontWeight={"800"} textTransform={"uppercase"}>
                                 Historico
                             </Text>
-                            <Text as={"h1"} fontWeight={"900"} fontSize={{ base: "2xl", md: "3xl" }} color={"#102a43"}>
+                            <Text as={"h1"} fontWeight={"900"} fontSize={{ base: "2xl", md: "3xl" }} color={"#102a43"} wordBreak={"break-word"}>
                                 {treinamento.treino.name}
                             </Text>
                             <Text color={"#627d98"} fontSize={"sm"} mt={"4px"}>
@@ -115,6 +115,8 @@ const TrainingHistoryDetails = () => {
 
                         <Button
                             variant={"outline"}
+                            minH={"44px"}
+                            w={{ base: "100%", sm: "auto" }}
                             borderColor={"#bcccdc"}
                             color={"#334e68"}
                             onClick={handleBackToHistory}
@@ -159,12 +161,12 @@ const TrainingHistoryDetails = () => {
 
                                 return (
                                     <Box key={exercicio.id} border={"1px solid"} borderColor={"#e6edf5"} borderRadius={"8px"} p={"12px"} bg={"#fbfdff"}>
-                                        <Flex justify={"space-between"} gap={"10px"} align={"center"}>
-                                            <Box>
-                                                <Text fontWeight={"800"} color={"#243b53"}>{exercicio.name}</Text>
+                                        <Flex justify={"space-between"} gap={"10px"} align={"center"} wrap={"wrap"}>
+                                            <Box minW={0} flex={"1 1 160px"}>
+                                                <Text fontWeight={"800"} color={"#243b53"} lineClamp={2}>{exercicio.name}</Text>
                                                 <Text color={"#627d98"} fontSize={"sm"}>{exercicio.unMedida.abv}</Text>
                                             </Box>
-                                            <Text color={"#1f7a5b"} fontWeight={"900"} whiteSpace={"nowrap"}>
+                                            <Text color={"#1f7a5b"} fontWeight={"900"} whiteSpace={"nowrap"} flexShrink={0}>
                                                 {seriesDoExercicio.length} series
                                             </Text>
                                         </Flex>
@@ -196,11 +198,11 @@ const TrainingHistoryDetails = () => {
                                 return (
                                     <Box key={serie.id} border={"1px solid"} borderColor={"#e6edf5"} borderRadius={"8px"} p={"12px"} bg={"#ffffff"}>
                                         <Flex justify={"space-between"} align={"flex-start"} gap={"12px"} wrap={"wrap"}>
-                                            <Box flex={"1 1 180px"}>
+                                            <Box flex={"1 1 180px"} minW={0}>
                                                 <Text color={"#627d98"} fontSize={"xs"} fontWeight={"800"} textTransform={"uppercase"}>
                                                     Serie {index + 1}
                                                 </Text>
-                                                <Text fontWeight={"800"} color={"#243b53"}>
+                                                <Text fontWeight={"800"} color={"#243b53"} lineClamp={2}>
                                                     {exercicio?.name || "Exercicio removido"}
                                                 </Text>
                                                 <Flex align={"center"} gap={"6px"} mt={"4px"} color={"#627d98"} fontSize={"sm"}>
@@ -209,7 +211,7 @@ const TrainingHistoryDetails = () => {
                                                 </Flex>
                                             </Box>
 
-                                            <Flex gap={"8px"} wrap={"wrap"} justify={{ base: "flex-start", sm: "flex-end" }}>
+                                            <Flex gap={"8px"} wrap={"wrap"} justify={{ base: "space-between", sm: "flex-end" }} w={{ base: "100%", sm: "auto" }}>
                                                 <Flex align={"center"} gap={"6px"} px={"10px"} py={"6px"} borderRadius={"8px"} bg={"#edf7f2"} color={"#1f7a5b"} fontWeight={"900"}>
                                                     <FiList />
                                                     <Text>{serie.magnitude} {exercicio?.unMedida.abv || ""}</Text>
