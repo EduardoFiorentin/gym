@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Input, NativeSelect, SimpleGrid, Table, Text } from "@chakra-ui/react";
+import { Box, Button, Flex, Input, NativeSelect, SimpleGrid, Spinner, Table, Text } from "@chakra-ui/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useEffect, useMemo, useState } from "react";
@@ -13,7 +13,7 @@ import { STORAGE_KEYS } from "../../utils/constants/storageKeys/storageKeys";
 import { formatToLocalDate } from "../../utils/functions/date/formatToLocalDate";
 import MainLayout from "../layouts/MainLayout";
 import { usePreviousExercisePerformance } from "../../hooks/usePreviousExercisePerformance";
-import { FiCheckCircle, FiEdit2, FiPlus, FiSave, FiTrash2, FiX } from "react-icons/fi";
+import { FiCheckCircle, FiEdit2, FiPlus, FiRefreshCw, FiSave, FiTrash2, FiX } from "react-icons/fi";
 
 interface ApiErrorResponse {
     message?: string
@@ -77,6 +77,8 @@ const Training = () => {
 
     const currentTraining = currentTrainingQuery.data;
     const canChangeSeries = Boolean(currentTraining && !currentTraining.finishedAt);
+    const isCurrentTrainingLoading = currentTrainingQuery.isLoading || (currentTrainingQuery.isFetching && currentTraining === undefined);
+    const isCurrentTrainingMissing = !isCurrentTrainingLoading && !currentTrainingQuery.error && currentTraining === null;
     const seriesQueryKey = useMemo(() => [
         STORAGE_KEYS.TREINAMENTO_SERIES_CACHE_KEY,
         currentTraining?.id
@@ -192,11 +194,15 @@ const Training = () => {
         }
     });
 
+    const isSerieMutationPending = updateSerieMutation.isPending || deleteSerieMutation.isPending;
+
     const handleHeaderIconClick = () => {
         navigate("/");
     }
 
     const handleCreateSerie = () => {
+        if (!canChangeSeries || createSerieMutation.isPending) return;
+
         const parsedSerieValues = parseSerieValues(magnitude, execucoes);
 
         if (!exercicioId || !parsedSerieValues) {
@@ -212,6 +218,8 @@ const Training = () => {
     }
 
     const handleStartEditSerie = (serie: SerieModel) => {
+        if (!canChangeSeries || isSerieMutationPending) return;
+
         setSerieActionError(null);
         setEditingSerieId(serie.id);
         setEditMagnitude(String(serie.magnitude));
@@ -226,6 +234,8 @@ const Training = () => {
     }
 
     const handleUpdateSerie = (serieId: string) => {
+        if (!canChangeSeries || isSerieMutationPending) return;
+
         const parsedSerieValues = parseSerieValues(editMagnitude, editExecucoes);
 
         if (!parsedSerieValues) {
@@ -244,8 +254,109 @@ const Training = () => {
         deleteSerieMutation.mutate(serieId);
     }
 
-    const isSerieMutationPending = updateSerieMutation.isPending || deleteSerieMutation.isPending;
+    const handleFinishTreinamento = () => {
+        if (!canChangeSeries || finishTreinamentoMutation.isPending) return;
+        finishTreinamentoMutation.mutate();
+    }
+
     const selectedUnidadeAbv = selectedExercicio?.unMedida.abv || "";
+
+    const renderCurrentTrainingState = () => {
+        if (isCurrentTrainingLoading) {
+            return (
+                <Box
+                    bg={"white"}
+                    border={"1px solid"}
+                    borderColor={"#dde6f0"}
+                    borderRadius={"8px"}
+                    boxShadow={"0 12px 30px rgba(15, 23, 42, 0.06)"}
+                    p={{ base: "18px", md: "22px" }}
+                >
+                    <Flex align={"center"} gap={"12px"}>
+                        <Spinner color={"#1f7a5b"} />
+                        <Box>
+                            <Text fontWeight={"900"} color={"#102a43"}>Carregando treino em andamento</Text>
+                            <Text color={"#627d98"} fontSize={"sm"} mt={"2px"}>
+                                Estamos recuperando sua execucao antes de mostrar os dados.
+                            </Text>
+                        </Box>
+                    </Flex>
+                </Box>
+            );
+        }
+
+        if (currentTrainingQuery.error) {
+            return (
+                <Box
+                    bg={"white"}
+                    border={"1px solid"}
+                    borderColor={"#f2b8b5"}
+                    borderRadius={"8px"}
+                    boxShadow={"0 12px 30px rgba(15, 23, 42, 0.06)"}
+                    p={{ base: "18px", md: "22px" }}
+                >
+                    <Text fontWeight={"900"} color={"#102a43"}>Nao foi possivel carregar o treino em andamento</Text>
+                    <Text color={"#b42318"} fontSize={"sm"} fontWeight={"600"} mt={"4px"}>
+                        Verifique sua conexao e tente novamente.
+                    </Text>
+                    <Flex mt={"14px"} gap={"10px"} wrap={"wrap"}>
+                        <Button
+                            bg={"#1f7a5b"}
+                            color={"white"}
+                            _hover={{ bg: "#176448" }}
+                            loading={currentTrainingQuery.isFetching}
+                            onClick={() => void currentTrainingQuery.refetch()}
+                        >
+                            <FiRefreshCw /> Tentar novamente
+                        </Button>
+                        <Button variant={"outline"} borderColor={"#bcccdc"} color={"#334e68"} onClick={() => navigate("/")}>
+                            Voltar ao inicio
+                        </Button>
+                    </Flex>
+                </Box>
+            );
+        }
+
+        if (currentTraining === undefined) {
+            return (
+                <Box
+                    bg={"white"}
+                    border={"1px solid"}
+                    borderColor={"#dde6f0"}
+                    borderRadius={"8px"}
+                    boxShadow={"0 12px 30px rgba(15, 23, 42, 0.06)"}
+                    p={{ base: "18px", md: "22px" }}
+                >
+                    <Text fontWeight={"900"} color={"#102a43"}>Preparando treinamento</Text>
+                    <Text color={"#627d98"} fontSize={"sm"} mt={"4px"}>
+                        Aguarde um instante.
+                    </Text>
+                </Box>
+            );
+        }
+
+        if (isCurrentTrainingMissing) {
+            return (
+                <Box
+                    bg={"white"}
+                    border={"1px solid"}
+                    borderColor={"#dde6f0"}
+                    borderRadius={"8px"}
+                    boxShadow={"0 12px 30px rgba(15, 23, 42, 0.06)"}
+                    p={{ base: "18px", md: "22px" }}
+                >
+                    <Text fontWeight={"900"} color={"#102a43"}>Nenhum treino em andamento</Text>
+                    <Text color={"#627d98"} fontSize={"sm"} mt={"4px"}>
+                        Voltando para a tela inicial.
+                    </Text>
+                </Box>
+            );
+        }
+
+        return null;
+    }
+
+    const currentTrainingState = renderCurrentTrainingState();
 
     return (
         <MainLayout
@@ -253,6 +364,7 @@ const Training = () => {
             icon={<IoMdExit size={"28px"}/>}
             iconFunc={handleHeaderIconClick}
         >
+            {currentTrainingState ? currentTrainingState : (
             <Flex flexDir={"column"} gap={"16px"} pb={"20px"}>
                 <Flex
                     bg={"white"}
@@ -271,7 +383,7 @@ const Training = () => {
                             Execucao ativa
                         </Text>
                         <Text as={"h1"} fontWeight={"900"} fontSize={{ base: "2xl", md: "3xl" }} color={"#102a43"}>
-                            {currentTraining?.treinoName || "Treinamento"}
+                            {currentTraining?.treinoName}
                         </Text>
                         {currentTraining && (
                             <Text fontSize={"sm"} color={"#627d98"} mt={"4px"}>
@@ -285,7 +397,8 @@ const Training = () => {
                             bg={"#1f7a5b"}
                             color={"white"}
                             _hover={{ bg: "#176448" }}
-                            onClick={() => finishTreinamentoMutation.mutate()}
+                            loading={finishTreinamentoMutation.isPending}
+                            onClick={handleFinishTreinamento}
                             disabled={!canChangeSeries || finishTreinamentoMutation.isPending}
                         >
                             <FiCheckCircle /> {finishTreinamentoMutation.isPending ? "Finalizando..." : "Finalizar"}
@@ -446,25 +559,45 @@ const Training = () => {
                     >
                         <Text fontSize={"lg"} fontWeight={"900"} color={"#102a43"}>Exercicios da ficha</Text>
                         <Text color={"#627d98"} fontSize={"sm"} mt={"2px"}>Movimentos disponiveis para registrar series.</Text>
-                        <Box maxHeight={"260px"} overflow={"auto"} mt={"16px"} border={"1px solid"} borderColor={"#e6edf5"} borderRadius={"8px"}>
-                        <Table.Root>
-                            <Table.Header>
-                                <Table.Row bg={"#f8fafc"}>
-                                    <Table.ColumnHeader>Nome</Table.ColumnHeader>
-                                    <Table.ColumnHeader>Unidade</Table.ColumnHeader>
-                                </Table.Row>
-                            </Table.Header>
-                            <Table.Body>
-                                {exercicios.map((exercicio) => (
-                                    <Table.Row key={exercicio.id}>
-                                        <Table.Cell>{exercicio.name}</Table.Cell>
-                                        <Table.Cell>{exercicio.unMedida.abv}</Table.Cell>
-                                    </Table.Row>
-                                ))}
-                            </Table.Body>
-                        </Table.Root>
-                        </Box>
-                        {treinoQuery.error && <Text mt={"10px"} color={"#b42318"} fontWeight={"600"}>Nao foi possivel carregar a ficha.</Text>}
+                        {treinoQuery.isLoading ? (
+                            <Text mt={"16px"} color={"#627d98"}>Carregando ficha...</Text>
+                        ) : treinoQuery.error ? (
+                            <Box mt={"16px"} border={"1px solid"} borderColor={"#f2b8b5"} borderRadius={"8px"} p={"12px"}>
+                                <Text color={"#b42318"} fontWeight={"600"}>Nao foi possivel carregar a ficha.</Text>
+                                <Button
+                                    mt={"10px"}
+                                    size={"sm"}
+                                    variant={"outline"}
+                                    borderColor={"#bcccdc"}
+                                    color={"#334e68"}
+                                    loading={treinoQuery.isFetching}
+                                    onClick={() => void treinoQuery.refetch()}
+                                >
+                                    <FiRefreshCw /> Tentar novamente
+                                </Button>
+                            </Box>
+                        ) : exercicios.length === 0 ? (
+                            <Text mt={"16px"} color={"#627d98"}>Nenhum exercicio disponivel nesta ficha.</Text>
+                        ) : (
+                            <Box maxHeight={"260px"} overflow={"auto"} mt={"16px"} border={"1px solid"} borderColor={"#e6edf5"} borderRadius={"8px"}>
+                                <Table.Root>
+                                    <Table.Header>
+                                        <Table.Row bg={"#f8fafc"}>
+                                            <Table.ColumnHeader>Nome</Table.ColumnHeader>
+                                            <Table.ColumnHeader>Unidade</Table.ColumnHeader>
+                                        </Table.Row>
+                                    </Table.Header>
+                                    <Table.Body>
+                                        {exercicios.map((exercicio) => (
+                                            <Table.Row key={exercicio.id}>
+                                                <Table.Cell>{exercicio.name}</Table.Cell>
+                                                <Table.Cell>{exercicio.unMedida.abv}</Table.Cell>
+                                            </Table.Row>
+                                        ))}
+                                    </Table.Body>
+                                </Table.Root>
+                            </Box>
+                        )}
                     </Box>
                 </SimpleGrid>
 
@@ -493,7 +626,20 @@ const Training = () => {
                         {seriesQuery.isLoading ? (
                             <Text color={"#627d98"}>Carregando series...</Text>
                         ) : seriesQuery.error ? (
-                            <Text color={"#b42318"} fontWeight={"600"}>Nao foi possivel carregar as series.</Text>
+                            <Box>
+                                <Text color={"#b42318"} fontWeight={"600"}>Nao foi possivel carregar as series.</Text>
+                                <Button
+                                    mt={"10px"}
+                                    size={"sm"}
+                                    variant={"outline"}
+                                    borderColor={"#bcccdc"}
+                                    color={"#334e68"}
+                                    loading={seriesQuery.isFetching}
+                                    onClick={() => void seriesQuery.refetch()}
+                                >
+                                    <FiRefreshCw /> Tentar novamente
+                                </Button>
+                            </Box>
                         ) : seriesQuery.data?.length === 0 ? (
                             <Text color={"#627d98"}>Nenhuma serie registrada.</Text>
                         ) : (
@@ -625,6 +771,7 @@ const Training = () => {
                     </Box>
                 </Box>
             </Flex>
+            )}
         </MainLayout>
     )
 }

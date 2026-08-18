@@ -1,4 +1,4 @@
-import { Box, Text } from "@chakra-ui/react"
+import { Box, Button, Text } from "@chakra-ui/react"
 import BaseContainer from "./BaseContainer"
 import TreinosListItem from "./TreinosListItem"
 import { useNavigate } from "react-router"
@@ -10,10 +10,23 @@ import { STORAGE_KEYS } from "../../../utils/constants/storageKeys/storageKeys"
 import type { TreinamentoModel } from "../../../models/Treinamento.model"
 import axios from "axios"
 import { useState } from "react"
+import { FiRefreshCw } from "react-icons/fi"
 
+interface ApiErrorResponse {
+    message?: string
+}
 
 interface ITreinosListComponentProps {
     currentTraining?: TreinamentoModel | null
+}
+
+const getStartErrorMessage = (error: unknown): string => {
+    if (axios.isAxiosError<ApiErrorResponse>(error)) {
+        const responseMessage = error.response?.data?.message?.trim()
+        if (responseMessage) return responseMessage
+    }
+
+    return "Nao foi possivel iniciar o treinamento."
 }
 
 const TreinosListComponent = ({ currentTraining = null }: ITreinosListComponentProps) => {
@@ -21,13 +34,16 @@ const TreinosListComponent = ({ currentTraining = null }: ITreinosListComponentP
     const queryClient = useQueryClient()
     const { treinos, isLoading, error } = useTreinos()
     const [startError, setStartError] = useState<string | null>(null)
+    const [failedStartTreinoId, setFailedStartTreinoId] = useState<string | null>(null)
 
     const startTreinamentoMutation = useMutation({
         mutationFn: (treinoId: string) => TreinamentoClient.startTreinamento(treinoId),
-        onMutate: () => {
+        onMutate: (treinoId) => {
             setStartError(null)
+            setFailedStartTreinoId(treinoId)
         },
         onSuccess: (treinamento) => {
+            setFailedStartTreinoId(null)
             queryClient.setQueryData(STORAGE_KEYS.CURRENT_TREINAMENTO_CACHE_KEY, treinamento)
             navigate("/training")
         },
@@ -36,6 +52,7 @@ const TreinosListComponent = ({ currentTraining = null }: ITreinosListComponentP
                 try {
                     const activeTraining = await TreinamentoClient.getCurrentTreinamento()
                     if (activeTraining) {
+                        setFailedStartTreinoId(null)
                         queryClient.setQueryData(STORAGE_KEYS.CURRENT_TREINAMENTO_CACHE_KEY, activeTraining)
                         navigate("/training")
                         return
@@ -46,14 +63,17 @@ const TreinosListComponent = ({ currentTraining = null }: ITreinosListComponentP
                 }
             }
 
-            setStartError("Nao foi possivel iniciar o treinamento.")
+            setStartError(getStartErrorMessage(mutationError))
         }
     })
 
     const handleRedirect = (treino: TreinoModel) => {
+        if (startTreinamentoMutation.isPending) return
+
         setStartError(null)
         if (currentTraining) {
             queryClient.setQueryData(STORAGE_KEYS.CURRENT_TREINAMENTO_CACHE_KEY, currentTraining)
+            setFailedStartTreinoId(null)
             navigate("/training")
             return
         }
@@ -78,7 +98,25 @@ const TreinosListComponent = ({ currentTraining = null }: ITreinosListComponentP
                 flexDirection={"column"}
                 gap={"10px"}
             >
-                {startError && <Text color={"#b42318"} fontWeight={"600"}>{startError}</Text>}
+                {startError && (
+                    <Box border={"1px solid"} borderColor={"#f2b8b5"} borderRadius={"8px"} p={"12px"} bg={"#fffafa"}>
+                        <Text color={"#b42318"} fontWeight={"600"}>{startError}</Text>
+                        {failedStartTreinoId && !currentTraining && (
+                            <Button
+                                mt={"10px"}
+                                size={"sm"}
+                                variant={"outline"}
+                                borderColor={"#bcccdc"}
+                                color={"#334e68"}
+                                loading={startTreinamentoMutation.isPending}
+                                disabled={startTreinamentoMutation.isPending}
+                                onClick={() => startTreinamentoMutation.mutate(failedStartTreinoId)}
+                            >
+                                <FiRefreshCw /> Tentar novamente
+                            </Button>
+                        )}
+                    </Box>
+                )}
                 {isLoading ? (
                     <Text color={"#627d98"}>Carregando treinos...</Text>
                 ) : error ? (
@@ -91,7 +129,7 @@ const TreinosListComponent = ({ currentTraining = null }: ITreinosListComponentP
                             key={tr.id}
                             name={tr.name}
                             disabled={startTreinamentoMutation.isPending}
-                            actionLabel={currentTraining ? "Continuar" : "Iniciar"}
+                            actionLabel={startTreinamentoMutation.isPending ? "Iniciando..." : currentTraining ? "Continuar" : "Iniciar"}
                             onClickRedirect={() => handleRedirect(tr)}
                         />
                     ))
