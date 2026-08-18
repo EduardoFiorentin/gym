@@ -3,6 +3,8 @@ package gym.backend.exceptions;
 import java.time.Instant;
 import java.util.Objects;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -12,120 +14,160 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.ValidationException;
 
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-// 1. Tratamento para Recurso Não Encontrado (404)
+    private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleResourceNotFound(ResourceNotFoundException ex, HttpServletRequest     request) {
-        ErrorResponse error = new ErrorResponse(
-            Instant.now(),
-            HttpStatus.NOT_FOUND.value(),
-            HttpStatus.NOT_FOUND.getReasonPhrase(),
-            ex.getMessage(),
-            request.getRequestURI() // Retorna "/api/treinos/123"
+    public ResponseEntity<ErrorResponse> handleResourceNotFound(
+        ResourceNotFoundException ex,
+        HttpServletRequest request
+    ) {
+        return buildErrorResponse(
+            HttpStatus.NOT_FOUND,
+            messageOrDefault(ex, "Recurso nao encontrado."),
+            request
         );
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
-    // 2. Tratamento para Violação de Regra de Negócio (422)
-    // O 422 (Unprocessable Entity) é mais semântico que o 400 para erros de domínio.
     @ExceptionHandler(BusinessRuleException.class)
-    public ResponseEntity<ErrorResponse> handleBusinessRule(BusinessRuleException ex, HttpServletRequest     request) {
-        ErrorResponse error = new ErrorResponse(
-            Instant.now(),
-            HttpStatus.UNPROCESSABLE_ENTITY.value(),
-            HttpStatus.UNPROCESSABLE_ENTITY.getReasonPhrase(),
-            ex.getMessage(),
-            request.getRequestURI() // Retorna "/api/treinos/123"
+    public ResponseEntity<ErrorResponse> handleBusinessRule(
+        BusinessRuleException ex,
+        HttpServletRequest request
+    ) {
+        return buildErrorResponse(
+            HttpStatus.UNPROCESSABLE_ENTITY,
+            messageOrDefault(ex, "Regra de negocio violada."),
+            request
         );
-        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(error);
     }
 
-    // 3. Tratamento para Recurso Duplicado / Conflito (409)
     @ExceptionHandler(DuplicateResourceException.class)
-    public ResponseEntity<ErrorResponse> handleDuplicateResource(DuplicateResourceException ex, HttpServletRequest   request) {
-        ErrorResponse error = new ErrorResponse(
-            Instant.now(),
-            HttpStatus.CONFLICT.value(),
-            HttpStatus.CONFLICT.getReasonPhrase(),
-            ex.getMessage(),
-            request.getRequestURI() // Retorna "/api/treinos/123"
+    public ResponseEntity<ErrorResponse> handleDuplicateResource(
+        DuplicateResourceException ex,
+        HttpServletRequest request
+    ) {
+        return buildErrorResponse(
+            HttpStatus.CONFLICT,
+            messageOrDefault(ex, "Recurso ja existe."),
+            request
         );
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
-    // 4. Tratamento para Ação Não Autorizada (403)
     @ExceptionHandler(UnauthorizedActionException.class)
-    public ResponseEntity<ErrorResponse> handleUnauthorizedAction(UnauthorizedActionException ex, HttpServletRequest     request) {
-        System.out.println("Exception handler - Unauthorized");
-        ErrorResponse error = new ErrorResponse(
-            Instant.now(),
-            HttpStatus.FORBIDDEN.value(),
-            HttpStatus.FORBIDDEN.getReasonPhrase(),
-            ex.getMessage(),
-            request.getRequestURI() // Retorna "/api/treinos/123"
+    public ResponseEntity<ErrorResponse> handleUnauthorizedAction(
+        UnauthorizedActionException ex,
+        HttpServletRequest request
+    ) {
+        return buildErrorResponse(
+            HttpStatus.FORBIDDEN,
+            messageOrDefault(ex, "Acao nao permitida."),
+            request
         );
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
-
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpServletRequest  request) {
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(
+        MethodArgumentNotValidException ex,
+        HttpServletRequest request
+    ) {
         String message = ex.getBindingResult().getAllErrors().stream()
             .map(error -> error.getDefaultMessage())
             .filter(Objects::nonNull)
             .findFirst()
             .orElse("Payload da requisicao invalido.");
 
-        ErrorResponse errorResponse = new ErrorResponse(
-            Instant.now(),
-            HttpStatus.BAD_REQUEST.value(),
-            HttpStatus.BAD_REQUEST.getReasonPhrase(),
-            message,
-            request.getRequestURI() // Retorna "/api/treinos/123"
-        );
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, message, request);
+    }
 
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolation(
+        ConstraintViolationException ex,
+        HttpServletRequest request
+    ) {
+        String message = ex.getConstraintViolations().stream()
+            .map(violation -> violation.getMessage())
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(messageOrDefault(ex, "Parametros da requisicao invalidos."));
+
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, message, request);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpServletRequest  request) {
-        ErrorResponse errorResponse = new ErrorResponse(
-            Instant.now(),
-            HttpStatus.BAD_REQUEST.value(),
-            HttpStatus.BAD_REQUEST.getReasonPhrase(),
+    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(
+        HttpMessageNotReadableException ex,
+        HttpServletRequest request
+    ) {
+        return buildErrorResponse(
+            HttpStatus.BAD_REQUEST,
             "Payload da requisicao invalido ou ausente.",
-            request.getRequestURI()
+            request
         );
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
-    // TODO See what is the correct HTTP code for this response
     @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ValidationException ex, HttpServletRequest  request) {
-        ErrorResponse errorResponse = new ErrorResponse(
-            Instant.now(),
-            HttpStatus.BAD_REQUEST.value(),
-            HttpStatus.BAD_REQUEST.getReasonPhrase(),
-            ex.getMessage(),
-            request.getRequestURI() // Retorna "/api/treinos/123"
+    public ResponseEntity<ErrorResponse> handleValidation(
+        ValidationException ex,
+        HttpServletRequest request
+    ) {
+        return buildErrorResponse(
+            HttpStatus.BAD_REQUEST,
+            messageOrDefault(ex, "Dados da requisicao invalidos."),
+            request
         );
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(BadCredentialsException ex, HttpServletRequest  request) {
+    public ResponseEntity<ErrorResponse> handleBadCredentials(
+        BadCredentialsException ex,
+        HttpServletRequest request
+    ) {
+        return buildErrorResponse(
+            HttpStatus.UNAUTHORIZED,
+            "Credenciais invalidas.",
+            request
+        );
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleUnexpected(
+        Exception ex,
+        HttpServletRequest request
+    ) {
+        LOGGER.error("Unexpected API error on {}", request.getRequestURI(), ex);
+        return buildErrorResponse(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            "Erro interno ao processar requisicao.",
+            request
+        );
+    }
+
+    private ResponseEntity<ErrorResponse> buildErrorResponse(
+        HttpStatus status,
+        String message,
+        HttpServletRequest request
+    ) {
         ErrorResponse errorResponse = new ErrorResponse(
             Instant.now(),
-            HttpStatus.UNAUTHORIZED.value(),
-            HttpStatus.UNAUTHORIZED.getReasonPhrase(),
-            "Invalid Credentials",
-            request.getRequestURI() 
+            status.value(),
+            status.getReasonPhrase(),
+            message,
+            request.getRequestURI()
         );
-        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+        return ResponseEntity.status(status).body(errorResponse);
+    }
+
+    private String messageOrDefault(Exception ex, String defaultMessage) {
+        String message = ex.getMessage();
+        if (message == null || message.isBlank()) {
+            return defaultMessage;
+        }
+        return message;
     }
 }
