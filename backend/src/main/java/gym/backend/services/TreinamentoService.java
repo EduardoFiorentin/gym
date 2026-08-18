@@ -112,18 +112,17 @@ public class TreinamentoService {
 
     @Transactional
     public TreinamentoResponseDTO finishTreinamento(String username, UUID treinamentoId) {
-        Treinamento treinamento = getTreinamentoEntityByUser(treinamentoId, username);
+        Treinamento treinamento = getTreinamentoEntityByUserForUpdate(treinamentoId, username);
 
-        if (treinamento.getFinishedAt() == null) {
-            treinamento.setFinishedAt(Instant.now());
-        }
+        ensureTreinamentoCanBeFinished(treinamento);
+        treinamento.setFinishedAt(Instant.now());
 
         return TreinamentoResponseDTO.toDto(treinamentoRepository.save(treinamento));
     }
 
     @Transactional
     public SerieResponseDTO createSerie(String username, UUID treinamentoId, SerieRequestDTO request) {
-        Treinamento treinamento = getTreinamentoEntityByUser(treinamentoId, username);
+        Treinamento treinamento = getTreinamentoEntityByUserForUpdate(treinamentoId, username);
         ensureTreinamentoAcceptsSerieChanges(treinamento, "registrar");
 
         Exercicio exercicio = exercicioRepository
@@ -148,8 +147,9 @@ public class TreinamentoService {
         Serie serie = serieRepository
             .findByIdAndTreinamentoIdAndTreinamentoTreinoUserLogin(serieId, treinamentoId, username)
             .orElseThrow(() -> new ResourceNotFoundException("Serie nao encontrada."));
+        Treinamento treinamento = getTreinamentoEntityByUserForUpdate(treinamentoId, username);
 
-        ensureTreinamentoAcceptsSerieChanges(serie.getTreinamento(), "alterar");
+        ensureTreinamentoAcceptsSerieChanges(treinamento, "alterar");
 
         serie.setMagnitude(request.magnitude());
         serie.setExecucoes(request.execucoes());
@@ -162,8 +162,9 @@ public class TreinamentoService {
         Serie serie = serieRepository
             .findByIdAndTreinamentoIdAndTreinamentoTreinoUserLogin(serieId, treinamentoId, username)
             .orElseThrow(() -> new ResourceNotFoundException("Serie nao encontrada."));
+        Treinamento treinamento = getTreinamentoEntityByUserForUpdate(treinamentoId, username);
 
-        ensureTreinamentoAcceptsSerieChanges(serie.getTreinamento(), "remover");
+        ensureTreinamentoAcceptsSerieChanges(treinamento, "remover");
 
         serieRepository.delete(serie);
     }
@@ -181,6 +182,17 @@ public class TreinamentoService {
     private Treinamento getTreinamentoEntityByUser(UUID treinamentoId, String username) {
         return treinamentoRepository.findByIdAndTreinoUserLogin(treinamentoId, username)
             .orElseThrow(() -> new ResourceNotFoundException("Treinamento nao encontrado."));
+    }
+
+    private Treinamento getTreinamentoEntityByUserForUpdate(UUID treinamentoId, String username) {
+        return treinamentoRepository.lockByIdAndTreinoUserLogin(treinamentoId, username)
+            .orElseThrow(() -> new ResourceNotFoundException("Treinamento nao encontrado."));
+    }
+
+    private void ensureTreinamentoCanBeFinished(Treinamento treinamento) {
+        if (treinamento.getFinishedAt() != null) {
+            throw new BusinessRuleException("Treinamento ja esta finalizado.");
+        }
     }
 
     private void ensureTreinamentoAcceptsSerieChanges(Treinamento treinamento, String action) {

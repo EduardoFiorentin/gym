@@ -59,6 +59,7 @@ const Training = () => {
     const [editExecucoes, setEditExecucoes] = useState("");
     const [createSerieError, setCreateSerieError] = useState<string | null>(null);
     const [serieActionError, setSerieActionError] = useState<string | null>(null);
+    const [finishTreinamentoError, setFinishTreinamentoError] = useState<string | null>(null);
 
     const currentTrainingQuery = useQuery({
         queryKey: STORAGE_KEYS.CURRENT_TREINAMENTO_CACHE_KEY,
@@ -175,10 +176,18 @@ const Training = () => {
 
     const finishTreinamentoMutation = useMutation({
         mutationFn: () => TreinamentoClient.finishTreinamento(currentTraining!.id),
+        onMutate: () => {
+            setFinishTreinamentoError(null);
+        },
         onSuccess: () => {
             queryClient.setQueryData(STORAGE_KEYS.CURRENT_TREINAMENTO_CACHE_KEY, null);
             queryClient.invalidateQueries({ queryKey: STORAGE_KEYS.HISTORY_TREINAMENTOS_LIST_CACHE_KEY });
             navigate("/");
+        },
+        onError: (error) => {
+            setFinishTreinamentoError(getMutationErrorMessage(error, "Nao foi possivel finalizar o treinamento."));
+            queryClient.invalidateQueries({ queryKey: STORAGE_KEYS.CURRENT_TREINAMENTO_CACHE_KEY });
+            queryClient.invalidateQueries({ queryKey: STORAGE_KEYS.HISTORY_TREINAMENTOS_LIST_CACHE_KEY });
         }
     });
 
@@ -270,15 +279,22 @@ const Training = () => {
                         )}
                     </Box>
 
-                    <Button
-                        bg={"#1f7a5b"}
-                        color={"white"}
-                        _hover={{ bg: "#176448" }}
-                        onClick={() => finishTreinamentoMutation.mutate()}
-                        disabled={!currentTraining || finishTreinamentoMutation.isPending}
-                    >
-                        <FiCheckCircle /> {finishTreinamentoMutation.isPending ? "Finalizando..." : "Finalizar"}
-                    </Button>
+                    <Box>
+                        <Button
+                            bg={"#1f7a5b"}
+                            color={"white"}
+                            _hover={{ bg: "#176448" }}
+                            onClick={() => finishTreinamentoMutation.mutate()}
+                            disabled={!canChangeSeries || finishTreinamentoMutation.isPending}
+                        >
+                            <FiCheckCircle /> {finishTreinamentoMutation.isPending ? "Finalizando..." : "Finalizar"}
+                        </Button>
+                        {finishTreinamentoError && (
+                            <Text mt={"8px"} color={"#b42318"} fontSize={"sm"} fontWeight={"600"} maxW={"280px"}>
+                                {finishTreinamentoError}
+                            </Text>
+                        )}
+                    </Box>
                 </Flex>
 
                 <SimpleGrid columns={{ base: 1, lg: 2 }} gap={"16px"}>

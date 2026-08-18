@@ -6,17 +6,33 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import gym.backend.controller.dto.TreinamentoResponseDTO;
 import gym.backend.models.Treinamento;
+import jakarta.persistence.LockModeType;
 
 @Repository
 public interface TreinamentoRepository extends JpaRepository<Treinamento, UUID> {
     
     Optional<Treinamento> findByIdAndTreinoUserLogin(UUID id, String login);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+        select tr
+        from Treinamento tr
+        join fetch tr.treino t
+        join fetch t.user u
+        where tr.id = :id
+        and u.login = :login
+        """)
+    Optional<Treinamento> lockByIdAndTreinoUserLogin(
+        @Param("id") UUID id,
+        @Param("login") String login
+    );
 
     @Query("""
         select tr
