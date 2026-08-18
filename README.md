@@ -1,69 +1,244 @@
-# 🏋️‍♂️ Gym Tracker (MVP)
+# Gym Tracker
 
-**AINDA EM DESENVOLVIMENTO**
+Gym Tracker e um MVP para registrar treinos de musculacao de forma simples durante a execucao real do treino. O foco da versao `v0.1.0` e resolver o fluxo essencial: criar uma ficha, iniciar um treino, registrar series, finalizar e consultar o historico com referencia do ultimo desempenho por exercicio.
 
-Este é um aplicativo de anotação e acompanhamento de treinos simples. Desenvolvi este projeto como um Produto Mínimo Viável (MVP) durante as minhas férias da faculdade para gerenciar minha rotina de exercícios na academia, servindo também como uma demonstração de habilidades de desenvolvimento Full-Stack.
+O projeto esta organizado como uma aplicacao web com frontend React, backend Spring Boot e PostgreSQL. Nao e uma arquitetura de microservicos.
 
-## 🎯 Objetivo do Projeto
-Criar uma plataforma intuitiva para registro e acompanhamento de treinos diários. A arquitetura foi pensada para ser escalável, utilizando contêineres para facilitar a execução em qualquer ambiente.
+## Problema Resolvido
 
+Durante um treino, anotacoes em papel ou apps genericos dificultam consultar rapidamente o que foi feito antes e manter o historico consistente. O Gym Tracker centraliza:
 
+- fichas de treino com exercicios;
+- execucao de um treino ativo;
+- series com magnitude/carga e repeticoes;
+- historico de treinos finalizados;
+- ultimo desempenho anterior do exercicio selecionado.
 
-## ✍️ Notação: 
-**< exercicio >: (peso) < num_execuções >**
+## Fluxo Principal do MVP
 
-### Exemplo
+1. Autenticacao: o usuario entra na aplicacao e a sessao e mantida por cookie `HttpOnly`.
+2. Ficha: o usuario cadastra uma ficha de treino com um nome e uma lista de exercicios.
+3. Inicio do treino: o usuario inicia uma execucao a partir de uma ficha.
+4. Treino ativo: o treino em andamento e recuperado apos refresh enquanto nao for finalizado.
+5. Series: o usuario registra, edita e remove series do treino ativo.
+6. Ultimo desempenho: ao selecionar um exercicio, a tela mostra as series da ultima execucao finalizada desse exercicio.
+7. Finalizacao: o usuario finaliza o treino ativo.
+8. Historico: a home lista execucoes finalizadas recentes.
+9. Detalhes: o usuario abre um treino historico e ve ficha, exercicios e series registradas.
 
-Supino reto: (30Kg) 10 10 10 (25Kg) 12 
-Significa que, no exercicio 'Supino reto' foram feitas 3 séries de 10 repetições com 30 Quiligramas, e mais uma série de 12 repetições com 25 Quilogramas.
+## Funcionalidades Implementadas
 
-A estrutura da base de dados permite ainda cadastro de exercicios com outras unidades de medida, como polegadas, quilômetros, unidades abstratas, etc. Basta que um novo registro seja adicionado à relação de unidades da base de dados.
+- Login, logout, `/auth/me` e registro de usuario.
+- JWT armazenado em cookie `HttpOnly`, com `SameSite`, `Secure` configuravel por ambiente e protecao CSRF para requisicoes mutaveis.
+- Rotas internas protegidas no frontend.
+- Cadastro e listagem de fichas de treino.
+- Cadastro de exercicios junto da ficha.
+- Unidade padrao estrutural `kg` para exercicios criados sem unidade explicita.
+- Inicio de treinamento a partir de ficha existente.
+- Garantia de no maximo um treinamento ativo por usuario.
+- Recuperacao deterministica do treinamento ativo.
+- Registro, edicao e remocao de series no treino ativo.
+- Bloqueio de alteracoes em treinamento finalizado.
+- Finalizacao de treinamento com comportamento deterministico para chamadas repetidas.
+- Historico de treinamentos finalizados.
+- Tela de detalhes do historico com exercicios e series ordenados.
+- Consulta de ultimo desempenho anterior por exercicio, considerando apenas treinamentos finalizados do usuario autenticado.
+- Isolamento de dados por usuario no backend.
+- Estados de loading, vazio e erro nos fluxos principais.
+- Ajustes de responsividade para larguras comuns de celular.
 
-
-## 🚀 Tecnologias Utilizadas
-
-Este projeto foi construído utilizando as seguintes tecnologias:
+## Stack Atual
 
 ### Frontend
-* **React (v19)**: Biblioteca principal para a construção da interface de usuário.
-* **TypeScript**: Adiciona tipagem estática ao JavaScript, garantindo maior segurança e facilidade na manutenção do código.
-* **Vite**: Ferramenta de build para a aplicação front-end.
-* **Chakra UI & Emotion**: Utilizados para a criação de componentes de interface estilizados, responsivos e acessíveis.
-* **Zod**: Para validação de dados e formulários.
-* **Axios**: Cliente HTTP para realizar a comunicação com a API.
-<!-- * **Framer Motion**: Adição de animações fluidas na interface. -->
+
+- React 19
+- TypeScript
+- Vite
+- Chakra UI 3
+- TanStack Query
+- Axios
+- React Router
+- ESLint 9 com Flat Config
 
 ### Backend
-* **Java 21**: Linguagem de programação moderna e performática.
-* **Spring Boot (v3.5.10)**: Framework para a criação da API RESTful.
-* **Spring Security & JWT (Auth0)**: Implementação de autenticação e autorização seguras baseadas em tokens.
-* **Spring Data JPA**: Abstração para o acesso a dados e persistência.
-* **Lombok**: Redução de código boilerplate (getters, setters, construtores).
 
-### Banco de Dados e Infraestrutura
-* **PostgreSQL 15 (Alpine)**: Banco de dados relacional escolhido pela sua robustez e confiabilidade para armazenamento de dados estruturados sensíveis, como dados de usuário.
-* **< ainda não implementado >** **MongoDB**: Banco de dados NoSQL escolhido pela sua flexibilidade e eficiência no armazenamento de dados não estruturados, imutáveis/consolidados e/ou antigos, como treinos e relatórios de treinos consolidados, logs de aplicação, etc.
-* **Docker & Docker Compose**: Orquestração dos serviços (Frontend, Backend e Banco de Dados) para garantir que o ambiente de desenvolvimento seja o mesmo em qualquer máquina.
+- Java 21
+- Spring Boot 3.5.10
+- Spring Web
+- Spring Security
+- Spring Data JPA
+- Bean Validation
+- JWT com `java-jwt`
+- PostgreSQL Driver
+- Testcontainers com PostgreSQL para testes
 
-## 🏗️ Estrutura do Projeto
+### Infraestrutura
 
-A infraestrutura foi configurada para rodar simultaneamente através do Docker Compose, garantindo a comunicação entre os microsserviços por meio da rede `gym-network`.
+- Docker
+- Docker Compose
+- PostgreSQL 15 Alpine
+- Nginx Alpine para servir o frontend em producao e fazer proxy de `/api` para o backend
 
-O mapeamento de portas padrão, em ambiente de desenvolvimento, é:
-* **Frontend**: `http://localhost:5173`.
-* **Backend (API)**: `http://localhost:8080`.
-* **PostgreSQL**: Porta `5432`.
+MongoDB nao faz parte do MVP `v0.1.0`. Se necessario, pode ser avaliado futuramente para casos especificos, mas o produto atual funciona apenas com PostgreSQL.
 
-Em desenvolvimento, use:
+## Estrutura
+
+```text
+.
+├── backend/                 # API Spring Boot
+│   ├── src/
+│   ├── sql/database/         # scripts SQL estruturais e mocks de dev
+│   └── Dockerfile
+├── frontend/                # SPA React/Vite
+│   ├── src/
+│   ├── nginx.conf
+│   └── Dockerfile
+├── docker-compose.dev.yml
+├── docker-compose.prod.yml
+├── .env.dev.example
+└── .env.prod.example
+```
+
+## Variaveis de Ambiente
+
+Os arquivos reais `.env.dev` e `.env.prod` nao devem ser versionados. Use os exemplos como base:
 
 ```bash
+cp .env.dev.example .env.dev
+cp .env.prod.example .env.prod
+```
+
+Principais variaveis:
+
+| Variavel | Uso |
+| --- | --- |
+| `COMPOSE_PROJECT_NAME` | Nome do projeto Docker Compose. |
+| `POSTGRES_DB` | Nome do banco PostgreSQL. |
+| `POSTGRES_USER` | Usuario do banco. |
+| `POSTGRES_PASSWORD` | Senha do banco. Troque em producao. |
+| `POSTGRES_PORT` | Porta publicada do PostgreSQL no compose de desenvolvimento. |
+| `BACKEND_PORT` | Porta publicada da API no compose de desenvolvimento. |
+| `FRONTEND_PORT` | Porta publicada do frontend. |
+| `SPRING_DATASOURCE_URL` | JDBC URL usada pelo backend. |
+| `SPRING_DATASOURCE_USERNAME` | Usuario usado pelo backend para acessar o banco. |
+| `SPRING_DATASOURCE_PASSWORD` | Senha usada pelo backend para acessar o banco. Troque em producao. |
+| `SPRING_PROFILES_ACTIVE` | Profile Spring (`dev`, `prod` ou `test`). |
+| `SPRING_JPA_HIBERNATE_DDL_AUTO` | Validacao/estrategia de schema do Hibernate. O projeto usa `validate`. |
+| `SPRING_JPA_SHOW_SQL` | Exibe SQL em log. Recomendado `false` em producao. |
+| `API_SECURITY_TOKEN_SECRET` | Segredo de assinatura JWT. Troque em producao. |
+| `CORS_ALLOWED_ORIGINS` | Origem permitida para o frontend em chamadas CORS. |
+| `AUTH_COOKIE_NAME` | Nome do cookie de autenticacao. |
+| `AUTH_COOKIE_SECURE` | Define `Secure` no cookie de autenticacao. Use `true` em HTTPS/producao. |
+| `AUTH_COOKIE_SAME_SITE` | Politica `SameSite` do cookie de autenticacao. |
+| `AUTH_COOKIE_MAX_AGE_SECONDS` | Duracao do cookie de autenticacao. |
+| `CSRF_COOKIE_SECURE` | Define `Secure` no cookie CSRF. Use `true` em HTTPS/producao. |
+| `CSRF_COOKIE_SAME_SITE` | Politica `SameSite` do cookie CSRF. |
+| `VITE_API_URL` | URL base usada pelo frontend para chamar a API. Em producao local, use `/api`. |
+
+Nao use os valores dos exemplos como secrets de producao.
+
+## Executando do Zero com Docker
+
+Requisitos:
+
+- Docker
+- Docker Compose v2
+
+### Desenvolvimento
+
+O compose de desenvolvimento sobe PostgreSQL, backend e frontend com volumes locais e suporte a atualizacao durante o desenvolvimento.
+
+```bash
+cp .env.dev.example .env.dev
 docker compose --env-file .env.dev -f docker-compose.dev.yml up --build --watch
 ```
 
-Em produção local, use:
+Servicos publicados por padrao:
+
+- Frontend: `http://localhost:5173`
+- Backend: `http://localhost:8080`
+- PostgreSQL: `localhost:5432`
+
+O ambiente de desenvolvimento inicializa o schema estrutural e tambem carrega dados de mock a partir de `backend/sql/database/mock/db_0.0.1.sql`. O profile `dev` tambem permite seed de usuarios de demonstracao para desenvolvimento local.
+
+### Producao Local
+
+O compose de producao constroi imagens otimizadas, publica apenas o frontend/Nginx e mantem backend e banco acessiveis dentro da rede Docker.
+
+Antes de subir, edite `.env.prod` e troque todos os valores sensiveis.
 
 ```bash
+cp .env.prod.example .env.prod
 docker compose --env-file .env.prod -f docker-compose.prod.yml up --build -d
 ```
 
-Os arquivos `.env.dev.example` e `.env.prod.example` servem como base para criar os arquivos locais `.env.dev` e `.env.prod`. Em produção, apenas o frontend/Nginx é publicado no host; banco e backend ficam acessíveis apenas dentro da rede Docker.
+Servico publicado por padrao:
+
+- Aplicacao: `http://localhost`
+
+Em producao, o frontend chama a API por `/api`, e o Nginx faz proxy para `app-backend:8080`.
+
+### Reiniciar Banco Local do Zero
+
+Os scripts em `docker-entrypoint-initdb.d` rodam apenas quando o volume do PostgreSQL e criado. Para recriar o banco local de desenvolvimento:
+
+```bash
+docker compose --env-file .env.dev -f docker-compose.dev.yml down -v
+docker compose --env-file .env.dev -f docker-compose.dev.yml up --build --watch
+```
+
+Use esse comando com cuidado: ele remove o volume local do PostgreSQL do compose de desenvolvimento.
+
+## Banco, Migrations e Seed Estrutural
+
+A estrategia atual do MVP usa scripts SQL versionados em `backend/sql/database`.
+
+- `backend/sql/database/db_0.0.1.sql`: schema estrutural usado por dev, prod e testes.
+- `backend/sql/database/mock/db_0.0.1.sql`: dados de demonstracao carregados apenas no compose de desenvolvimento.
+- `backend/sql/database/db_0.0.1.sql` cria a unidade minima obrigatoria `kg` com ID deterministico.
+- `BasicDataLoader` cria roles estruturais obrigatorias (`ADMIN`, `USER`, `MANAGER`) de forma idempotente.
+- `DemoDataLoader` cria usuarios de demonstracao apenas nos profiles `dev` e `test`.
+
+O Hibernate roda com `ddl-auto=validate`, portanto o schema precisa existir antes da aplicacao iniciar.
+
+## Testes e Validacao
+
+### Backend
+
+Os testes do backend usam Testcontainers com PostgreSQL, sem depender de um PostgreSQL instalado manualmente na maquina.
+
+```bash
+cd backend
+./mvnw test
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm run lint
+npm run build
+```
+
+## Desenvolvimento Local sem Compose
+
+O caminho recomendado e Docker Compose. Para rodar fora do Compose, e necessario prover manualmente um PostgreSQL com o schema de `backend/sql/database/db_0.0.1.sql` e configurar as variaveis equivalentes ao `.env.dev`.
+
+Backend:
+
+```bash
+cd backend
+./mvnw spring-boot:run
+```
+
+Frontend:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+## Notas da Release v0.1.0
+
+Esta release esta preparada para o MVP funcional do Gym Tracker. O escopo nao inclui graficos, rotinas/templates reutilizaveis, IA, social, relatorios avancados, MongoDB ou integracoes externas.
