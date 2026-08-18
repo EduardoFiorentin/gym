@@ -1,6 +1,7 @@
 package gym.backend.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -63,7 +64,7 @@ class TreinamentoControllerSerieCreateValidationTest {
     void aceitaMagnitudeZero() throws Exception {
         Fixture fixture = createFixture(AUTHENTICATED_LOGIN);
 
-        mockMvc.perform(post("/treinamentos/{treinamentoId}/series", fixture.treinamento().getId())
+        mockMvc.perform(post("/treinamentos/{treinamentoId}/series", fixture.treinamento().getId()).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(validPayload(fixture.exercicio().getId(), "0")))
             .andExpect(status().isCreated())
@@ -81,7 +82,7 @@ class TreinamentoControllerSerieCreateValidationTest {
     void aceitaMagnitudePositiva() throws Exception {
         Fixture fixture = createFixture(AUTHENTICATED_LOGIN);
 
-        mockMvc.perform(post("/treinamentos/{treinamentoId}/series", fixture.treinamento().getId())
+        mockMvc.perform(post("/treinamentos/{treinamentoId}/series", fixture.treinamento().getId()).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(validPayload(fixture.exercicio().getId(), "12.50")))
             .andExpect(status().isCreated())
@@ -94,7 +95,7 @@ class TreinamentoControllerSerieCreateValidationTest {
     void rejeitaMagnitudeNegativa() throws Exception {
         Fixture fixture = createFixture(AUTHENTICATED_LOGIN);
 
-        mockMvc.perform(post("/treinamentos/{treinamentoId}/series", fixture.treinamento().getId())
+        mockMvc.perform(post("/treinamentos/{treinamentoId}/series", fixture.treinamento().getId()).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(validPayload(fixture.exercicio().getId(), "-1")))
             .andExpect(status().isBadRequest())
@@ -106,7 +107,7 @@ class TreinamentoControllerSerieCreateValidationTest {
     void rejeitaMagnitudeVazia() throws Exception {
         Fixture fixture = createFixture(AUTHENTICATED_LOGIN);
 
-        mockMvc.perform(post("/treinamentos/{treinamentoId}/series", fixture.treinamento().getId())
+        mockMvc.perform(post("/treinamentos/{treinamentoId}/series", fixture.treinamento().getId()).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                     {
@@ -123,7 +124,7 @@ class TreinamentoControllerSerieCreateValidationTest {
     void rejeitaMagnitudeNaN() throws Exception {
         Fixture fixture = createFixture(AUTHENTICATED_LOGIN);
 
-        mockMvc.perform(post("/treinamentos/{treinamentoId}/series", fixture.treinamento().getId())
+        mockMvc.perform(post("/treinamentos/{treinamentoId}/series", fixture.treinamento().getId()).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                     {

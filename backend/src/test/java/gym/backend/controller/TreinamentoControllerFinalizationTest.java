@@ -1,6 +1,7 @@
 package gym.backend.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -67,7 +68,7 @@ class TreinamentoControllerFinalizationTest {
     void finalizaTreinamentoAtivo() throws Exception {
         Fixture fixture = createFixture(AUTHENTICATED_LOGIN, false);
 
-        mockMvc.perform(put("/treinamentos/{treinamentoId}/finish", fixture.treinamento().getId()))
+        mockMvc.perform(put("/treinamentos/{treinamentoId}/finish", fixture.treinamento().getId()).with(csrf()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(fixture.treinamento().getId().toString()))
             .andExpect(jsonPath("$.finishedAt").isNotEmpty());
@@ -82,7 +83,7 @@ class TreinamentoControllerFinalizationTest {
         Fixture fixture = createFixture(AUTHENTICATED_LOGIN, true);
         Instant finishedAt = fixture.treinamento().getFinishedAt();
 
-        mockMvc.perform(put("/treinamentos/{treinamentoId}/finish", fixture.treinamento().getId()))
+        mockMvc.perform(put("/treinamentos/{treinamentoId}/finish", fixture.treinamento().getId()).with(csrf()))
             .andExpect(status().isUnprocessableEntity())
             .andExpect(jsonPath("$.message").value("Treinamento ja esta finalizado."));
 
@@ -95,7 +96,7 @@ class TreinamentoControllerFinalizationTest {
     void outroUsuarioNaoFinalizaTreinamento() throws Exception {
         Fixture otherUserFixture = createFixture("training-finalizer-other", false);
 
-        mockMvc.perform(put("/treinamentos/{treinamentoId}/finish", otherUserFixture.treinamento().getId()))
+        mockMvc.perform(put("/treinamentos/{treinamentoId}/finish", otherUserFixture.treinamento().getId()).with(csrf()))
             .andExpect(status().isNotFound());
 
         Treinamento treinamento = treinamentoRepository.findById(otherUserFixture.treinamento().getId()).orElseThrow();
@@ -107,7 +108,7 @@ class TreinamentoControllerFinalizationTest {
     void bloqueiaAdicionarSerieDepoisDeFinalizado() throws Exception {
         Fixture fixture = createFixture(AUTHENTICATED_LOGIN, true);
 
-        mockMvc.perform(post("/treinamentos/{treinamentoId}/series", fixture.treinamento().getId())
+        mockMvc.perform(post("/treinamentos/{treinamentoId}/series", fixture.treinamento().getId()).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                     {
@@ -130,7 +131,7 @@ class TreinamentoControllerFinalizationTest {
     void bloqueiaEditarSerieDepoisDeFinalizado() throws Exception {
         Fixture fixture = createFixture(AUTHENTICATED_LOGIN, true);
 
-        mockMvc.perform(put("/treinamentos/{treinamentoId}/series/{serieId}", fixture.treinamento().getId(), fixture.serie().getId())
+        mockMvc.perform(put("/treinamentos/{treinamentoId}/series/{serieId}", fixture.treinamento().getId(), fixture.serie().getId()).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"magnitude\":25.00,\"execucoes\":12}"))
             .andExpect(status().isUnprocessableEntity())
@@ -146,7 +147,7 @@ class TreinamentoControllerFinalizationTest {
     void bloqueiaRemoverSerieDepoisDeFinalizado() throws Exception {
         Fixture fixture = createFixture(AUTHENTICATED_LOGIN, true);
 
-        mockMvc.perform(delete("/treinamentos/{treinamentoId}/series/{serieId}", fixture.treinamento().getId(), fixture.serie().getId()))
+        mockMvc.perform(delete("/treinamentos/{treinamentoId}/series/{serieId}", fixture.treinamento().getId(), fixture.serie().getId()).with(csrf()))
             .andExpect(status().isUnprocessableEntity())
             .andExpect(jsonPath("$.message").value("Nao e possivel remover series em um treinamento finalizado."));
 

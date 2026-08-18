@@ -10,6 +10,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,9 +21,11 @@ import gym.backend.controller.dto.AuthenticationDTO;
 import gym.backend.controller.dto.LoginResponseDTO;
 import gym.backend.controller.dto.RegisterRequestDTO;
 import gym.backend.controller.dto.UserResponseDTO;
+import gym.backend.config.CookiePolicy;
 import gym.backend.services.AuthenticationService;
 import gym.backend.services.LoginResult;
 import gym.backend.services.SubscribeService;
+import jakarta.annotation.PostConstruct;
 import jakarta.validation.Valid;
 
 
@@ -47,6 +50,17 @@ public class AuthenticationController {
 
     @Value("${auth.cookie.max-age-seconds:7200}")
     private long authCookieMaxAgeSeconds;
+
+    @PostConstruct
+    void validateCookiePolicy() {
+        CookiePolicy.validateSecureSameSite(authCookieName, authCookieSecure, authCookieSameSite);
+    }
+
+    @GetMapping("/csrf")
+    public ResponseEntity<Void> csrf(CsrfToken csrfToken) {
+        csrfToken.getToken();
+        return ResponseEntity.noContent().build();
+    }
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@RequestBody AuthenticationDTO data){
@@ -86,7 +100,7 @@ public class AuthenticationController {
         return ResponseCookie.from(authCookieName, token)
             .httpOnly(true)
             .secure(authCookieSecure)
-            .sameSite(authCookieSameSite)
+            .sameSite(CookiePolicy.normalizeSameSite(authCookieSameSite))
             .path("/")
             .maxAge(Duration.ofSeconds(maxAgeSeconds))
             .build();

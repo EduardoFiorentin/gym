@@ -38,6 +38,8 @@ services:
       AUTH_COOKIE_SECURE: ${AUTH_COOKIE_SECURE:-false}
       AUTH_COOKIE_SAME_SITE: ${AUTH_COOKIE_SAME_SITE:-Lax}
       AUTH_COOKIE_MAX_AGE_SECONDS: ${AUTH_COOKIE_MAX_AGE_SECONDS:-7200}
+      CSRF_COOKIE_SECURE: ${CSRF_COOKIE_SECURE:-false}
+      CSRF_COOKIE_SAME_SITE: ${CSRF_COOKIE_SAME_SITE:-Lax}
       SPRING_DEVTOOLS_RESTART_ENABLED: "true"
     command: ["./mvnw", "spring-boot:run", "-Dspring-boot.run.fork=true"]
     ports:

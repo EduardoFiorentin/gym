@@ -1,5 +1,6 @@
 package gym.backend.controller;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -64,7 +65,7 @@ class TreinamentoControllerSerieUpdateTest {
     void editaSerieValida() throws Exception {
         Fixture fixture = createFixture(AUTHENTICATED_LOGIN, false);
 
-        mockMvc.perform(put("/treinamentos/{treinamentoId}/series/{serieId}", fixture.treinamento().getId(), fixture.serie().getId())
+        mockMvc.perform(put("/treinamentos/{treinamentoId}/series/{serieId}", fixture.treinamento().getId(), fixture.serie().getId()).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"magnitude\":25.50,\"execucoes\":12}"))
             .andExpect(status().isOk())
@@ -80,7 +81,7 @@ class TreinamentoControllerSerieUpdateTest {
     void editaSerieComMagnitudeZero() throws Exception {
         Fixture fixture = createFixture(AUTHENTICATED_LOGIN, false);
 
-        mockMvc.perform(put("/treinamentos/{treinamentoId}/series/{serieId}", fixture.treinamento().getId(), fixture.serie().getId())
+        mockMvc.perform(put("/treinamentos/{treinamentoId}/series/{serieId}", fixture.treinamento().getId(), fixture.serie().getId()).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"magnitude\":0,\"execucoes\":12}"))
             .andExpect(status().isOk())
@@ -94,7 +95,7 @@ class TreinamentoControllerSerieUpdateTest {
     void retornaNotFoundParaSerieInexistente() throws Exception {
         Fixture fixture = createFixture(AUTHENTICATED_LOGIN, false);
 
-        mockMvc.perform(put("/treinamentos/{treinamentoId}/series/{serieId}", fixture.treinamento().getId(), UUID.randomUUID())
+        mockMvc.perform(put("/treinamentos/{treinamentoId}/series/{serieId}", fixture.treinamento().getId(), UUID.randomUUID()).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"magnitude\":20.00,\"execucoes\":10}"))
             .andExpect(status().isNotFound());
@@ -105,7 +106,7 @@ class TreinamentoControllerSerieUpdateTest {
     void retornaNotFoundParaSerieDeOutroUsuario() throws Exception {
         Fixture otherUserFixture = createFixture("serie-other-user", false);
 
-        mockMvc.perform(put("/treinamentos/{treinamentoId}/series/{serieId}", otherUserFixture.treinamento().getId(), otherUserFixture.serie().getId())
+        mockMvc.perform(put("/treinamentos/{treinamentoId}/series/{serieId}", otherUserFixture.treinamento().getId(), otherUserFixture.serie().getId()).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"magnitude\":20.00,\"execucoes\":10}"))
             .andExpect(status().isNotFound());
@@ -116,7 +117,7 @@ class TreinamentoControllerSerieUpdateTest {
     void bloqueiaEdicaoQuandoTreinamentoEstaFinalizado() throws Exception {
         Fixture fixture = createFixture(AUTHENTICATED_LOGIN, true);
 
-        mockMvc.perform(put("/treinamentos/{treinamentoId}/series/{serieId}", fixture.treinamento().getId(), fixture.serie().getId())
+        mockMvc.perform(put("/treinamentos/{treinamentoId}/series/{serieId}", fixture.treinamento().getId(), fixture.serie().getId()).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"magnitude\":20.00,\"execucoes\":10}"))
             .andExpect(status().isUnprocessableEntity());
@@ -127,7 +128,7 @@ class TreinamentoControllerSerieUpdateTest {
     void rejeitaMagnitudeInvalida() throws Exception {
         Fixture fixture = createFixture(AUTHENTICATED_LOGIN, false);
 
-        mockMvc.perform(put("/treinamentos/{treinamentoId}/series/{serieId}", fixture.treinamento().getId(), fixture.serie().getId())
+        mockMvc.perform(put("/treinamentos/{treinamentoId}/series/{serieId}", fixture.treinamento().getId(), fixture.serie().getId()).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"magnitude\":-1.00,\"execucoes\":10}"))
             .andExpect(status().isBadRequest())
@@ -139,7 +140,7 @@ class TreinamentoControllerSerieUpdateTest {
     void rejeitaMagnitudeVazia() throws Exception {
         Fixture fixture = createFixture(AUTHENTICATED_LOGIN, false);
 
-        mockMvc.perform(put("/treinamentos/{treinamentoId}/series/{serieId}", fixture.treinamento().getId(), fixture.serie().getId())
+        mockMvc.perform(put("/treinamentos/{treinamentoId}/series/{serieId}", fixture.treinamento().getId(), fixture.serie().getId()).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"magnitude\":\"\",\"execucoes\":10}"))
             .andExpect(status().isBadRequest());
@@ -150,7 +151,7 @@ class TreinamentoControllerSerieUpdateTest {
     void rejeitaMagnitudeNaN() throws Exception {
         Fixture fixture = createFixture(AUTHENTICATED_LOGIN, false);
 
-        mockMvc.perform(put("/treinamentos/{treinamentoId}/series/{serieId}", fixture.treinamento().getId(), fixture.serie().getId())
+        mockMvc.perform(put("/treinamentos/{treinamentoId}/series/{serieId}", fixture.treinamento().getId(), fixture.serie().getId()).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"magnitude\":NaN,\"execucoes\":10}"))
             .andExpect(status().isBadRequest());
@@ -161,7 +162,7 @@ class TreinamentoControllerSerieUpdateTest {
     void rejeitaExecucoesInvalidas() throws Exception {
         Fixture fixture = createFixture(AUTHENTICATED_LOGIN, false);
 
-        mockMvc.perform(put("/treinamentos/{treinamentoId}/series/{serieId}", fixture.treinamento().getId(), fixture.serie().getId())
+        mockMvc.perform(put("/treinamentos/{treinamentoId}/series/{serieId}", fixture.treinamento().getId(), fixture.serie().getId()).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"magnitude\":20.00,\"execucoes\":0}"))
             .andExpect(status().isBadRequest());

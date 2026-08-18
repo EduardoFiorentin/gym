@@ -1,3 +1,4 @@
+import axios from "axios";
 import { AuthConverter } from "../converters/auth.converter";
 import type { AuthModel } from "../models/AuthModel";
 import { ERROR_MESSAGES } from "../utils/constants/messages/error";
@@ -12,12 +13,16 @@ export const AuthClient = {
             const response = await api.post<AuthDTO>('/auth/login', credentials);
             return AuthConverter.toModel(response.data);
             
-        } catch (error: any) {
-            if (error.response && error.response.status === 403) {
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error) && error.response?.status === 401) {
                 throw new Error("Credenciais inválidas");
-            } else {
-                throw new Error(`Erro desconhecido ao efetuar login. ${ERROR_MESSAGES.PERSIST_PROBLEM}`);
             }
+
+            if (axios.isAxiosError(error) && error.response?.status === 403) {
+                throw new Error("Nao foi possivel validar a seguranca da requisicao. Atualize a pagina e tente novamente.");
+            }
+
+            throw new Error(`Erro desconhecido ao efetuar login. ${ERROR_MESSAGES.PERSIST_PROBLEM}`);
         }
     },
 
@@ -25,8 +30,8 @@ export const AuthClient = {
         try {
             const response = await api.get<AuthDTO>('/auth/me');
             return AuthConverter.toModel(response.data);
-        } catch (error: any) {
-            if (error.response && [401, 403].includes(error.response.status)) {
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error) && error.response?.status && [401, 403].includes(error.response.status)) {
                 return null;
             }
 
@@ -37,8 +42,8 @@ export const AuthClient = {
     logout: async (): Promise<void> => {
         try {
             await api.post('/auth/logout');
-        } catch (error: any) {
-            if (!error.response || ![401, 403].includes(error.response.status)) {
+        } catch (error: unknown) {
+            if (!axios.isAxiosError(error) || !error.response?.status || ![401, 403].includes(error.response.status)) {
                 throw error;
             }
         }

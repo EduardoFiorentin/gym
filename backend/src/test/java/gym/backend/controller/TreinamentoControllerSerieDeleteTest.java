@@ -1,6 +1,7 @@
 package gym.backend.controller;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -63,7 +64,7 @@ class TreinamentoControllerSerieDeleteTest {
     void removeSerieValida() throws Exception {
         Fixture fixture = createFixture(AUTHENTICATED_LOGIN, false);
 
-        mockMvc.perform(delete("/treinamentos/{treinamentoId}/series/{serieId}", fixture.treinamento().getId(), fixture.serie().getId()))
+        mockMvc.perform(delete("/treinamentos/{treinamentoId}/series/{serieId}", fixture.treinamento().getId(), fixture.serie().getId()).with(csrf()))
             .andExpect(status().isNoContent());
 
         assertFalse(serieRepository.existsById(fixture.serie().getId()));
@@ -74,7 +75,7 @@ class TreinamentoControllerSerieDeleteTest {
     void retornaNotFoundParaSerieInexistente() throws Exception {
         Fixture fixture = createFixture(AUTHENTICATED_LOGIN, false);
 
-        mockMvc.perform(delete("/treinamentos/{treinamentoId}/series/{serieId}", fixture.treinamento().getId(), UUID.randomUUID()))
+        mockMvc.perform(delete("/treinamentos/{treinamentoId}/series/{serieId}", fixture.treinamento().getId(), UUID.randomUUID()).with(csrf()))
             .andExpect(status().isNotFound());
     }
 
@@ -83,7 +84,7 @@ class TreinamentoControllerSerieDeleteTest {
     void retornaNotFoundParaSerieDeOutroUsuario() throws Exception {
         Fixture otherUserFixture = createFixture("serie-delete-other-user", false);
 
-        mockMvc.perform(delete("/treinamentos/{treinamentoId}/series/{serieId}", otherUserFixture.treinamento().getId(), otherUserFixture.serie().getId()))
+        mockMvc.perform(delete("/treinamentos/{treinamentoId}/series/{serieId}", otherUserFixture.treinamento().getId(), otherUserFixture.serie().getId()).with(csrf()))
             .andExpect(status().isNotFound());
     }
 
@@ -92,7 +93,7 @@ class TreinamentoControllerSerieDeleteTest {
     void bloqueiaRemocaoQuandoTreinamentoEstaFinalizado() throws Exception {
         Fixture fixture = createFixture(AUTHENTICATED_LOGIN, true);
 
-        mockMvc.perform(delete("/treinamentos/{treinamentoId}/series/{serieId}", fixture.treinamento().getId(), fixture.serie().getId()))
+        mockMvc.perform(delete("/treinamentos/{treinamentoId}/series/{serieId}", fixture.treinamento().getId(), fixture.serie().getId()).with(csrf()))
             .andExpect(status().isUnprocessableEntity());
     }
 
@@ -101,10 +102,10 @@ class TreinamentoControllerSerieDeleteTest {
     void retornaNotFoundParaSerieJaRemovida() throws Exception {
         Fixture fixture = createFixture(AUTHENTICATED_LOGIN, false);
 
-        mockMvc.perform(delete("/treinamentos/{treinamentoId}/series/{serieId}", fixture.treinamento().getId(), fixture.serie().getId()))
+        mockMvc.perform(delete("/treinamentos/{treinamentoId}/series/{serieId}", fixture.treinamento().getId(), fixture.serie().getId()).with(csrf()))
             .andExpect(status().isNoContent());
 
-        mockMvc.perform(delete("/treinamentos/{treinamentoId}/series/{serieId}", fixture.treinamento().getId(), fixture.serie().getId()))
+        mockMvc.perform(delete("/treinamentos/{treinamentoId}/series/{serieId}", fixture.treinamento().getId(), fixture.serie().getId()).with(csrf()))
             .andExpect(status().isNotFound());
     }
 

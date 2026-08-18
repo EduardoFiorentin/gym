@@ -17,6 +17,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -28,16 +30,33 @@ public class SecurityConfig {
     @Autowired
     SecurityFilter securityFilter;
 
+    @Autowired
+    RestAccessDeniedHandler restAccessDeniedHandler;
+
     @Value("${cors.allowed-origins:http://localhost:5173}")
     private String corsAllowedOrigins;
+
+    @Value("${csrf.cookie.secure:${auth.cookie.secure:false}}")
+    private boolean csrfCookieSecure;
+
+    @Value("${csrf.cookie.same-site:${auth.cookie.same-site:Lax}}")
+    private String csrfCookieSameSite;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .csrf(csrf -> csrf.disable())
+                // JWT fica em cookie HttpOnly; por isso toda chamada mutavel exige
+                // X-XSRF-TOKEN com o valor do cookie XSRF-TOKEN.
+                .csrf(csrf -> csrf
+                    .csrfTokenRepository(csrfTokenRepository())
+                    .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
+                )
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .exceptionHandling(exception -> exception.accessDeniedHandler(restAccessDeniedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
+                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/auth/csrf").permitAll()
                     .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                     .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
                     .requestMatchers(HttpMethod.POST, "/auth/logout").permitAll()
@@ -57,6 +76,21 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    @Bean
+    public CookieCsrfTokenRepository csrfTokenRepository() {
+        String sameSite = CookiePolicy.normalizeSameSite(csrfCookieSameSite);
+        CookiePolicy.validateSecureSameSite("XSRF-TOKEN", csrfCookieSecure, sameSite);
+
+        CookieCsrfTokenRepository repository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+        repository.setCookieName("XSRF-TOKEN");
+        repository.setHeaderName("X-XSRF-TOKEN");
+        repository.setCookiePath("/");
+        repository.setCookieCustomizer(cookie -> cookie
+            .secure(csrfCookieSecure)
+            .sameSite(sameSite)
+        );
+        return repository;
+    }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -66,7 +100,7 @@ public class SecurityConfig {
             .filter(origin -> !origin.isBlank())
             .toList());
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowedHeaders(List.of("Content-Type", "X-XSRF-TOKEN"));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

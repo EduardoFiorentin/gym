@@ -1,5 +1,6 @@
 package gym.backend.controller;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -50,7 +51,7 @@ class TreinamentoControllerHistoryFilterTest {
         Instant startedAt = Instant.now().minusSeconds(3600);
         Treinamento treinamento = createTreinamento(treino, startedAt);
 
-        mockMvc.perform(post("/treinos/history")
+        mockMvc.perform(post("/treinos/history").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"startFrom\":\"" + startedAt.minusSeconds(60) + "\"}"))
             .andExpect(status().isOk())
@@ -63,7 +64,7 @@ class TreinamentoControllerHistoryFilterTest {
     @Test
     @WithMockUser(username = AUTHENTICATED_LOGIN)
     void rejeitaStartFromAusente() throws Exception {
-        mockMvc.perform(post("/treinos/history")
+        mockMvc.perform(post("/treinos/history").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{}"))
             .andExpect(status().isBadRequest())
@@ -74,7 +75,7 @@ class TreinamentoControllerHistoryFilterTest {
     @Test
     @WithMockUser(username = AUTHENTICATED_LOGIN)
     void rejeitaStartFromFuturo() throws Exception {
-        mockMvc.perform(post("/treinos/history")
+        mockMvc.perform(post("/treinos/history").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"startFrom\":\"" + Instant.now().plusSeconds(300) + "\"}"))
             .andExpect(status().isBadRequest())
@@ -85,7 +86,7 @@ class TreinamentoControllerHistoryFilterTest {
     @Test
     @WithMockUser(username = AUTHENTICATED_LOGIN)
     void rejeitaPayloadAusente() throws Exception {
-        mockMvc.perform(post("/treinos/history")
+        mockMvc.perform(post("/treinos/history").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.message").value("Payload da requisicao invalido ou ausente."))
