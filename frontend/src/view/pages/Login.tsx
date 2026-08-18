@@ -1,17 +1,41 @@
 import { Box, Button, Field, Fieldset, Flex, Input, Text } from "@chakra-ui/react"
 import { useAuth } from "../../hooks/useAuth";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import type { LoginCredentialsModel } from "../../models/LoginCredentials.model";
 import { FiArrowRight } from "react-icons/fi";
+
+const getRedirectPath = (state: unknown): string => {
+    if (typeof state !== "object" || state === null || !("from" in state)) return "/";
+
+    const from = (state as { from?: unknown }).from;
+    if (typeof from !== "object" || from === null) return "/";
+
+    const fromLocation = from as Record<string, unknown>;
+    const pathname = typeof fromLocation.pathname === "string" && fromLocation.pathname.startsWith("/")
+        ? fromLocation.pathname
+        : "/";
+    const search = typeof fromLocation.search === "string" ? fromLocation.search : "";
+    const hash = typeof fromLocation.hash === "string" ? fromLocation.hash : "";
+
+    return `${pathname}${search}${hash}`;
+}
 
 const Login = () => {
     const [user, setUser] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const navigate = useNavigate();
+    const location = useLocation();
+    const redirectPath = getRedirectPath(location.state);
     
-    const { login, isLoggingIn, loginError } = useAuth();
+    const { login, isLoggingIn, loginError, userInfo, isInitializing } = useAuth();
+
+    useEffect(() => {
+        if (!isInitializing && userInfo) {
+            navigate(redirectPath, { replace: true });
+        }
+    }, [isInitializing, navigate, redirectPath, userInfo]);
     
     const handleLogin = async (event?: FormEvent<HTMLDivElement>) => {
         event?.preventDefault();
@@ -24,7 +48,7 @@ const Login = () => {
         
         try {
             await login(credentials);
-            navigate("/", { replace: true });
+            navigate(redirectPath, { replace: true });
         } catch (error) {
             console.error("Erro no login:", error);
         }

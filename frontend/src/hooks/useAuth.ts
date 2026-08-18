@@ -10,7 +10,7 @@ export const useAuth = () => {
     const queryClient = useQueryClient();
     const authQueryKey = STORAGE_KEYS.AUTH_CACHE_KEY;
 
-    const { data: userInfo, isLoading: isInitializing } = useQuery<AuthModel | null>({
+    const { data: userInfo, isLoading: isInitializing, error: authError, refetch: refetchUserInfo } = useQuery<AuthModel | null>({
         queryKey: authQueryKey,
         queryFn: AuthClient.me,
         retry: false,
@@ -39,6 +39,8 @@ export const useAuth = () => {
         login: loginMutation.mutateAsync, 
         isLoggingIn: loginMutation.isPending,
         loginError: loginMutation.error,
+        authError,
+        refetchUserInfo,
         logout
     };
 };

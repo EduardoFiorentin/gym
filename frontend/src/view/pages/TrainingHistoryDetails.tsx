@@ -1,8 +1,7 @@
 import { Box, Button, Flex, SimpleGrid, Text } from "@chakra-ui/react";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { FiArrowLeft, FiClock, FiList, FiRefreshCw } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router";
-import { useAuth } from "../../hooks/useAuth";
 import { useTreinamentoDetails } from "../../hooks/useTreinamentoDetails";
 import type { ExercicioModel } from "../../models/Exercicio.model";
 import type { SerieDetailsModel } from "../../models/SerieDetails.model";
@@ -20,15 +19,8 @@ const getSeriesForExercicio = (series: SerieDetailsModel[], exercicioId: string)
 const TrainingHistoryDetails = () => {
     const navigate = useNavigate();
     const { treinamentoId } = useParams<{ treinamentoId: string }>();
-    const { userInfo, isInitializing: isAuthInitializing } = useAuth();
-    const detailsQuery = useTreinamentoDetails(treinamentoId, Boolean(userInfo && treinamentoId));
+    const detailsQuery = useTreinamentoDetails(treinamentoId, Boolean(treinamentoId));
     const treinamento = detailsQuery.treinamentoDetails;
-
-    useEffect(() => {
-        if (!isAuthInitializing && userInfo === null) {
-            navigate("/login", { replace: true });
-        }
-    }, [isAuthInitializing, navigate, userInfo]);
 
     const exercicioById = useMemo(() => {
         const exercicios = new Map<string, ExercicioModel>();
@@ -50,7 +42,7 @@ const TrainingHistoryDetails = () => {
     }
 
     const renderState = () => {
-        if (isAuthInitializing || detailsQuery.isLoading) {
+        if (detailsQuery.isLoading) {
             return (
                 <Box bg={"white"} border={"1px solid"} borderColor={"#dde6f0"} borderRadius={"8px"} p={{ base: "16px", md: "20px" }}>
                     <Text color={"#627d98"} fontWeight={"700"}>Carregando treinamento...</Text>

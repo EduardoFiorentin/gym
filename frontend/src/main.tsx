@@ -5,26 +5,32 @@ import Login from "./view/pages/Login";
 import Home from "./view/pages/Home";
 import Training from "./view/pages/Training";
 import TrainingHistoryDetails from "./view/pages/TrainingHistoryDetails";
+import ProtectedRoute from "./view/routes/ProtectedRoute";
 import { Provider } from "./view/components/ui/provider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TIME_CONSTANTS_MILLIS } from "./utils/constants/time/constants";
 
 const router = createBrowserRouter([
   {
-    path: "/",
-    element: <Home/>,
-  },
-  {
     path: "/login",
     element: <Login/>,
   },
   {
-    path: "/training",
-    element: <Training/>,
-  },
-  {
-    path: "/history/:treinamentoId",
-    element: <TrainingHistoryDetails/>,
+    element: <ProtectedRoute/>,
+    children: [
+      {
+        path: "/",
+        element: <Home/>,
+      },
+      {
+        path: "/training",
+        element: <Training/>,
+      },
+      {
+        path: "/history/:treinamentoId",
+        element: <TrainingHistoryDetails/>,
+      }
+    ]
   }
 ]);
 

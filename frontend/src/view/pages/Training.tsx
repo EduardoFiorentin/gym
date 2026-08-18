@@ -12,7 +12,6 @@ import type { SerieModel } from "../../models/Serie.model";
 import { STORAGE_KEYS } from "../../utils/constants/storageKeys/storageKeys";
 import { formatToLocalDate } from "../../utils/functions/date/formatToLocalDate";
 import MainLayout from "../layouts/MainLayout";
-import { useAuth } from "../../hooks/useAuth";
 import { usePreviousExercisePerformance } from "../../hooks/usePreviousExercisePerformance";
 import { FiCheckCircle, FiEdit2, FiPlus, FiSave, FiTrash2, FiX } from "react-icons/fi";
 
@@ -60,7 +59,6 @@ const getMutationErrorMessage = (error: unknown, fallback: string): string => {
 const Training = () => {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
-    const { userInfo, isInitializing: isAuthInitializing } = useAuth();
     const [exercicioId, setExercicioId] = useState("");
     const [magnitude, setMagnitude] = useState("");
     const [execucoes, setExecucoes] = useState("");
@@ -74,7 +72,6 @@ const Training = () => {
     const currentTrainingQuery = useQuery({
         queryKey: STORAGE_KEYS.CURRENT_TREINAMENTO_CACHE_KEY,
         queryFn: TreinamentoClient.getCurrentTreinamento,
-        enabled: !!userInfo,
         retry: false
     });
 
@@ -86,16 +83,10 @@ const Training = () => {
     ], [currentTraining?.id]);
 
     useEffect(() => {
-        if (!isAuthInitializing && userInfo === null) {
-            navigate("/login", { replace: true });
-        }
-    }, [isAuthInitializing, navigate, userInfo]);
-
-    useEffect(() => {
-        if (!isAuthInitializing && userInfo && !currentTrainingQuery.isLoading && !currentTraining) {
+        if (!currentTrainingQuery.isLoading && currentTraining === null) {
             navigate("/", { replace: true });
         }
-    }, [currentTraining, currentTrainingQuery.isLoading, isAuthInitializing, navigate, userInfo]);
+    }, [currentTraining, currentTrainingQuery.isLoading, navigate]);
 
     const treinoQuery = useQuery({
         queryKey: [STORAGE_KEYS.TREINO_DETAILS_CACHE_KEY, currentTraining?.treinoId],
