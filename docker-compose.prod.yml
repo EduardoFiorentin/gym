@@ -20,6 +20,7 @@ services:
       - gym-network
 
   app-backend:
+    image: ${BACKEND_IMAGE_REPOSITORY:-eduardo0987/gym-backend}:${IMAGE_TAG:-v1.0.0}
     build:
       context: ./backend
       target: prod
@@ -48,6 +49,7 @@ services:
       - gym-network
 
   app-frontend:
+    image: ${FRONTEND_IMAGE_REPOSITORY:-eduardo0987/gym-frontend}:${IMAGE_TAG:-v1.0.0}
     build:
       context: ./frontend
       target: prod

@@ -113,6 +113,9 @@ Principais variaveis:
 | Variavel | Uso |
 | --- | --- |
 | `COMPOSE_PROJECT_NAME` | Nome do projeto Docker Compose. |
+| `IMAGE_TAG` | Tag das imagens Docker usadas pelo Compose. Padrao inicial: `v1.0.0`. |
+| `BACKEND_IMAGE_REPOSITORY` | Repositorio Docker da API. Padrao: `eduardo0987/gym-backend`. |
+| `FRONTEND_IMAGE_REPOSITORY` | Repositorio Docker do frontend. Padrao: `eduardo0987/gym-frontend`. |
 | `POSTGRES_DB` | Nome do banco PostgreSQL. |
 | `POSTGRES_USER` | Usuario do banco. |
 | `POSTGRES_PASSWORD` | Senha do banco. Troque em producao. |
@@ -177,6 +180,24 @@ Servico publicado por padrao:
 - Aplicacao: `http://localhost`
 
 Em producao, o frontend chama a API por `/api`, e o Nginx faz proxy para `app-backend:8080`.
+
+### Publicar Imagens Docker
+
+Os scripts abaixo geram e publicam uma nova tag nos repositorios configurados nos envs. Eles exigem a tag como parametro e nao executam sem ela.
+
+Formato esperado da tag: `vX.Y.Z`, por exemplo `v1.0.0`.
+
+```bash
+scripts/publish-backend-image.sh v1.0.0
+scripts/publish-frontend-image.sh v1.0.0
+```
+
+Por padrao, os repositorios sao:
+
+- Backend: `eduardo0987/gym-backend`
+- Frontend: `eduardo0987/gym-frontend`
+
+Para publicar em outro repositorio, ajuste `BACKEND_IMAGE_REPOSITORY` ou `FRONTEND_IMAGE_REPOSITORY` no `.env.prod`, ou execute com `ENV_FILE` apontando para outro arquivo compatível.
 
 ### Reiniciar Banco Local do Zero
 
