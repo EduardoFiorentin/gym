@@ -1,0 +1,23 @@
+name: CI
+
+on: 
+  push: 
+    branches: 
+      - main
+  
+  pull_request: 
+    branches: 
+      - main
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Test
+        run: echo "Rodando testes"
+
+      - name: Build
+        run: echo "Compilando projeto"
