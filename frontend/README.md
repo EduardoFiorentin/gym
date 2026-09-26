@@ -1,73 +1,44 @@
-# React + TypeScript + Vite
+# Frontend — Gym Tracker
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+SPA responsável pelos fluxos de autenticação, fichas, treino ativo e histórico. Ela usa React 19, TypeScript, Vite, Chakra UI, TanStack Query, Axios e React Router.
 
-Currently, two official plugins are available:
+## Comandos
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm ci
+npm run dev
+npm run lint
+npm run build
+npm run preview
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+O servidor de desenvolvimento padrão fica em `http://localhost:5173`.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Configuração da API
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+A URL base é lida de `VITE_API_URL`; se ela não for definida, a aplicação usa `http://localhost:8080`.
+
+```bash
+VITE_API_URL=http://localhost:8080 npm run dev
 ```
+
+No Docker Compose de desenvolvimento, esse valor é fornecido por `.env.dev`. A imagem de produção é compilada com `VITE_API_URL=/api`, para que o Nginx faça o proxy das chamadas ao backend.
+
+Variáveis com prefixo `REACT_APP_` não são expostas pelo Vite e não configuram esta aplicação.
+
+## Rotas
+
+| Rota | Finalidade |
+| --- | --- |
+| `/login` | Autenticação. |
+| `/` | Treino atual, fichas e histórico. |
+| `/training` | Registro e finalização do treino ativo. |
+| `/history/:treinamentoId` | Detalhes de um treino finalizado. |
+
+Com exceção de `/login`, as rotas verificam a sessão por meio de `GET /auth/me`.
+
+## Autenticação e CSRF
+
+O Axios usa `withCredentials`, portanto o JWT de autenticação permanece em cookie `HttpOnly`. Antes de `POST`, `PUT`, `PATCH` ou `DELETE`, o cliente garante a existência do cookie `XSRF-TOKEN` por `GET /auth/csrf` e o Axios o envia como header `X-XSRF-TOKEN`.
+
+Veja também [a documentação de segurança](../docs/security-cookie-csrf.md).
