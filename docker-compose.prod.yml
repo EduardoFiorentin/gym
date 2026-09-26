@@ -1,3 +1,5 @@
+# Executa apenas imagens prontas do hub
+
 name: ${COMPOSE_PROJECT_NAME:-gym-prod}
 
 services:
@@ -20,10 +22,7 @@ services:
       - gym-network
 
   app-backend:
-    image: ${BACKEND_IMAGE_REPOSITORY:-eduardo0987/gym-backend}:${IMAGE_TAG:-v1.0.0}
-    build:
-      context: ./backend
-      target: prod
+    image: ${BACKEND_IMAGE_REPOSITORY:-eduardo0987/gym-backend}:${IMAGE_TAG:-latest}
     environment:
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:postgresql://db:5432/gym}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-gym}
@@ -49,12 +48,7 @@ services:
       - gym-network
 
   app-frontend:
-    image: ${FRONTEND_IMAGE_REPOSITORY:-eduardo0987/gym-frontend}:${IMAGE_TAG:-v1.0.0}
-    build:
-      context: ./frontend
-      target: prod
-      args:
-        VITE_API_URL: ${VITE_API_URL:-/api}
+    image: ${FRONTEND_IMAGE_REPOSITORY:-eduardo0987/gym-frontend}:${IMAGE_TAG:-latest}
     ports:
       - "${FRONTEND_PORT:-80}:80"
     depends_on:
